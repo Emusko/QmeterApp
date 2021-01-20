@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">PayDayChallenge</string>
+    <string name="error_occured">Xəta baş verdi</string>
+    <string name="fill_email_or_password">Email və ya şifrə daxil edilməyib</string>
+    <string name="ok">Oldu</string>
+    <string name="date_format">%1$s %2$s</string>
+    <string name="cancel">İmtina et</string>
+    <string name="search">Axtar</string>
+    <string name="select_searched_month">Axtarış etmək istədiyiniz tarixi seçin</string>
+    <string name="income_format">Gəlir: %1$s</string>
+    <string name="outgoing_format">Xərc: %1$s</string>
+    <string name="password_too_small">Şifrəniz 6 simvoldan az olmamalıdır</string>
+    <string-array name="months">
+        <item>Yanvar</item>
+        <item>Fevral</item>
+        <item>Mart</item>
+        <item>Aprel</item>
+        <item>May</item>
+        <item>İyun</item>
+        <item>İyul</item>
+        <item>Avqust</item>
+        <item>Sentyabr</item>
+        <item>Oktyabr</item>
+        <item>Noyabr</item>
+        <item>Dekabr</item>
+    </string-array>
+    <string-array name="years">
+        <item>2019</item>
+        <item>2018</item>
+    </string-array>
+</resources>

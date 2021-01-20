@@ -13,7 +13,10 @@ from the deeplink, so I would create deeplinks.
 Filtering and attaching to the recyclerView (In the MonthlyExpenseActivity) has not been good as I thought
 I would make some difference to make it better for each filter command. 
 Sensitive data (base Url) stored on the build.gradle(:app) file, 
-but I would search and find the new best experiences for doing it
+but I would search and find the new best experiences for doing it. 
+In additionally, I would make many branches for the setting up, creating new features and other things like that
+for seperating the development phases. It is good for if there was a mistake between feature changes it will be easily detected.
+And branches all will be together at 'develop' branch before go to production.
 
 2. The Most useful feature is of course Dagger2 :) it is my friend in almost every class
 Injecting the provided classes and avoiding dependency gave me a good boost.

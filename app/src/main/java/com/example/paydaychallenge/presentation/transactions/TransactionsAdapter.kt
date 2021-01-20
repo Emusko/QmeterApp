@@ -67,8 +67,6 @@ class TransactionsAdapter(
 
     override fun getItemCount() = transactionList.size
 
-    fun getItems() = transactionList
-
     override fun onBindViewHolder(holder: FormAListViewHolder, position: Int) {
         holder.bind(transactionList[position], context)
     }

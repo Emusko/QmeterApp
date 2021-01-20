@@ -46,7 +46,6 @@ class MonthlyExpenseActivity : BaseActivity() {
         recyclerView.layoutManager = linearLayoutManager
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setListeners() {
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -76,7 +75,6 @@ class MonthlyExpenseActivity : BaseActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun openCustomDatePickingDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.select_searched_month)

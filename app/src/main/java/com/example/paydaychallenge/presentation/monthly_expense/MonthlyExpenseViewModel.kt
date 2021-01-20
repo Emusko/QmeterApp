@@ -32,7 +32,6 @@ class MonthlyExpenseViewModel @Inject constructor(
 
             }).addTo(subscriptions)
     }
-    @RequiresApi(Build.VERSION_CODES.O)
     fun getTransactions(year: Int, month: Int, transactions: ArrayList<GetTransactionResponseModel>): ArrayList<GetTransactionResponseModel> {
         val newList = arrayListOf<GetTransactionResponseModel>()
         transactions.forEach {

@@ -1,23 +1,14 @@
 package com.example.paydaychallenge.di.module
 
-import com.example.paydaychallenge.presentation.accounts.AccountListActivity
-import com.example.paydaychallenge.presentation.authentication.AuthenticateActivity
-import com.example.paydaychallenge.presentation.monthly_expense.MonthlyExpenseActivity
-import com.example.paydaychallenge.presentation.transactions.TransactionListActivity
+import com.example.paydaychallenge.presentation.main.MainActivity
+import com.example.paydaychallenge.presentation.auth.AuthenticateActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 @Module
 abstract class ActivityModule {
     @ContributesAndroidInjector(modules = [ViewModelModule::class])
-    abstract fun authenticateActivity(): AuthenticateActivity
-
+    abstract fun contributeMainActivity(): MainActivity
     @ContributesAndroidInjector(modules = [ViewModelModule::class])
-    abstract fun transactionListActivity(): TransactionListActivity
-
-    @ContributesAndroidInjector(modules = [ViewModelModule::class])
-    abstract fun accountListActivity(): AccountListActivity
-
-    @ContributesAndroidInjector(modules = [ViewModelModule::class])
-    abstract fun monthlyExpenseActivity(): MonthlyExpenseActivity
+    abstract fun contributeAuthenticateActivity(): AuthenticateActivity
 }

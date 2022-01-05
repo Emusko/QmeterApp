@@ -5,7 +5,6 @@ import com.example.paydaychallenge.di.base.BaseApplication
 import com.example.paydaychallenge.di.module.ActivityModule
 import com.example.paydaychallenge.di.module.BaseModule
 import com.example.paydaychallenge.di.module.NetworkModule
-import com.example.paydaychallenge.service.ApiServices
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector

@@ -13,17 +13,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".presentation.monthly_expense.MonthlyExpenseActivity"/>
-        <activity android:name=".presentation.accounts.AccountListActivity"/>
-        <activity android:name=".presentation.transactions.TransactionListActivity" />
-        <activity android:name=".presentation.main.MainActivity" />
-        <activity android:name=".presentation.authentication.AuthenticateActivity">
+        <activity
+            android:theme="@style/SplashTheme"
+            android:name="com.example.paydaychallenge.presentation.auth.AuthenticateActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:theme="@style/SplashTheme"
+            android:name=".presentation.main.MainActivity"/>
     </application>
 
 </manifest>

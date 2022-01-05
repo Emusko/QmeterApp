@@ -1,6 +1,6 @@
 package com.example.paydaychallenge.service.model.remote.request
 
 data class AuthenticateRequestModel(
-    val email: String,
+    val username: String,
     val password: String
 )

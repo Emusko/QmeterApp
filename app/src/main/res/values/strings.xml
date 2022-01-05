@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PayDayChallenge</string>
+    <string name="app_name">QmeterApp</string>
     <string name="error_occured">Xəta baş verdi</string>
     <string name="fill_email_or_password">Email və ya şifrə daxil edilməyib</string>
     <string name="ok">Oldu</string>

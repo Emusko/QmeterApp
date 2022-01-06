@@ -150,10 +150,10 @@ class MainActivity : BaseActivity() {
 
             it.rateOptions.forEach { rateOption ->
                 val view = LayoutInflater.from(this)
-                    .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+                    .inflate(R.layout.input_from_user_sli_font_view, linearLayout, false)
 
                 view.textView.apply {
-                    text = rateOption.label!![language] ?: ""
+                    text = "D"
                     setTextColor(rateOption.textColor.getColor())
                 }
 

@@ -39,6 +39,10 @@
         android:textSize="17sp" />
 
     <androidx.appcompat.widget.AppCompatEditText
+        android:inputType="text"
+        android:imeOptions="actionNext"
+        android:maxLines="1"
+        android:lines="1"
         android:id="@+id/usernameEdittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,6 +57,7 @@
         android:textSize="17sp" />
 
     <androidx.appcompat.widget.AppCompatEditText
+        android:lines="1"
         android:id="@+id/passwordEdittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

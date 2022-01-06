@@ -14,16 +14,17 @@ import com.example.qmeter.service.model.remote.response.AuthenticationResponseMo
 import com.example.qmeter.utils.getColor
 import com.example.qmeter.utils.makePages
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
 import javax.inject.Inject
 
 class MainActivity : BaseActivity() {
     @Inject
     lateinit var factory: ViewModelProviderFactory
 
-    private val viewModel: MainViewModel by viewModels{ factory }
+    private val viewModel: MainViewModel by viewModels { factory }
 
     private val responseModel by lazy { (intent.getSerializableExtra("pagesResponse") as? AuthenticationResponseModel) }
-    private val pages by lazy { responseModel?.pages?: arrayListOf() }
+    private val pages by lazy { responseModel?.pages ?: arrayListOf() }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -41,26 +42,26 @@ class MainActivity : BaseActivity() {
 
         viewModel.pageStateLiveData.observe(this, { t ->
             when {
-                t<0 -> {
+                t < 0 -> {
                     viewModel.pageStateLiveData.value = 0
                 }
-                t>pages.size -> {
-                    viewModel.pageStateLiveData.value = pages.size-1
+                t > pages.size -> {
+                    viewModel.pageStateLiveData.value = pages.size - 1
                 }
-                t<pages.size -> {
-                    if (pages[t].properties?.isBackButtonEnabled!!){
+                t < pages.size -> {
+                    if (pages[t].properties?.isBackButtonEnabled!!) {
                         binding.back.visibility =
                             View.VISIBLE
                     } else {
                         binding.back.visibility =
-                        View.GONE
+                            View.GONE
                     }
-                    if (pages[t].properties?.isNextButtonEnabled!!){
+                    if (pages[t].properties?.isNextButtonEnabled!!) {
                         binding.next.visibility =
                             View.VISIBLE
                     } else {
                         binding.next.visibility =
-                        View.GONE
+                            View.GONE
                     }
                     if (pages[t].properties?.isSubmitEnabled!!) {
                         binding.submit.visibility = View.VISIBLE
@@ -74,6 +75,9 @@ class MainActivity : BaseActivity() {
                             }
                             is AuthenticationResponseModel.SliData -> {
                                 populateSliView(pageComponent)
+                            }
+                            is AuthenticationResponseModel.CustomerData -> {
+                                populateCustomerView(pageComponent)
                             }
                         }
 
@@ -95,23 +99,39 @@ class MainActivity : BaseActivity() {
         viewModel.pageStateLiveData.value = 0
     }
 
+    private fun populateCustomerView(pageComponent: AuthenticationResponseModel.CustomerData) {
+        pageComponent.attrs.forEach {
+            if (it.type == "text") {
+                val view = LayoutInflater.from(this)
+                    .inflate(R.layout.input_from_user_view, binding.container, false)
+                    .apply {
+                        (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
+                    }
+                binding.container.addView(view)
+            }
+        }
+    }
+
     private fun getLanguageFromUser() {
 
     }
 
-    private fun populateCommentView(commentData: AuthenticationResponseModel.CommentData){
-        val view = LayoutInflater.from(this).inflate(R.layout.input_from_user_view, binding.container, false)
+    private fun populateCommentView(commentData: AuthenticationResponseModel.CommentData) {
+        val view = LayoutInflater.from(this)
+            .inflate(R.layout.input_from_user_view, binding.container, false)
 
-        (view as? TextInputLayout)?.hint = commentData.attrs?.placeholder!![language]?: ""
+        (view as? TextInputLayout)?.hint = commentData.attrs?.placeholder!![language] ?: ""
 
         binding.container.addView(view)
     }
-    private fun populateSliView(sliData: AuthenticationResponseModel.SliData){
 
-        val title = LayoutInflater.from(this).inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
-            (this as AppCompatTextView).text = sliData.componentTitle!![language]?: ""
-            this.setTextColor(sliData.componentTitleTextColor.getColor())
-            this.setBackgroundColor(sliData.componentTitleBgColor.getColor())
+    private fun populateSliView(sliData: AuthenticationResponseModel.SliData) {
+
+        val title = LayoutInflater.from(this)
+            .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
+            this.textView.text = sliData.componentTitle!![language] ?: ""
+            this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
+            this.textView.setBackgroundColor(sliData.componentTitleBgColor.getColor())
         }
 
 
@@ -121,11 +141,19 @@ class MainActivity : BaseActivity() {
             val linearLayout = LinearLayoutCompat(this)
             linearLayout.orientation = LinearLayoutCompat.HORIZONTAL
 
-            it.rateOptions.forEach { rateOption ->
-                val view = LayoutInflater.from(this).inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+            val serviceTitle = LayoutInflater.from(this)
+                .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+                .apply {
+                    this.textView.text = it.name!![language] ?: ""
+                    this.textView.setTextColor(it.textColor.getColor())
+                }
 
-                (view as AppCompatTextView).apply {
-                    text = rateOption.label!![language]?: ""
+            it.rateOptions.forEach { rateOption ->
+                val view = LayoutInflater.from(this)
+                    .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+
+                view.textView.apply {
+                    text = rateOption.label!![language] ?: ""
                     setTextColor(rateOption.textColor.getColor())
                 }
 
@@ -134,9 +162,9 @@ class MainActivity : BaseActivity() {
 
 
 
+            binding.container.addView(serviceTitle)
             binding.container.addView(linearLayout)
         }
-
 
 
     }

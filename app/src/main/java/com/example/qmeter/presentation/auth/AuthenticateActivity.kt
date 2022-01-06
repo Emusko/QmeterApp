@@ -30,8 +30,6 @@ class AuthenticateActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAuthenticateBinding.inflate(layoutInflater)
         val view = binding.root
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(view)
 

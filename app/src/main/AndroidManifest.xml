@@ -23,7 +23,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:theme="@style/SplashTheme"
             android:name="com.example.qmeter.presentation.main.MainActivity"/>
     </application>
 

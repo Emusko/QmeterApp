@@ -18,5 +18,5 @@ fun AuthenticationResponseModel.Page.makePages(): ArrayList<PageComponent?> {
 }
 
 fun ArrayList<Int>.getColor(): Int {
-    return Color.argb(this[0], this[1], this[2], this[3])
+    return Color.rgb(this[0], this[1], this[2])
 }

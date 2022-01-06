@@ -176,7 +176,7 @@ data class AuthenticationResponseModel(
     data class SliService(
 
         @SerializedName("id") val id: Int? = null,
-        @SerializedName("name") val name: Label? = Label(),
+        @SerializedName("name") val name: HashMap<String, String>? = hashMapOf(),
         @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("rate_bg_color") val rateBgColor: ArrayList<Int> = arrayListOf(),
@@ -190,7 +190,7 @@ data class AuthenticationResponseModel(
 
     data class Attrs(
         val name: String? = null,
-        val placeholder: Label? = Label(),
+        val placeholder: HashMap<String, String>? = hashMapOf(),
         val label: Label? = Label(),
         val position: Int? = null,
         val prefix: String? = null,

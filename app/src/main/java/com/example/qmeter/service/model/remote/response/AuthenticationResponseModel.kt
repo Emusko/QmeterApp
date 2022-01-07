@@ -20,7 +20,7 @@ data class AuthenticationResponseModel(
         @SerializedName("customer_data") val customerData: CustomerData? = null,
         @SerializedName("comment_data") val commentData: CommentData? = null,
         @SerializedName("sli_data") val sliData: SliData? = null,
-        @SerializedName("custom_field_feedback_component") val customFieldFeedbackComponent: ArrayList<Attrs>? = arrayListOf()
+        @SerializedName("custom_field_feedback_component") val customFieldFeedbackComponent: ArrayList<CustomFieldFeedbackComponent>? = arrayListOf()
     ) : Serializable
 
     data class Condition(
@@ -33,6 +33,25 @@ data class AuthenticationResponseModel(
         val neutral: ConditionOverallData? = ConditionOverallData(),
         val negative: ConditionOverallData? = ConditionOverallData()
     ) : Serializable
+
+    data class CustomFieldFeedbackComponent(
+        val name: String? = null,
+        val placeholder: HashMap<String, String>? = hashMapOf(),
+        val label: HashMap<String, String>? = hashMapOf(),
+        val position: Int? = null,
+        val prefix: String? = null,
+        val disable: Boolean? = null,
+        val is_prefix: Boolean? = null,
+        val type: String? = null,
+        val select: ArrayList<SelectOption>? = null,
+        val required: Boolean? = null,
+        val default: String? = null,
+        val is_show: Boolean? = null,
+        val select_design: SelectDesign? = null,
+        val label_text_color: ArrayList<Int>? = arrayListOf(),
+        val label_bg_color: ArrayList<Int>? = arrayListOf(),
+        val label_text_size: String? = null
+    )
 
     data class ConditionOverallData(
         @SerializedName("comment_data") val commentData: Boolean? = null,
@@ -191,7 +210,7 @@ data class AuthenticationResponseModel(
     data class Attrs(
         val name: String? = null,
         val placeholder: HashMap<String, String>? = hashMapOf(),
-        val label: Label? = Label(),
+        val label: HashMap<String, String>? = hashMapOf(),
         val position: Int? = null,
         val prefix: String? = null,
         val disable: Boolean? = null,
@@ -201,7 +220,10 @@ data class AuthenticationResponseModel(
         val required: Boolean? = null,
         val default: String? = null,
         val is_show: Boolean? = null,
-        val select_design: SelectDesign? = null
+        val select_design: SelectDesign? = null,
+        val label_text_color: ArrayList<Int>? = arrayListOf(),
+        val label_bg_color: ArrayList<Int>? = arrayListOf(),
+        val label_text_size: String? = null
     ) : Serializable
 
     data class SelectDesign(

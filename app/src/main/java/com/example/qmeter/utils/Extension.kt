@@ -20,3 +20,13 @@ fun AuthenticationResponseModel.Page.makePages(): ArrayList<PageComponent?> {
 fun ArrayList<Int>.getColor(): Int {
     return Color.rgb(this[0], this[1], this[2])
 }
+fun String.resolveIconFromAwesome(): String {
+    return when (this){
+        "excellent" -> "A"
+        "good" -> "B"
+        "neutral" -> "C"
+        "bad" -> "D"
+        "unacceptable" -> "E"
+        else -> ""
+    }
+}

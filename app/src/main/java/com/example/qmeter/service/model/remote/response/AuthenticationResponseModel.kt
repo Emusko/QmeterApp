@@ -51,7 +51,7 @@ data class AuthenticationResponseModel(
         val label_text_color: ArrayList<Int>? = arrayListOf(),
         val label_bg_color: ArrayList<Int>? = arrayListOf(),
         val label_text_size: String? = null
-    )
+    ): Serializable
 
     data class ConditionOverallData(
         @SerializedName("comment_data") val commentData: Boolean? = null,

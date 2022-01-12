@@ -1,11 +1,14 @@
 package com.example.qmeter.presentation.main
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.activity.viewModels
-import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.view.forEach
 import com.example.qmeter.R
 import com.example.qmeter.databinding.ActivityMainBinding
 import com.example.qmeter.di.base.BaseActivity
@@ -13,9 +16,19 @@ import com.example.qmeter.di.factory.ViewModelProviderFactory
 import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
 import com.example.qmeter.utils.getColor
 import com.example.qmeter.utils.makePages
+import com.example.qmeter.utils.resolveIconFromAwesome
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
+import kotlinx.android.synthetic.main.input_from_user_sli_view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
+import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
+import kotlinx.android.synthetic.main.select_dropdown_view.*
+import kotlinx.android.synthetic.main.select_dropdown_view.view.*
+import org.w3c.dom.Text
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+
 
 class MainActivity : BaseActivity() {
     @Inject
@@ -33,7 +46,13 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setPageView()
+
         setListener()
+    }
+
+    private fun setPageView() {
     }
 
     private fun setListener() {
@@ -100,14 +119,67 @@ class MainActivity : BaseActivity() {
     }
 
     private fun populateCustomerView(pageComponent: AuthenticationResponseModel.CustomerData) {
-        pageComponent.attrs.forEach {
-            if (it.type == "text") {
-                val view = LayoutInflater.from(this)
-                    .inflate(R.layout.input_from_user_view, binding.container, false)
-                    .apply {
-                        (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
-                    }
-                binding.container.addView(view)
+        val attrs = pageComponent.attrs
+
+        attrs.sortBy { it.position }
+        attrs.forEach {
+            when (it.type) {
+                "text" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.input_from_user_view, binding.container, false)
+                        .apply {
+                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
+                        }
+                    binding.container.addView(view)
+                }
+                "number" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.number_input_from_user_view, binding.container, false)
+                        .apply {
+                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
+
+                        }
+                    binding.container.addView(view)
+                }
+                "select" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.select_dropdown_view, binding.container, false)
+                        .apply {
+                            val spinnerArrayAdapter = ArrayAdapter(
+                                this@MainActivity, android.R.layout.simple_spinner_item,
+                                arrayListOf<String>().apply {
+                                    it.select?.forEach { selectOption ->
+                                        this.add(selectOption.id ?: "")
+                                    }
+                                }
+                            )
+
+                            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            this.spinner?.adapter = spinnerArrayAdapter
+                            this.selectTitle.text = it.placeholder!![language] ?: ""
+                        }
+                    binding.container.addView(view)
+                }
+                "multi-select" -> {
+                    val containerView = LinearLayoutCompat(this)
+                    val title = LayoutInflater.from(this@MainActivity)
+                        .inflate(R.layout.input_from_user_sli_view, containerView, false)
+                        .apply {
+                            this.textView.text = it.label!![language] ?: ""
+                            this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
+                        }
+                        .apply {
+                            it.select?.forEach { selectOption ->
+                                val checkBox = AppCompatCheckBox(this@MainActivity)
+                                    .apply {
+                                        this.text = selectOption.id
+                                    }
+                                containerView.addView(checkBox)
+                            }
+                        }
+                    binding.container.addView(title)
+                    binding.container.addView(containerView)
+                }
             }
         }
     }
@@ -129,10 +201,10 @@ class MainActivity : BaseActivity() {
 
         val title = LayoutInflater.from(this)
             .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
-            this.textView.text = sliData.componentTitle!![language] ?: ""
-            this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
-            this.textView.setBackgroundColor(sliData.componentTitleBgColor.getColor())
-        }
+                this.textView.text = sliData.componentTitle!![language] ?: ""
+                this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
+                this.textView.setBackgroundColor(sliData.componentTitleBgColor.getColor())
+            }
 
 
         binding.container.addView(title)
@@ -153,8 +225,17 @@ class MainActivity : BaseActivity() {
                     .inflate(R.layout.input_from_user_sli_font_view, linearLayout, false)
 
                 view.textView.apply {
-                    text = "D"
-                    setTextColor(rateOption.textColor.getColor())
+                    text = rateOption.name?.resolveIconFromAwesome()
+                    setTextColor(rateOption.rateIconColor.getColor())
+                    setBackgroundColor(rateOption.rateBgColor.getColor())
+                    setOnClickListener {
+                        linearLayout.forEach { child ->
+                            if (view != child) {
+                                child.textView.setTextColor(rateOption.rateIconColor.getColor())
+                            }
+                        }
+                        this.setTextColor(rateOption.rateSelectedColor.getColor())
+                    }
                 }
 
                 linearLayout.addView(view)

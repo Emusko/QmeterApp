@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:name="com.example.qmeter.presentation.main.MainActivity"/>
     </application>
 

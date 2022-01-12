@@ -133,6 +133,37 @@ class MainActivity : BaseActivity() {
                         }
                     binding.container.addView(view)
                 }
+                "date" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.date_input_from_user_view, binding.container, false)
+                        .apply {
+                            this.passwordEt.setOnClickListener {
+                                val newCalendar = Calendar.getInstance()
+                                DatePickerDialog(
+                                    this@MainActivity,
+                                    { view, year, monthOfYear, dayOfMonth ->
+                                        this.passwordEt.setText(
+                                            getString(
+                                                R.string.date_picker_format,
+                                                String.format(
+                                                    "%02d", dayOfMonth
+                                                ),
+                                                String.format(
+                                                    "%02d", (monthOfYear + 1)
+                                                ),
+                                                year.toString()
+                                            )
+                                        )
+                                    },
+                                    newCalendar[Calendar.YEAR],
+                                    newCalendar[Calendar.MONTH],
+                                    newCalendar[Calendar.DAY_OF_MONTH]
+                                ).show()
+                            }
+                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
+                        }
+                    binding.container.addView(view)
+                }
                 "number" -> {
                     val view = LayoutInflater.from(this)
                         .inflate(R.layout.number_input_from_user_view, binding.container, false)

@@ -1,7 +1,7 @@
 package com.example.qmeter.presentation.main
 
+import android.app.DatePickerDialog
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
@@ -22,12 +22,11 @@ import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
+import kotlinx.android.synthetic.main.input_from_user_view.view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
-import org.w3c.dom.Text
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 class MainActivity : BaseActivity() {
@@ -64,7 +63,7 @@ class MainActivity : BaseActivity() {
                 t < 0 -> {
                     viewModel.pageStateLiveData.value = 0
                 }
-                t > pages.size -> {
+                t >= pages.size -> {
                     viewModel.pageStateLiveData.value = pages.size - 1
                 }
                 t < pages.size -> {
@@ -98,6 +97,9 @@ class MainActivity : BaseActivity() {
                             is AuthenticationResponseModel.CustomerData -> {
                                 populateCustomerView(pageComponent)
                             }
+                            is AuthenticationResponseModel.CustomFieldFeedbackComponent -> {
+                                populateCustomFeedbackView(pageComponent)
+                            }
                         }
 
                     }
@@ -111,7 +113,6 @@ class MainActivity : BaseActivity() {
         }
         binding.back.setOnClickListener {
             binding.container.removeAllViews()
-
             viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.minus(1))
         }
 
@@ -138,6 +139,103 @@ class MainActivity : BaseActivity() {
                         .apply {
                             (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
 
+                        }
+                    binding.container.addView(view)
+                }
+                "select" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.select_dropdown_view, binding.container, false)
+                        .apply {
+                            val spinnerArrayAdapter = ArrayAdapter(
+                                this@MainActivity, android.R.layout.simple_spinner_item,
+                                arrayListOf<String>().apply {
+                                    it.select?.forEach { selectOption ->
+                                        this.add(selectOption.id ?: "")
+                                    }
+                                }
+                            )
+
+                            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            this.spinner?.adapter = spinnerArrayAdapter
+                            this.selectTitle.text = it.placeholder!![language] ?: ""
+                        }
+                    binding.container.addView(view)
+                }
+                "multi-select" -> {
+                    val containerView = LinearLayoutCompat(this)
+                    val title = LayoutInflater.from(this@MainActivity)
+                        .inflate(R.layout.input_from_user_sli_view, containerView, false)
+                        .apply {
+                            this.textView.text = it.label!![language] ?: ""
+                            this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
+                        }
+                        .apply {
+                            it.select?.forEach { selectOption ->
+                                val checkBox = AppCompatCheckBox(this@MainActivity)
+                                    .apply {
+                                        this.text = selectOption.id
+                                    }
+                                containerView.addView(checkBox)
+                            }
+                        }
+                    binding.container.addView(title)
+                    binding.container.addView(containerView)
+                }
+            }
+        }
+    }
+
+    private fun populateCustomFeedbackView(pageComponent: AuthenticationResponseModel.CustomFieldFeedbackComponent) {
+        val attrs = pageComponent.attrs
+
+        attrs?.sortBy { it.position }
+        attrs?.forEach {
+            when (it.type) {
+                "text" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.input_from_user_view, binding.container, false)
+                        .apply {
+                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
+                        }
+                    binding.container.addView(view)
+                }
+                "number" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.number_input_from_user_view, binding.container, false)
+                        .apply {
+                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
+
+                        }
+                    binding.container.addView(view)
+                }
+                "date" -> {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.date_input_from_user_view, binding.container, false)
+                        .apply {
+                            this.passwordEt.setOnClickListener {
+                                val newCalendar = Calendar.getInstance()
+                                DatePickerDialog(
+                                    this@MainActivity,
+                                    { view, year, monthOfYear, dayOfMonth ->
+                                        this.passwordEt.setText(
+                                            getString(
+                                                R.string.date_picker_format,
+                                                String.format(
+                                                    "%02d", dayOfMonth
+                                                ),
+                                                String.format(
+                                                    "%02d", (monthOfYear + 1)
+                                                ),
+                                                year.toString()
+                                            )
+                                        )
+                                    },
+                                    newCalendar[Calendar.YEAR],
+                                    newCalendar[Calendar.MONTH],
+                                    newCalendar[Calendar.DAY_OF_MONTH]
+                                ).show()
+                            }
+                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                         }
                     binding.container.addView(view)
                 }

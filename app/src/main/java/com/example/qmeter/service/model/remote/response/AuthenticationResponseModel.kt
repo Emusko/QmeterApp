@@ -20,7 +20,7 @@ data class AuthenticationResponseModel(
         @SerializedName("customer_data") val customerData: CustomerData? = null,
         @SerializedName("comment_data") val commentData: CommentData? = null,
         @SerializedName("sli_data") val sliData: SliData? = null,
-        @SerializedName("custom_field_feedback_component") val customFieldFeedbackComponent: ArrayList<CustomFieldFeedbackComponent>? = arrayListOf()
+        @SerializedName("custom_field_feedback_component") val customFieldFeedbackComponent: CustomFieldFeedbackComponent? = null
     ) : Serializable
 
     data class Condition(
@@ -35,6 +35,10 @@ data class AuthenticationResponseModel(
     ) : Serializable
 
     data class CustomFieldFeedbackComponent(
+        override val position: Int? = null,
+        val attrs: ArrayList<CustomFieldFeedback>? = arrayListOf()
+    ): Serializable, PageComponent
+    data class CustomFieldFeedback(
         val name: String? = null,
         val placeholder: HashMap<String, String>? = hashMapOf(),
         val label: HashMap<String, String>? = hashMapOf(),

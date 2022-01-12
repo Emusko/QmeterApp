@@ -10,6 +10,7 @@ fun AuthenticationResponseModel.Page.makePages(): ArrayList<PageComponent?> {
         add(this@makePages.commentData)
         add(this@makePages.customerData)
         add(this@makePages.sliData)
+        add(this@makePages.customFieldFeedbackComponent)
     }
 
     components.sortedBy { it?.position }

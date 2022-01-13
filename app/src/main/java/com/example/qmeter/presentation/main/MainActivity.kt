@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.forEach
+import com.bumptech.glide.Glide
 import com.example.qmeter.R
 import com.example.qmeter.databinding.ActivityMainBinding
 import com.example.qmeter.di.base.BaseActivity
@@ -52,6 +53,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setPageView() {
+        Glide.with(this).load(responseModel?.generalSettings?.logo_url).into(binding.logo)
     }
 
     private fun setListener() {

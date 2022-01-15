@@ -16,9 +16,11 @@ import com.example.qmeter.di.base.BaseActivity
 import com.example.qmeter.di.factory.ViewModelProviderFactory
 import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
 import com.example.qmeter.utils.getColor
+import com.example.qmeter.utils.loadSvgOrOther
 import com.example.qmeter.utils.makePages
 import com.example.qmeter.utils.resolveIconFromAwesome
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
@@ -26,6 +28,7 @@ import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
+import java.net.URL
 import java.util.*
 import javax.inject.Inject
 
@@ -41,7 +44,9 @@ class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val language = "en"
+    private var languageIsActive = true
+
+    private var language = "en"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -53,7 +58,10 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setPageView() {
-        Glide.with(this).load(responseModel?.generalSettings?.logo_url).into(binding.logo)
+        Glide
+            .with(this)
+            .load(responseModel?.generalSettings?.logo_url)
+            .into(binding.logo)
     }
 
     private fun setListener() {
@@ -61,6 +69,7 @@ class MainActivity : BaseActivity() {
         getLanguageFromUser()
 
         viewModel.pageStateLiveData.observe(this, { t ->
+            binding.container.removeAllViews()
             when {
                 t < 0 -> {
                     viewModel.pageStateLiveData.value = 0
@@ -110,15 +119,28 @@ class MainActivity : BaseActivity() {
         })
 
         binding.next.setOnClickListener {
-            binding.container.removeAllViews()
             viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.plus(1))
         }
         binding.back.setOnClickListener {
-            binding.container.removeAllViews()
-            viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.minus(1))
+            if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value != 0) {
+                viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.minus(1))
+            } else {
+                getLanguageFromUser()
+            }
         }
 
-        viewModel.pageStateLiveData.value = 0
+    }
+
+    override fun onBackPressed() {
+        if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value != 0) {
+            viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.minus(1))
+        } else {
+            if (languageIsActive) {
+                super.onBackPressed()
+            } else {
+                getLanguageFromUser()
+            }
+        }
     }
 
     private fun populateCustomerView(pageComponent: AuthenticationResponseModel.CustomerData) {
@@ -316,7 +338,40 @@ class MainActivity : BaseActivity() {
     }
 
     private fun getLanguageFromUser() {
+        binding.container.removeAllViews()
+        if (responseModel?.languagePage != null) {
+            languageIsActive = true
+            binding.next.visibility = View.GONE
+            binding.back.visibility = View.GONE
+            binding.submit.visibility = View.GONE
+            val languages = responseModel?.languagePage?.languages
+            val title = LayoutInflater.from(this)
+                .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
+                    this.textView.text = "Choose language"
+                }
 
+
+            binding.container.addView(title)
+            languages?.forEach { languageModel ->
+
+                val linearLayout = LayoutInflater.from(this)
+                    .inflate(R.layout.choose_language_view, binding.container, false).apply {
+                        this.textView.text = languageModel.label
+                        this.setOnClickListener {
+                            languageIsActive = false
+                            language = languageModel.langCode ?: "en"
+                            viewModel.pageStateLiveData.value = 0
+                        }
+                    }
+                linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
+
+                binding.container.addView(linearLayout)
+            }
+        } else {
+            languageIsActive = false
+            language = "en"
+            viewModel.pageStateLiveData.value = 0
+        }
     }
 
     private fun populateCommentView(commentData: AuthenticationResponseModel.CommentData) {
@@ -364,6 +419,9 @@ class MainActivity : BaseActivity() {
                             if (view != child) {
                                 child.textView.setTextColor(rateOption.rateIconColor.getColor())
                             }
+                        }
+                        if (rateOption.markpageIdx != null) {
+
                         }
                         this.setTextColor(rateOption.rateSelectedColor.getColor())
                     }

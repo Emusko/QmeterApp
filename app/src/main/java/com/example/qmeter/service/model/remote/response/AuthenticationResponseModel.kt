@@ -9,7 +9,8 @@ interface PageComponent {
 
 data class AuthenticationResponseModel(
     @SerializedName("pages") val pages: ArrayList<Page> = arrayListOf(),
-    @SerializedName("general-settings") val generalSettings: GeneralSettings? = null,
+    @SerializedName("0") val languagePage: LanguagePage? = null,
+    @SerializedName("general_settings") val generalSettings: GeneralSettings? = null,
     @SerializedName("mark_page_data") val markPageData: ArrayList<MarkPageData>? = arrayListOf(),
     @SerializedName("final_page_data") val finalPageData: FinalPageData? = null
 ) : Serializable {
@@ -22,6 +23,25 @@ data class AuthenticationResponseModel(
         @SerializedName("sli_data") val sliData: SliData? = null,
         @SerializedName("custom_field_feedback_component") val customFieldFeedbackComponent: CustomFieldFeedbackComponent? = null
     ) : Serializable
+
+    data class LanguagePage(
+        @SerializedName("properties") val properties: PageProperties? = null,
+        @SerializedName("languages") val languages: ArrayList<Language>? = arrayListOf()
+    ) : Serializable
+
+    data class Language(
+
+        @SerializedName("lang_code") var langCode: String? = null,
+        @SerializedName("countryID") var countryID: String? = null,
+        @SerializedName("title") var title: String? = null,
+        @SerializedName("label") var label: String? = null,
+        @SerializedName("position") var position: Int? = null,
+        @SerializedName("labelColor") var labelColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("titleColor") var titleColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("ltr") var ltr: Boolean? = null,
+        @SerializedName("flag_url") var flagUrl: String? = null
+
+    ): Serializable
 
     data class Condition(
         val identification: ArrayList<String> = arrayListOf(),
@@ -37,7 +57,8 @@ data class AuthenticationResponseModel(
     data class CustomFieldFeedbackComponent(
         override val position: Int? = null,
         val attrs: ArrayList<CustomFieldFeedback>? = arrayListOf()
-    ): Serializable, PageComponent
+    ) : Serializable, PageComponent
+
     data class CustomFieldFeedback(
         val name: String? = null,
         val placeholder: HashMap<String, String>? = hashMapOf(),
@@ -55,7 +76,7 @@ data class AuthenticationResponseModel(
         val label_text_color: ArrayList<Int>? = arrayListOf(),
         val label_bg_color: ArrayList<Int>? = arrayListOf(),
         val label_text_size: String? = null
-    ): Serializable
+    ) : Serializable
 
     data class ConditionOverallData(
         @SerializedName("comment_data") val commentData: Boolean? = null,
@@ -82,7 +103,7 @@ data class AuthenticationResponseModel(
         @SerializedName("page_title_bg_color") val pageTitleBgColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("timeout") val timeout: Timeout? = Timeout(),
         @SerializedName("service_with_rate") val serviceWithRate: Boolean? = null
-    ): Serializable
+    ) : Serializable
 
     data class FinalPageData(
 

@@ -1,5 +1,6 @@
 package com.example.qmeter.presentation.main
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +8,9 @@ import android.view.View
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import com.bumptech.glide.Glide
 import com.example.qmeter.R
@@ -26,9 +29,9 @@ import kotlinx.android.synthetic.main.input_from_user_sli_view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.*
+import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
-import java.net.URL
 import java.util.*
 import javax.inject.Inject
 
@@ -68,36 +71,36 @@ class MainActivity : BaseActivity() {
 
         getLanguageFromUser()
 
-        viewModel.pageStateLiveData.observe(this, { t ->
+        viewModel.pageStateLiveData.observe(this, { pageIndex ->
             binding.container.removeAllViews()
             when {
-                t < 0 -> {
+                pageIndex < 0 -> {
                     viewModel.pageStateLiveData.value = 0
                 }
-                t >= pages.size -> {
+                pageIndex >= pages.size -> {
                     viewModel.pageStateLiveData.value = pages.size - 1
                 }
-                t < pages.size -> {
-                    if (pages[t].properties?.isBackButtonEnabled!!) {
+                pageIndex < pages.size -> {
+                    if (pages[pageIndex].properties?.isBackButtonEnabled!!) {
                         binding.back.visibility =
                             View.VISIBLE
                     } else {
                         binding.back.visibility =
                             View.GONE
                     }
-                    if (pages[t].properties?.isNextButtonEnabled!!) {
+                    if (pages[pageIndex].properties?.isNextButtonEnabled!!) {
                         binding.next.visibility =
                             View.VISIBLE
                     } else {
                         binding.next.visibility =
                             View.GONE
                     }
-                    if (pages[t].properties?.isSubmitEnabled!!) {
+                    if (pages.size-1 == pageIndex) {
                         binding.submit.visibility = View.VISIBLE
                     } else {
                         binding.submit.visibility = View.GONE
                     }
-                    pages[t].makePages().forEach { pageComponent ->
+                    pages[pageIndex].makePages().forEach { pageComponent ->
                         when (pageComponent) {
                             is AuthenticationResponseModel.CommentData -> {
                                 populateCommentView(pageComponent)
@@ -119,6 +122,7 @@ class MainActivity : BaseActivity() {
         })
 
         binding.next.setOnClickListener {
+            if (pages.size-1 != viewModel.pageStateLiveData.value)
             viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.plus(1))
         }
         binding.back.setOnClickListener {
@@ -421,7 +425,7 @@ class MainActivity : BaseActivity() {
                             }
                         }
                         if (rateOption.markpageIdx != null) {
-
+                            popUpMarkPage(view.textView.text.toString(), responseModel?.markPageData?.filter { it.idx == rateOption.markpageIdx}?.firstOrNull())
                         }
                         this.setTextColor(rateOption.rateSelectedColor.getColor())
                     }
@@ -437,5 +441,38 @@ class MainActivity : BaseActivity() {
         }
 
 
+    }
+
+    private fun popUpMarkPage(sliText: String, markPageData: AuthenticationResponseModel.MarkPageData?) {
+        val dialog = AlertDialog.Builder(this)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.markpage_choose_view, LinearLayoutCompat(this), false)
+        dialog.setView(dialogView)
+
+        dialogView.sliTextView.text = sliText
+        dialogView.title.text = markPageData?.title!![language]
+
+
+        markPageData.marks.forEach {
+            val markText = LayoutInflater.from(this).inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false)
+            markText.apply {
+                (this as? AppCompatTextView)?.text = it.name!![language]
+                setOnClickListener {
+                    dialogView.markContainer.forEach { child ->
+                        if (markText != child) {
+                            child.background = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_input_background_8)
+                            (child as? AppCompatTextView)?.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
+                        } else {
+                            child.background = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_accent_input_background_8)
+                            (child as? AppCompatTextView)?.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                        }
+                    }
+                }
+            }
+            dialogView.markContainer.addView(markText)
+        }
+        val alertDialog = dialog.create()
+        dialogView.skip.setOnClickListener { alertDialog.dismiss() }
+        dialogView.submit.setOnClickListener { alertDialog.dismiss() }
+        alertDialog.show()
     }
 }

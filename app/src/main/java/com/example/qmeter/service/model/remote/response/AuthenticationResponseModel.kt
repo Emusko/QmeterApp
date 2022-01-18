@@ -11,7 +11,7 @@ data class AuthenticationResponseModel(
     @SerializedName("pages") val pages: ArrayList<Page> = arrayListOf(),
     @SerializedName("0") val languagePage: LanguagePage? = null,
     @SerializedName("general_settings") val generalSettings: GeneralSettings? = null,
-    @SerializedName("mark_page_data") val markPageData: ArrayList<MarkPageData>? = arrayListOf(),
+    @SerializedName("markpage_data") val markPageData: ArrayList<MarkPageData>? = arrayListOf(),
     @SerializedName("final_page_data") val finalPageData: FinalPageData? = null
 ) : Serializable {
 
@@ -136,7 +136,7 @@ data class AuthenticationResponseModel(
         @SerializedName("id") val id: Int? = null,
         @SerializedName("idx") val idx: String? = null,
         @SerializedName("name") val name: Label? = Label(),
-        @SerializedName("title") val title: Label? = Label(),
+        @SerializedName("title") val title: HashMap<String?, String?>? = hashMapOf(),
         @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("skip_button_text_color") val skipButtonTextColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("skip_button_bg_color") val skipButtonBgColor: ArrayList<Int> = arrayListOf(),
@@ -156,7 +156,7 @@ data class AuthenticationResponseModel(
 
     data class Marks(
         @SerializedName("id") val id: Int? = null,
-        @SerializedName("name") val name: Label? = Label(),
+        @SerializedName("name") val name: HashMap<String, String>? = hashMapOf(),
         @SerializedName("position") val position: Int? = null,
         @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),

@@ -14,4 +14,6 @@ class MainViewModel @Inject constructor(
 
     val submitButton = ObservableBoolean()
 
+    val requestModel = hashMapOf<String, Any>()
+
 }

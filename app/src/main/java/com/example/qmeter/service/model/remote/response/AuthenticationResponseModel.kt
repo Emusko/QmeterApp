@@ -155,6 +155,7 @@ data class AuthenticationResponseModel(
     ) : Serializable
 
     data class Marks(
+        var selected: Boolean? = false,
         @SerializedName("id") val id: Int? = null,
         @SerializedName("name") val name: HashMap<String, String>? = hashMapOf(),
         @SerializedName("position") val position: Int? = null,

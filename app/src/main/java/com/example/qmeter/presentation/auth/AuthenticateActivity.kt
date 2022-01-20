@@ -48,7 +48,7 @@ class AuthenticateActivity : BaseActivity() {
         }.addTo(subscriptions)
 
         binding.login.setOnClickListener {
-            viewModel.getComponents(username, password)
+            viewModel.getComponents("mestinesibov", "P@ssw0rd55")
         }
     }
 

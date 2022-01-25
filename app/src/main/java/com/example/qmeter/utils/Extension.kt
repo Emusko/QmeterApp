@@ -1,5 +1,6 @@
 package com.example.qmeter.utils
 
+import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.appcompat.widget.AppCompatImageView
 import coil.ImageLoader
@@ -79,3 +80,6 @@ fun AppCompatImageView.loadSvgOrOther(
         }
     }
 }
+
+fun SharedPreferences.encodeCredentials(): String =
+    Base64.getEncoder().encodeToString((this.getString("username", "")+":"+this.getString("password", "")).encodeToByteArray())

@@ -11,4 +11,6 @@ interface ApiServices {
     @Headers("Connection: close")
     @POST("api/v1/template/device/login/")
     fun getComponents(@Body authenticateRequestModel: AuthenticateRequestModel): Observable<AuthenticationResponseModel>
+    @POST("api/v1/template/device/widget/")
+    fun postFeedback(@Body body: ArrayList<HashMap<String?, Any?>>): Observable<AuthenticationResponseModel>
 }

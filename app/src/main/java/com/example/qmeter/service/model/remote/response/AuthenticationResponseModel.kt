@@ -204,7 +204,7 @@ data class AuthenticationResponseModel(
     ) : Serializable
 
     data class RateOptions(
-
+        var selected: Boolean? = false,
         @SerializedName("id") val id: String? = null,
         @SerializedName("name") val name: String? = null,
         @SerializedName("label") val label: HashMap<String, String>? = hashMapOf(),

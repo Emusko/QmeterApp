@@ -8,7 +8,7 @@ interface PageComponent {
 }
 
 data class AuthenticationResponseModel(
-    @SerializedName("pages") val pages: ArrayList<Page> = arrayListOf(),
+    @SerializedName("pages") val pages: ArrayList<Page?>? = arrayListOf(),
     @SerializedName("0") val languagePage: LanguagePage? = null,
     @SerializedName("general_settings") val generalSettings: GeneralSettings? = null,
     @SerializedName("markpage_data") val markPageData: ArrayList<MarkPageData>? = arrayListOf(),

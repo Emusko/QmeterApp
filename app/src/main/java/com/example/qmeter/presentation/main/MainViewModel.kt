@@ -20,7 +20,7 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
     val viewData: MutableLiveData<AuthenticationResponseModel> = MutableLiveData()
 
-    val pageStateLiveData = MutableLiveData<Int>()
+    val pageStateLiveData = MutableLiveData<Pair<Int, Boolean>>()
 
     val requestModel = hashMapOf<String?, Any?>()
 

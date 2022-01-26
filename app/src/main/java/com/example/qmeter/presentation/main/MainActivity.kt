@@ -60,6 +60,8 @@ class MainActivity : BaseActivity() {
 
     private var languageContainer: LinearLayoutCompat? = null
 
+    private var sliCondition = hashMapOf<String?, String?>()
+
     private var condition: AuthenticationResponseModel.ConditionOverallData? = null
 
     private var language = "en"
@@ -86,29 +88,77 @@ class MainActivity : BaseActivity() {
 
         initializeViews()
 
-        viewModel.pageStateLiveData.observe(this, { pageIndex ->
+        viewModel.pageStateLiveData.observe(this, {
+            val pageIndex = it.first
+            val back = it.second
             languageContainer?.visibility = View.GONE
             pageViews[pageIndex]?.visibility = View.VISIBLE
             pageViews[pageIndex+1]?.visibility = View.GONE
             pageViews[pageIndex-1]?.visibility = View.GONE
 
+            if (sliCondition.isNotEmpty()){
+                var sliFeedBacks = ""
+                sliCondition.forEach {
+                    sliFeedBacks+=it.value
+                }
+                if ( sliFeedBacks.contains("unacceptable") ||sliFeedBacks.contains("bad") ){
+                    condition = pages[pageIndex]?.condition?.overall?.negative
+                } else if ( sliFeedBacks.contains("excellent") ||sliFeedBacks.contains("good")){
+                    condition = pages[pageIndex]?.condition?.overall?.positive
+                } else if (sliFeedBacks.contains("neutral")){
+                    condition = pages[pageIndex]?.condition?.overall?.neutral
+                }
+                sliCondition.clear()
+            }
+
+            condition?.let {
+                if (it.commentData == true)
+                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility = View.VISIBLE
+                else
+                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility = View.GONE
+
+                if (it.customerData == true)
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility = View.VISIBLE
+                else
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility = View.GONE
+
+                if (it.customFields == true)
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility = View.VISIBLE
+                else
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility = View.GONE
+            }
+
+            var skipCounter = 0
+            pageViews[pageIndex]?.forEach {
+                if (it.visibility == View.VISIBLE){
+                    skipCounter++
+                }
+            }
+            if (skipCounter == 0){
+                if (back){
+                    viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.minus(1)?: 0, true)
+                } else {
+                    viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.plus(1)?: 0, false)
+                }
+            }
+
 //            writeDataToRequestModel(pageViews[pageIndex-1])
             when {
                 pageIndex < 0 -> {
-                    viewModel.pageStateLiveData.value = 0
+                    viewModel.pageStateLiveData.value = Pair(0, false)
                 }
                 pageIndex >= pages.size -> {
-                    viewModel.pageStateLiveData.value = pages.size - 1
+                    viewModel.pageStateLiveData.value = Pair(pages.size - 1, true)
                 }
                 pageIndex < pages.size -> {
-                    if (pages[pageIndex].properties?.isBackButtonEnabled!!) {
+                    if (pages[pageIndex]?.properties?.isBackButtonEnabled!!) {
                         binding.back.visibility =
                             View.VISIBLE
                     } else {
                         binding.back.visibility =
                             View.GONE
                     }
-                    if (pages[pageIndex].properties?.isNextButtonEnabled!!) {
+                    if (pages[pageIndex]?.properties?.isNextButtonEnabled!!) {
                         binding.next.visibility =
                             View.VISIBLE
                     } else {
@@ -125,12 +175,12 @@ class MainActivity : BaseActivity() {
         })
 
         binding.next.setOnClickListener {
-            if (pages.size-1 != viewModel.pageStateLiveData.value)
-            viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.plus(1))
+            if (pages.size-1 != viewModel.pageStateLiveData.value?.first)
+            viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.plus(1)?: 0, false)
         }
         binding.back.setOnClickListener {
-            if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value != 0) {
-                viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.minus(1))
+            if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
+                viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.minus(1)?: 0, true)
             } else {
                 pageViews.forEach { _, linearLayoutCompat ->
                     linearLayoutCompat?.visibility = View.GONE
@@ -143,16 +193,16 @@ class MainActivity : BaseActivity() {
                 page.value?.forEach { pageView ->
                     when ( pageView.tag  as? String ) {
                         COMMENT_TAG -> {
-                            viewModel.bindCommentDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key].commentData)
+                            viewModel.bindCommentDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key]?.commentData)
                         }
                         CUSTOMER_TAG -> {
-                            viewModel.bindCustomerDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key].customerData)
+                            viewModel.bindCustomerDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key]?.customerData)
                         }
                         CUSTOM_FEEDBACK_TAG -> {
-                            viewModel.bindCustomFieldFeedbackDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key].customFieldFeedbackComponent)
+                            viewModel.bindCustomFieldFeedbackDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key]?.customFieldFeedbackComponent)
                         }
                         SLI_TAG -> {
-                            viewModel.bindSliDataToRequest(language, page.key, responseModel?.pages!![page.key].sliData, responseModel?.markPageData)
+                            viewModel.bindSliDataToRequest(language, page.key, responseModel?.pages!![page.key]?.sliData, responseModel?.markPageData)
                         }
 
                     }
@@ -167,7 +217,7 @@ class MainActivity : BaseActivity() {
         pages.forEachIndexed { index, page ->
             val pageLayout = LayoutInflater.from(this)
                 .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
-            page.makePages().forEach { pageComponent ->
+            page?.makePages()?.forEach { pageComponent ->
                 when (pageComponent) {
                     is AuthenticationResponseModel.CommentData -> {
                         pageLayout?.addView(populateCommentView(pageComponent))
@@ -190,8 +240,8 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
-        if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value != 0) {
-            viewModel.pageStateLiveData.value = (viewModel.pageStateLiveData.value?.minus(1))
+        if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
+            viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.minus(1)?: 0, false)
         } else {
             if (languageIsActive) {
                 super.onBackPressed()
@@ -444,7 +494,7 @@ class MainActivity : BaseActivity() {
                             languageIsActive = false
                             language = languageModel.langCode ?: "en"
                             viewModel.requestModel.put("language", language)
-                            viewModel.pageStateLiveData.value = 0
+                            viewModel.pageStateLiveData.value = Pair(0, false)
                         }
                     }
                 linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
@@ -455,7 +505,7 @@ class MainActivity : BaseActivity() {
         } else {
             languageIsActive = false
             language = "en"
-            viewModel.pageStateLiveData.value = 0
+            viewModel.pageStateLiveData.value = Pair(0, false)
         }
     }
 
@@ -520,6 +570,7 @@ class MainActivity : BaseActivity() {
                                 this.setTextColor(rateOption.rateSelectedColor.getColor())
                             }
                         }
+                        sliCondition[service.name!![language]] = rateOption.name
                         if (rateOption.markpageIdx != null) {
                             popUpMarkPage(view.textView.text.toString(), rateOption)
                         }

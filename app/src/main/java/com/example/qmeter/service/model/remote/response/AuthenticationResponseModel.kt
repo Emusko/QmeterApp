@@ -259,7 +259,7 @@ data class AuthenticationResponseModel(
 
     data class SelectOption(
         val id: String? = null,
-        val option: Label? = null
+        val option: HashMap<String, String>? = hashMapOf()
     ) : Serializable
 
     data class CommentAttrs(

@@ -11,6 +11,7 @@
     <string name="income_format">Gəlir: %1$s</string>
     <string name="outgoing_format">Xərc: %1$s</string>
     <string name="password_too_small">Şifrəniz 6 simvoldan az olmamalıdır</string>
+    <string name="field_error_message">Bu sahə mütləq doldurulmalıdır</string>
     <string-array name="months">
         <item>Yanvar</item>
         <item>Fevral</item>

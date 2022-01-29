@@ -3,6 +3,8 @@ package com.example.qmeter.presentation.main
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +29,7 @@ import com.example.qmeter.utils.makePages
 import com.example.qmeter.utils.resolveIconFromAwesome
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.*
@@ -86,26 +89,24 @@ class MainActivity : BaseActivity() {
 
         getLanguageFromUser()
 
-        initializeViews()
-
         viewModel.pageStateLiveData.observe(this, {
             val pageIndex = it.first
             val back = it.second
             languageContainer?.visibility = View.GONE
             pageViews[pageIndex]?.visibility = View.VISIBLE
-            pageViews[pageIndex+1]?.visibility = View.GONE
-            pageViews[pageIndex-1]?.visibility = View.GONE
+            pageViews[pageIndex + 1]?.visibility = View.GONE
+            pageViews[pageIndex - 1]?.visibility = View.GONE
 
-            if (sliCondition.isNotEmpty()){
+            if (sliCondition.isNotEmpty()) {
                 var sliFeedBacks = ""
                 sliCondition.forEach {
-                    sliFeedBacks+=it.value
+                    sliFeedBacks += it.value
                 }
-                if ( sliFeedBacks.contains("unacceptable") ||sliFeedBacks.contains("bad") ){
+                if (sliFeedBacks.contains("unacceptable") || sliFeedBacks.contains("bad")) {
                     condition = pages[pageIndex]?.condition?.overall?.negative
-                } else if ( sliFeedBacks.contains("excellent") ||sliFeedBacks.contains("good")){
+                } else if (sliFeedBacks.contains("excellent") || sliFeedBacks.contains("good")) {
                     condition = pages[pageIndex]?.condition?.overall?.positive
-                } else if (sliFeedBacks.contains("neutral")){
+                } else if (sliFeedBacks.contains("neutral")) {
                     condition = pages[pageIndex]?.condition?.overall?.neutral
                 }
                 sliCondition.clear()
@@ -113,32 +114,40 @@ class MainActivity : BaseActivity() {
 
             condition?.let {
                 if (it.commentData == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility = View.VISIBLE
+                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
+                        View.VISIBLE
                 else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility = View.GONE
+                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
+                        View.GONE
 
                 if (it.customerData == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility = View.VISIBLE
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
+                        View.VISIBLE
                 else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility = View.GONE
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
+                        View.GONE
 
                 if (it.customFields == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility = View.VISIBLE
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility =
+                        View.VISIBLE
                 else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility = View.GONE
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility =
+                        View.GONE
             }
 
             var skipCounter = 0
             pageViews[pageIndex]?.forEach {
-                if (it.visibility == View.VISIBLE){
+                if (it.visibility == View.VISIBLE) {
                     skipCounter++
                 }
             }
-            if (skipCounter == 0){
-                if (back){
-                    viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.minus(1)?: 0, true)
+            if (skipCounter == 0) {
+                if (back) {
+                    viewModel.pageStateLiveData.value =
+                        Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
                 } else {
-                    viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.plus(1)?: 0, false)
+                    viewModel.pageStateLiveData.value =
+                        Pair(viewModel.pageStateLiveData.value?.first?.plus(1) ?: 0, false)
                 }
             }
 
@@ -165,9 +174,11 @@ class MainActivity : BaseActivity() {
                         binding.next.visibility =
                             View.GONE
                     }
-                    if (pages.size-1 == pageIndex) {
+                    if (pages.size - 1 == pageIndex) {
                         binding.submit.visibility = View.VISIBLE
+                        next.visibility = View.GONE
                     } else {
+                        next.visibility = View.VISIBLE
                         binding.submit.visibility = View.GONE
                     }
                 }
@@ -175,49 +186,241 @@ class MainActivity : BaseActivity() {
         })
 
         binding.next.setOnClickListener {
-            if (pages.size-1 != viewModel.pageStateLiveData.value?.first)
-            viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.plus(1)?: 0, false)
+            if (pages.size - 1 != viewModel.pageStateLiveData.value?.first){
+                val page = pages[viewModel.pageStateLiveData.value!!.first]
+                page?.makePages()?.forEach { pageComponent ->
+                    when (pageComponent){
+                        is AuthenticationResponseModel.SliData->{
+                            var returning = false
+                            pageComponent.attrs?.service?.forEach {
+                                it.rateOptions.forEach {
+                                    returning = it.selected!!
+                                    return@forEach
+                                }
+                            }
+                            if (!returning)
+                                return@setOnClickListener
+                        }
+                        is AuthenticationResponseModel.CustomerData -> {
+                            pageComponent.attrs.forEach { attr ->
+                                if (attr.required == true){
+                                    when (val dataView = binding.container.findViewWithTag<View>(attr.name)) {
+                                        is TextInputEditText -> {
+                                            dataView.text?.toString()?.let {
+                                                if (it.isEmpty()){
+                                                    dataView.error = getString(R.string.field_error_message)
+                                                    return@setOnClickListener
+                                                }
+                                            }
+                                        }
+                                        is AppCompatSpinner -> {
+                                            dataView.selectedItem?.toString()?.let {
+                                                if (it.isEmpty()){
+                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                        getString(R.string.field_error_message)
+                                                    return@setOnClickListener
+                                                }
+                                            }
+                                        }
+                                        is LinearLayoutCompat -> {
+                                            val checkedList = arrayListOf<Int?>()
+                                            dataView.forEach {
+                                                if (it is AppCompatCheckBox && it.isChecked) {
+                                                    checkedList.add(it.text?.toString()?.toInt())
+                                                }
+                                            }
+                                            if (checkedList.isNullOrEmpty()){
+                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                    getString(R.string.field_error_message)
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        is AuthenticationResponseModel.CustomFieldFeedbackComponent -> {
+                            pageComponent.attrs?.forEach { attr ->
+                                if (attr.required == true){
+                                    when (val dataView = binding.container.findViewWithTag<View>(attr.name)) {
+                                        is TextInputEditText -> {
+                                            dataView.text?.toString()?.let {
+                                                if (it.isEmpty()){
+                                                    dataView.error = getString(R.string.field_error_message)
+                                                    return@setOnClickListener
+                                                }
+                                            }
+                                        }
+                                        is AppCompatSpinner -> {
+                                            dataView.selectedItem?.toString()?.let {
+                                                if (it.isEmpty()){
+                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                        getString(R.string.field_error_message)
+                                                    return@setOnClickListener
+                                                }
+                                            }
+                                        }
+                                        is LinearLayoutCompat -> {
+                                            val checkedList = arrayListOf<Int?>()
+                                            dataView.forEach {
+                                                if (it is AppCompatCheckBox && it.isChecked) {
+                                                    checkedList.add(it.text?.toString()?.toInt())
+                                                }
+                                            }
+                                            if (checkedList.isNullOrEmpty()){
+                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                    getString(R.string.field_error_message)
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        is AuthenticationResponseModel.CommentData -> {
+                            pageComponent.attrs?.let { attr ->
+                                if (attr.required == true){
+                                    when (val dataView = binding.container.findViewWithTag<View>(attr.name)) {
+                                        is TextInputEditText -> {
+                                            dataView.text?.toString()?.let {
+                                                if (it.isEmpty()){
+                                                    dataView.error = getString(R.string.field_error_message)
+                                                    return@setOnClickListener
+                                                }
+                                            }
+                                        }
+                                        is AppCompatSpinner -> {
+                                            dataView.selectedItem?.toString()?.let {
+                                                if (it.isEmpty()){
+                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                        getString(R.string.field_error_message)
+                                                    return@setOnClickListener
+                                                }
+                                            }
+                                        }
+                                        is LinearLayoutCompat -> {
+                                            val checkedList = arrayListOf<Int?>()
+                                            dataView.forEach {
+                                                if (it is AppCompatCheckBox && it.isChecked) {
+                                                    checkedList.add(it.text?.toString()?.toInt())
+                                                }
+                                            }
+                                            if (checkedList.isNullOrEmpty()){
+                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                    getString(R.string.field_error_message)
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                viewModel.pageStateLiveData.value =
+                    Pair(viewModel.pageStateLiveData.value?.first?.plus(1) ?: 0, false)
+            }
         }
         binding.back.setOnClickListener {
             if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
-                viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.minus(1)?: 0, true)
+                viewModel.pageStateLiveData.value =
+                    Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
             } else {
                 pageViews.forEach { _, linearLayoutCompat ->
                     linearLayoutCompat?.visibility = View.GONE
                 }
+                binding.next.visibility = View.GONE
+                binding.back.visibility = View.GONE
                 languageContainer?.visibility = View.VISIBLE
             }
         }
         binding.submit.setOnClickListener {
             pageViews.forEach { page ->
                 page.value?.forEach { pageView ->
-                    when ( pageView.tag  as? String ) {
+                    when (pageView.tag as? String) {
                         COMMENT_TAG -> {
-                            viewModel.bindCommentDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key]?.commentData)
+                            viewModel.bindCommentDataToRequest(
+                                pageView as? LinearLayoutCompat,
+                                responseModel?.pages!![page.key]?.commentData
+                            )
                         }
                         CUSTOMER_TAG -> {
-                            viewModel.bindCustomerDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key]?.customerData)
+                            viewModel.bindCustomerDataToRequest(
+                                pageView as? LinearLayoutCompat,
+                                responseModel?.pages!![page.key]?.customerData
+                            )
                         }
                         CUSTOM_FEEDBACK_TAG -> {
-                            viewModel.bindCustomFieldFeedbackDataToRequest(pageView as? LinearLayoutCompat, responseModel?.pages!![page.key]?.customFieldFeedbackComponent)
+                            viewModel.bindCustomFieldFeedbackDataToRequest(
+                                pageView as? LinearLayoutCompat,
+                                responseModel?.pages!![page.key]?.customFieldFeedbackComponent
+                            )
                         }
                         SLI_TAG -> {
-                            viewModel.bindSliDataToRequest(language, page.key, responseModel?.pages!![page.key]?.sliData, responseModel?.markPageData)
+                            viewModel.bindSliDataToRequest(
+                                language,
+                                page.key,
+                                responseModel?.pages!![page.key]?.sliData,
+                                responseModel?.markPageData
+                            )
                         }
 
                     }
                 }
             }
             viewModel.postFeedback()
+            binding.container.removeAllViews()
         }
+
+        viewModel.dataPost.observe(this, {
+            if (it) {
+                responseModel?.pages?.forEach {
+                    it?.makePages()?.forEach {
+                        if (it is AuthenticationResponseModel.SliData) {
+                            it.attrs?.service?.forEach {
+                                it.rateOptions.forEach {
+                                    it.selected = false
+                                }
+                            }
+                        }
+                    }
+                }
+                responseModel?.markPageData?.forEach {
+                    it.marks.forEach {
+                        it.selected = false
+                    }
+                }
+                responseModel?.finalPageData?.timeout?.let {
+                    if (it.time!! > 0) {
+                        Handler(Looper.getMainLooper())
+                            .postDelayed({
+                                pageViews.clear()
+                                getLanguageFromUser()
+                                condition = null
+                            }, it.time.toLong())
+                    }
+                }
+
+                logo.setOnClickListener {
+                    pageViews.clear()
+                    getLanguageFromUser()
+                    condition = null
+                }
+
+            }
+        })
 
     }
 
     private fun initializeViews() {
         pages.forEachIndexed { index, page ->
             val pageLayout = LayoutInflater.from(this)
-                .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
-            page?.makePages()?.forEach { pageComponent ->
+                .inflate(
+                    R.layout.page_linear_layout,
+                    binding.container,
+                    false
+                ) as? LinearLayoutCompat
+            page?.makePages()?.sortedBy { it?.position }?.forEach { pageComponent ->
                 when (pageComponent) {
                     is AuthenticationResponseModel.CommentData -> {
                         pageLayout?.addView(populateCommentView(pageComponent))
@@ -241,14 +444,30 @@ class MainActivity : BaseActivity() {
 
     override fun onBackPressed() {
         if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
-            viewModel.pageStateLiveData.value = Pair(viewModel.pageStateLiveData.value?.first?.minus(1)?: 0, false)
+            viewModel.pageStateLiveData.value =
+                Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
         } else {
             if (languageIsActive) {
                 super.onBackPressed()
             } else {
-                getLanguageFromUser()
+            pageViews.forEach { _, linearLayoutCompat ->
+                linearLayoutCompat?.visibility = View.GONE
+            }
+            binding.next.visibility = View.GONE
+            binding.back.visibility = View.GONE
+            languageContainer?.visibility = View.VISIBLE
             }
         }
+//        if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
+//            viewModel.pageStateLiveData.value =
+//                Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, false)
+//        } else {
+//            if (languageIsActive) {
+//                super.onBackPressed()
+//            } else {
+//                getLanguageFromUser()
+//            }
+//        }
     }
 
     private fun populateCustomerView(pageComponent: AuthenticationResponseModel.CustomerData): LinearLayoutCompat? {
@@ -319,7 +538,7 @@ class MainActivity : BaseActivity() {
                                 this@MainActivity, android.R.layout.simple_spinner_item,
                                 arrayListOf<String>().apply {
                                     it.select?.forEach { selectOption ->
-                                        this.add(selectOption.id ?: "")
+                                        this.add(selectOption.option!![language] ?: "")
                                     }
                                 }
                             )
@@ -469,6 +688,9 @@ class MainActivity : BaseActivity() {
 
     private fun getLanguageFromUser() {
 
+        binding.next.visibility = View.GONE
+        binding.back.visibility = View.GONE
+
         languageContainer = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
 
@@ -489,11 +711,13 @@ class MainActivity : BaseActivity() {
 
                 val linearLayout = LayoutInflater.from(this)
                     .inflate(R.layout.choose_language_view, binding.container, false).apply {
-                        this.textView.text = languageModel.label
+                        this.textView.text = languageModel.title
+                        this.textView.setTextColor(languageModel?.titleColor.getColor())
                         this.setOnClickListener {
                             languageIsActive = false
                             language = languageModel.langCode ?: "en"
                             viewModel.requestModel.put("language", language)
+                            initializeViews()
                             viewModel.pageStateLiveData.value = Pair(0, false)
                         }
                     }
@@ -526,20 +750,22 @@ class MainActivity : BaseActivity() {
         return container
     }
 
-    private fun populateSliView(sliData: AuthenticationResponseModel.SliData) : LinearLayoutCompat? {
+    private fun populateSliView(sliData: AuthenticationResponseModel.SliData): LinearLayoutCompat? {
 
         val container = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
 
-        val title = LayoutInflater.from(this)
-            .inflate(R.layout.input_from_user_sli_view, container, false).apply {
-                this.textView.text = sliData.componentTitle!![language] ?: ""
-                this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
-                this.textView.setBackgroundColor(sliData.componentTitleBgColor.getColor())
-            }
+        sliData.componentTitle!![language]?.let {
+            val title = LayoutInflater.from(this)
+                .inflate(R.layout.input_from_user_sli_view, container, false).apply {
+                    this.textView.text = it
+                    this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
+                    this.textView.setBackgroundColor(sliData.componentTitleBgColor.getColor())
+                }
+            container?.addView(title)
+        }
 
 
-        container?.addView(title)
         sliData.attrs?.service?.forEach { service ->
 
             val linearLayout = LinearLayoutCompat(this)
@@ -562,7 +788,7 @@ class MainActivity : BaseActivity() {
                     setBackgroundColor(rateOption.rateBgColor.getColor())
                     setOnClickListener {
                         linearLayout.forEachIndexed { index, child ->
-                            if (view != child){
+                            if (view != child) {
                                 service.rateOptions[index].selected = false
                                 child.textView.setTextColor(rateOption.rateIconColor.getColor())
                             } else {
@@ -589,10 +815,15 @@ class MainActivity : BaseActivity() {
         return container
     }
 
-    private fun popUpMarkPage(sliText: String, rateOption: AuthenticationResponseModel.RateOptions?) {
-        val markPageData = responseModel?.markPageData?.filter { it.idx == rateOption?.markpageIdx}?.firstOrNull()
+    private fun popUpMarkPage(
+        sliText: String,
+        rateOption: AuthenticationResponseModel.RateOptions?
+    ) {
+        val markPageData =
+            responseModel?.markPageData?.filter { it.idx == rateOption?.markpageIdx }?.firstOrNull()
         val dialog = AlertDialog.Builder(this)
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.markpage_choose_view, LinearLayoutCompat(this), false)
+        val dialogView = LayoutInflater.from(this)
+            .inflate(R.layout.markpage_choose_view, LinearLayoutCompat(this), false)
         dialog.setView(dialogView)
 
         dialogView.sliTextView.text = sliText
@@ -600,33 +831,66 @@ class MainActivity : BaseActivity() {
 
 
         markPageData.marks.forEach { mark ->
-            val markText = LayoutInflater.from(this).inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false)
+            val markText = LayoutInflater.from(this)
+                .inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false)
             markText.apply {
                 (this as? AppCompatTextView)?.text = mark.name!![language]
-                if (markPageData.isSingle == true){
+                if (markPageData.isSingle == true) {
                     setOnClickListener {
                         dialogView.markContainer.forEach { child ->
                             if (markText != child) {
                                 mark.selected = false
-                                child.background = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_input_background_8)
-                                (child as? AppCompatTextView)?.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
+                                child.background = ContextCompat.getDrawable(
+                                    this@MainActivity,
+                                    R.drawable.rounded_input_background_8
+                                )
+                                (child as? AppCompatTextView)?.setTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.black
+                                    )
+                                )
                             } else {
                                 mark.selected = true
-                                child.background = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_accent_input_background_8)
-                                (child as? AppCompatTextView)?.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                                child.background = ContextCompat.getDrawable(
+                                    this@MainActivity,
+                                    R.drawable.rounded_accent_input_background_8
+                                )
+                                (child as? AppCompatTextView)?.setTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.white
+                                    )
+                                )
                             }
                         }
                     }
                 } else {
                     setOnClickListener {
-                        if (mark.selected == true){
+                        if (mark.selected == true) {
                             mark.selected = false
-                            this.background = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_input_background_8)
-                            (this as? AppCompatTextView)?.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
+                            this.background = ContextCompat.getDrawable(
+                                this@MainActivity,
+                                R.drawable.rounded_input_background_8
+                            )
+                            (this as? AppCompatTextView)?.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.black
+                                )
+                            )
                         } else {
                             mark.selected = true
-                            this.background = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_accent_input_background_8)
-                            (this as? AppCompatTextView)?.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                            this.background = ContextCompat.getDrawable(
+                                this@MainActivity,
+                                R.drawable.rounded_accent_input_background_8
+                            )
+                            (this as? AppCompatTextView)?.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.white
+                                )
+                            )
                         }
                     }
                 }

@@ -8,6 +8,7 @@
     tools:context=".presentation.main.MainActivity">
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/motherLayout"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="24dp"

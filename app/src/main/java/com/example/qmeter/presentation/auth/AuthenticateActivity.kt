@@ -33,7 +33,16 @@ class AuthenticateActivity : BaseActivity() {
 
         setContentView(view)
 
+        checkUser()
+
         setListeners()
+    }
+
+    private fun checkUser() {
+        if (!(viewModel.sharedPreferences.getString("username", "").isNullOrEmpty()&&viewModel.sharedPreferences.getString("username", "").isNullOrEmpty())){
+            viewModel.getComponents(viewModel.sharedPreferences.getString("username", "")!!,
+                viewModel.sharedPreferences.getString("password", "")!!)
+        }
     }
 
     private fun setListeners() {
@@ -48,7 +57,7 @@ class AuthenticateActivity : BaseActivity() {
         }.addTo(subscriptions)
 
         binding.login.setOnClickListener {
-            viewModel.getComponents("mestinesibov", "P@ssw0rd55")
+            viewModel.getComponents("devays", "123123")
         }
     }
 

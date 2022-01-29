@@ -24,6 +24,8 @@ class MainViewModel @Inject constructor(
 
     val requestModel = hashMapOf<String?, Any?>()
 
+    val dataPost = MutableLiveData<Boolean>()
+
     fun bindCustomerDataToRequest(
         layout: LinearLayoutCompat?,
         customerData: AuthenticationResponseModel.CustomerData?
@@ -35,13 +37,13 @@ class MainViewModel @Inject constructor(
                 is TextInputEditText -> {
                     dataView.text?.toString()?.let {
                         if (it.isNotEmpty())
-                        customerDataMap[attr.name ?: ""] = it
+                            customerDataMap[attr.name ?: ""] = it
                     }
                 }
                 is AppCompatSpinner -> {
                     dataView.selectedItem?.toString()?.let {
                         if (it.isNotEmpty())
-                        customerDataMap[attr.name ?: ""] = it
+                            customerDataMap[attr.name ?: ""] = it
                     }
                 }
                 is LinearLayoutCompat -> {
@@ -52,15 +54,26 @@ class MainViewModel @Inject constructor(
                         }
                     }
                     if (!checkedList.isNullOrEmpty())
-                    customerDataMap[attr.name ?: ""] = checkedList
+                        customerDataMap[attr.name ?: ""] = checkedList
                 }
             }
         }
         requestModel[CUSTOMER_TAG] = customerDataMap
     }
 
-    fun postFeedback(){
-        postFeedbackUseCase.execute(arrayListOf(requestModel), {}, {}, subscriptions)
+
+    fun postFeedback() {
+        postFeedbackUseCase
+            .execute(
+                arrayListOf(requestModel),
+                {
+                    dataPost.value = true
+                },
+                {
+                    dataPost.value = true
+                },
+                subscriptions
+            )
     }
 
     fun bindCustomFieldFeedbackDataToRequest(
@@ -73,12 +86,12 @@ class MainViewModel @Inject constructor(
                 is TextInputEditText -> {
                     dataView.text?.toString()?.let {
                         if (it.isNotEmpty())
-                        requestModel[attr.name ?: ""] = it
+                            requestModel[attr.name ?: ""] = it
                     }
                 }
                 is AppCompatSpinner -> {
                     dataView.selectedItem?.toString()?.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             requestModel[attr.name ?: ""] = it
                         }
                     }
@@ -91,7 +104,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                     if (!checkedList.isNullOrEmpty())
-                    requestModel[attr.name ?: ""] = checkedList
+                        requestModel[attr.name ?: ""] = checkedList
                 }
             }
         }
@@ -101,7 +114,8 @@ class MainViewModel @Inject constructor(
         language: String,
         pageIndex: Int,
         sliData: AuthenticationResponseModel.SliData?,
-        markPageData: ArrayList<AuthenticationResponseModel.MarkPageData>?) {
+        markPageData: ArrayList<AuthenticationResponseModel.MarkPageData>?
+    ) {
         val feedBacks = arrayListOf<FeedbackRequestModel>()
 
         sliData?.attrs?.service?.forEach { service ->
@@ -112,10 +126,12 @@ class MainViewModel @Inject constructor(
                 feedback.markPage = rateOptions.markpageId
                 feedback.page = pageIndex.toString()
                 rateOptions.markpageIdx.let {
-                    val markPage = markPageData?.filter { it.idx == rateOptions.markpageIdx}?.firstOrNull()
+                    val markPage =
+                        markPageData?.filter { it.idx == rateOptions.markpageIdx }?.firstOrNull()
                     val selectedMarks = markPage?.marks?.filter { it.selected == true }
                     selectedMarks?.forEach {
-                        val mark = FeedbackRequestModel.Mark(it.id, it.name?.filter { it.key == language })
+                        val mark =
+                            FeedbackRequestModel.Mark(it.id, it.name?.filter { it.key == language })
                         feedback.marks?.add(mark)
                     }
                 }

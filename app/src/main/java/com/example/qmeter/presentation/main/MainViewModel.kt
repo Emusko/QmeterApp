@@ -1,6 +1,8 @@
 package com.example.qmeter.presentation.main
 
 import android.view.View
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -41,20 +43,23 @@ class MainViewModel @Inject constructor(
                     }
                 }
                 is AppCompatSpinner -> {
-                    dataView.selectedItem?.toString()?.let {
-                        if (it.isNotEmpty())
-                            customerDataMap[attr.name ?: ""] = it
+                    dataView.selectedItem?.let {
+                        if (it is AuthenticationResponseModel.SelectOption)
+                            customerDataMap[attr.name ?: ""] = it.id
                     }
                 }
                 is LinearLayoutCompat -> {
                     val checkedList = arrayListOf<Int?>()
                     dataView.forEach {
                         if (it is AppCompatCheckBox && it.isChecked) {
-                            checkedList.add(it.text?.toString()?.toInt())
+                            checkedList.add(it.tag?.toString()?.toInt())
                         }
                     }
                     if (!checkedList.isNullOrEmpty())
                         customerDataMap[attr.name ?: ""] = checkedList
+                }
+                is RadioGroup -> {
+                    customerDataMap[attr.name ?: ""] = layout.findViewById<RadioButton>(dataView.checkedRadioButtonId)?.text?.toString()
                 }
             }
         }
@@ -90,10 +95,9 @@ class MainViewModel @Inject constructor(
                     }
                 }
                 is AppCompatSpinner -> {
-                    dataView.selectedItem?.toString()?.let {
-                        if (it.isNotEmpty()) {
-                            requestModel[attr.name ?: ""] = it
-                        }
+                    dataView.selectedItem?.let {
+                        if (it is AuthenticationResponseModel.SelectOption)
+                            requestModel[attr.name ?: ""] = it.id
                     }
                 }
                 is LinearLayoutCompat -> {

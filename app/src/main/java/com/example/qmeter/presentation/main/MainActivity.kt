@@ -5,15 +5,14 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import android.text.Editable
+import android.text.Selection
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ArrayAdapter
+import android.widget.RadioGroup
 import androidx.activity.viewModels
-import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.appcompat.widget.AppCompatSpinner
-import androidx.appcompat.widget.AppCompatTextView
-import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.appcompat.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
@@ -23,10 +22,7 @@ import com.example.qmeter.databinding.ActivityMainBinding
 import com.example.qmeter.di.base.BaseActivity
 import com.example.qmeter.di.factory.ViewModelProviderFactory
 import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
-import com.example.qmeter.utils.getColor
-import com.example.qmeter.utils.loadSvgOrOther
-import com.example.qmeter.utils.makePages
-import com.example.qmeter.utils.resolveIconFromAwesome
+import com.example.qmeter.utils.*
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -40,12 +36,22 @@ import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
 import java.util.*
+import java.util.regex.Pattern
 import javax.inject.Inject
+
 
 const val SLI_TAG = "sli_data"
 const val COMMENT_TAG = "comment_data"
 const val CUSTOMER_TAG = "customer_data"
+
 const val CUSTOM_FEEDBACK_TAG = "custom_field_feedback_component"
+private const val emailExpn =
+    ("^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"
+            + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+            + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
+            + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+            + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+            + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$")
 
 class MainActivity : BaseActivity() {
     @Inject
@@ -186,11 +192,11 @@ class MainActivity : BaseActivity() {
         })
 
         binding.next.setOnClickListener {
-            if (pages.size - 1 != viewModel.pageStateLiveData.value?.first){
+            if (pages.size - 1 != viewModel.pageStateLiveData.value?.first) {
                 val page = pages[viewModel.pageStateLiveData.value!!.first]
                 page?.makePages()?.forEach { pageComponent ->
-                    when (pageComponent){
-                        is AuthenticationResponseModel.SliData->{
+                    when (pageComponent) {
+                        is AuthenticationResponseModel.SliData -> {
                             var returning = false
                             pageComponent.attrs?.service?.forEach {
                                 it.rateOptions.forEach {
@@ -203,20 +209,30 @@ class MainActivity : BaseActivity() {
                         }
                         is AuthenticationResponseModel.CustomerData -> {
                             pageComponent.attrs.forEach { attr ->
-                                if (attr.required == true){
-                                    when (val dataView = binding.container.findViewWithTag<View>(attr.name)) {
+                                if (attr.required == true) {
+                                    when (val dataView =
+                                        binding.container.findViewWithTag<View>(attr.name)) {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
-                                                if (it.isEmpty()){
-                                                    dataView.error = getString(R.string.field_error_message)
+                                                if (it.isEmpty()) {
+                                                    dataView.error =
+                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
+                                                } else {
+                                                    if (attr.name == "email" && !it.isEmailValid()){
+                                                        dataView.error =
+                                                            getString(R.string.email_field_error_message)
+                                                        return@setOnClickListener
+                                                    }
                                                 }
                                             }
                                         }
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
-                                                if (it.isEmpty()){
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                if (it.isEmpty()) {
+                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
+                                                        R.id.text_input_error
+                                                    )?.text =
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
@@ -229,8 +245,10 @@ class MainActivity : BaseActivity() {
                                                     checkedList.add(it.text?.toString()?.toInt())
                                                 }
                                             }
-                                            if (checkedList.isNullOrEmpty()){
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                            if (checkedList.isNullOrEmpty()) {
+                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
+                                                    R.id.text_input_error
+                                                )?.text =
                                                     getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
@@ -241,20 +259,24 @@ class MainActivity : BaseActivity() {
                         }
                         is AuthenticationResponseModel.CustomFieldFeedbackComponent -> {
                             pageComponent.attrs?.forEach { attr ->
-                                if (attr.required == true){
-                                    when (val dataView = binding.container.findViewWithTag<View>(attr.name)) {
+                                if (attr.required == true) {
+                                    when (val dataView =
+                                        binding.container.findViewWithTag<View>(attr.name)) {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
-                                                if (it.isEmpty()){
-                                                    dataView.error = getString(R.string.field_error_message)
+                                                if (it.isEmpty()) {
+                                                    dataView.error =
+                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
                                             }
                                         }
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
-                                                if (it.isEmpty()){
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                if (it.isEmpty()) {
+                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
+                                                        R.id.text_input_error
+                                                    )?.text =
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
@@ -267,8 +289,10 @@ class MainActivity : BaseActivity() {
                                                     checkedList.add(it.text?.toString()?.toInt())
                                                 }
                                             }
-                                            if (checkedList.isNullOrEmpty()){
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                            if (checkedList.isNullOrEmpty()) {
+                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
+                                                    R.id.text_input_error
+                                                )?.text =
                                                     getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
@@ -279,20 +303,24 @@ class MainActivity : BaseActivity() {
                         }
                         is AuthenticationResponseModel.CommentData -> {
                             pageComponent.attrs?.let { attr ->
-                                if (attr.required == true){
-                                    when (val dataView = binding.container.findViewWithTag<View>(attr.name)) {
+                                if (attr.required == true) {
+                                    when (val dataView =
+                                        binding.container.findViewWithTag<View>(attr.name)) {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
-                                                if (it.isEmpty()){
-                                                    dataView.error = getString(R.string.field_error_message)
+                                                if (it.isEmpty()) {
+                                                    dataView.error =
+                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
                                             }
                                         }
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
-                                                if (it.isEmpty()){
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                                if (it.isEmpty()) {
+                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
+                                                        R.id.text_input_error
+                                                    )?.text =
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
@@ -305,8 +333,10 @@ class MainActivity : BaseActivity() {
                                                     checkedList.add(it.text?.toString()?.toInt())
                                                 }
                                             }
-                                            if (checkedList.isNullOrEmpty()){
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(R.id.text_input_error)?.text =
+                                            if (checkedList.isNullOrEmpty()) {
+                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
+                                                    R.id.text_input_error
+                                                )?.text =
                                                     getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
@@ -331,6 +361,7 @@ class MainActivity : BaseActivity() {
                 }
                 binding.next.visibility = View.GONE
                 binding.back.visibility = View.GONE
+                binding.submit.visibility = View.GONE
                 languageContainer?.visibility = View.VISIBLE
             }
         }
@@ -373,6 +404,7 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.dataPost.observe(this, {
+            val handler = Handler(Looper.getMainLooper())
             if (it) {
                 responseModel?.pages?.forEach {
                     it?.makePages()?.forEach {
@@ -392,7 +424,7 @@ class MainActivity : BaseActivity() {
                 }
                 responseModel?.finalPageData?.timeout?.let {
                     if (it.time!! > 0) {
-                        Handler(Looper.getMainLooper())
+                        handler
                             .postDelayed({
                                 pageViews.clear()
                                 getLanguageFromUser()
@@ -450,12 +482,13 @@ class MainActivity : BaseActivity() {
             if (languageIsActive) {
                 super.onBackPressed()
             } else {
-            pageViews.forEach { _, linearLayoutCompat ->
-                linearLayoutCompat?.visibility = View.GONE
-            }
-            binding.next.visibility = View.GONE
-            binding.back.visibility = View.GONE
-            languageContainer?.visibility = View.VISIBLE
+                pageViews.forEach { _, linearLayoutCompat ->
+                    linearLayoutCompat?.visibility = View.GONE
+                }
+                binding.next.visibility = View.GONE
+                binding.back.visibility = View.GONE
+                binding.submit.visibility = View.GONE
+                languageContainer?.visibility = View.VISIBLE
             }
         }
 //        if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
@@ -525,33 +558,85 @@ class MainActivity : BaseActivity() {
                     val view = LayoutInflater.from(this)
                         .inflate(R.layout.number_input_from_user_view, binding.container, false)
                         .apply {
-                            this.passwordEt.tag = it.name
+                            val editText = this.passwordEt
+                            editText.tag = it.name
+                            editText.setText(it.prefix)
+                            Selection.setSelection(editText.text, editText.text?.length?: 0)
+
+
+                            this.passwordEt.addTextChangedListener(object : TextWatcher {
+                                override fun onTextChanged(
+                                    s: CharSequence,
+                                    start: Int,
+                                    before: Int,
+                                    count: Int
+                                ) {
+                                }
+
+                                override fun beforeTextChanged(
+                                    s: CharSequence, start: Int, count: Int,
+                                    after: Int
+                                ) {
+                                }
+
+                                override fun afterTextChanged(s: Editable) {
+                                    if (!s.toString().startsWith(it.prefix?: "")) {
+                                        editText.setText(it.prefix?: "")
+                                        Selection.setSelection(editText.text, editText.text?.length?: 0)
+                                    }
+                                }
+                            })
                             (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                         }
                     container?.addView(view)
                 }
                 "select" -> {
-                    val view = LayoutInflater.from(this)
-                        .inflate(R.layout.select_dropdown_view, binding.container, false)
-                        .apply {
-                            val spinnerArrayAdapter = ArrayAdapter(
-                                this@MainActivity, android.R.layout.simple_spinner_item,
-                                arrayListOf<String>().apply {
-                                    it.select?.forEach { selectOption ->
-                                        this.add(selectOption.option!![language] ?: "")
+                    if (it.select_design == null || it.select_design.value == "dropdown") {
+                        val view = LayoutInflater.from(this)
+                            .inflate(R.layout.select_dropdown_view, binding.container, false)
+                            .apply {
+                                val spinnerArrayAdapter = SingleSelectAdapter(
+                                    language,
+                                    this@MainActivity,
+                                    android.R.layout.simple_spinner_item,
+                                    mutableListOf<AuthenticationResponseModel.SelectOption?>().apply {
+                                        it.select?.forEach { selectOption ->
+                                            this.add(selectOption)
+                                        }
                                     }
-                                }
-                            )
+                                )
 
-                            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                            this.spinner?.adapter = spinnerArrayAdapter
-                            this.spinner?.tag = it.name
-                            this.selectTitle.text = it.placeholder!![language] ?: ""
-                        }
-                    container?.addView(view)
+                                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                                this.spinner?.adapter = spinnerArrayAdapter
+                                this.spinner?.tag = it.name
+                                this.selectTitle.text = it.placeholder!![language] ?: ""
+                            }
+                        container?.addView(view)
+                    } else if (it.select_design.value == "radio_button") {
+                        val containerView = RadioGroup(this)
+                        val title = LayoutInflater.from(this@MainActivity)
+                            .inflate(R.layout.input_from_user_sli_view, containerView, false)
+                            .apply {
+                                this.textView.text = it.label!![language] ?: ""
+                            }
+                            .apply {
+                                it.select?.forEach { selectOption ->
+                                    val checkBox = AppCompatRadioButton(this@MainActivity)
+                                        .apply {
+                                            this.text = selectOption.option!![language]
+                                        }
+                                    containerView.addView(checkBox)
+                                }
+                            }
+                        containerView.tag = it.name
+                        container?.addView(title)
+                        container?.addView(containerView)
+                    }
                 }
                 "multi-select" -> {
-                    val containerView = LinearLayoutCompat(this)
+                    val containerView = LinearLayoutCompat(this).apply {
+                        orientation = LinearLayoutCompat.VERTICAL
+                    }
                     val title = LayoutInflater.from(this@MainActivity)
                         .inflate(R.layout.input_from_user_sli_view, containerView, false)
                         .apply {
@@ -562,7 +647,8 @@ class MainActivity : BaseActivity() {
                             it.select?.forEach { selectOption ->
                                 val checkBox = AppCompatCheckBox(this@MainActivity)
                                     .apply {
-                                        this.text = selectOption.id
+                                        this.text = selectOption.option!![language] ?: ""
+                                        this.tag = selectOption.id
                                     }
                                 containerView.addView(checkBox)
                             }
@@ -601,8 +687,35 @@ class MainActivity : BaseActivity() {
                     val view = LayoutInflater.from(this)
                         .inflate(R.layout.number_input_from_user_view, binding.container, false)
                         .apply {
+                            val editText = this.passwordEt
+                            editText.tag = it.name
+                            editText.setText(it.prefix)
+                            Selection.setSelection(editText.text, editText.text?.length?: 0)
+
+
+                            this.passwordEt.addTextChangedListener(object : TextWatcher {
+                                override fun onTextChanged(
+                                    s: CharSequence,
+                                    start: Int,
+                                    before: Int,
+                                    count: Int
+                                ) {
+                                }
+
+                                override fun beforeTextChanged(
+                                    s: CharSequence, start: Int, count: Int,
+                                    after: Int
+                                ) {
+                                }
+
+                                override fun afterTextChanged(s: Editable) {
+                                    if (!s.toString().startsWith(it.prefix?: "")) {
+                                        editText.setText(it.prefix?: "")
+                                        Selection.setSelection(editText.text, editText.text?.length?: 0)
+                                    }
+                                }
+                            })
                             (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
-                            this.passwordEt.tag = it.name
 
                         }
                     container?.addView(view)
@@ -640,24 +753,48 @@ class MainActivity : BaseActivity() {
                     container?.addView(view)
                 }
                 "select" -> {
-                    val view = LayoutInflater.from(this)
-                        .inflate(R.layout.select_dropdown_view, binding.container, false)
-                        .apply {
-                            val spinnerArrayAdapter = ArrayAdapter(
-                                this@MainActivity, android.R.layout.simple_spinner_item,
-                                arrayListOf<String>().apply {
-                                    it.select?.forEach { selectOption ->
-                                        this.add(selectOption.id ?: "")
+                    if (it.select_design == null || it.select_design.value == "dropdown") {
+                        val view = LayoutInflater.from(this)
+                            .inflate(R.layout.select_dropdown_view, binding.container, false)
+                            .apply {
+                                val spinnerArrayAdapter = SingleSelectAdapter(
+                                    language,
+                                    this@MainActivity,
+                                    android.R.layout.simple_spinner_item,
+                                    mutableListOf<AuthenticationResponseModel.SelectOption?>().apply {
+                                        it.select?.forEach { selectOption ->
+                                            this.add(selectOption)
+                                        }
                                     }
-                                }
-                            )
+                                )
 
-                            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                            this.spinner?.adapter = spinnerArrayAdapter
-                            this.spinner?.tag = it.name
-                            this.selectTitle.text = it.placeholder!![language] ?: ""
-                        }
-                    container?.addView(view)
+                                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                                this.spinner?.adapter = spinnerArrayAdapter
+                                this.spinner?.tag = it.name
+                                this.selectTitle.text = it.placeholder!![language] ?: ""
+                            }
+                        container?.addView(view)
+                    } else if (it.select_design.value == "radio_button") {
+                        val containerView = LinearLayoutCompat(this)
+                        val title = LayoutInflater.from(this@MainActivity)
+                            .inflate(R.layout.input_from_user_sli_view, containerView, false)
+                            .apply {
+                                this.textView.text = it.label!![language] ?: ""
+                                this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
+                            }
+                            .apply {
+                                it.select?.forEach { selectOption ->
+                                    val checkBox = AppCompatRadioButton(this@MainActivity)
+                                        .apply {
+                                            this.text = selectOption.option!![language]
+                                        }
+                                    containerView.addView(checkBox)
+                                }
+                            }
+                        containerView.tag = it.name
+                        container?.addView(title)
+                        container?.addView(containerView)
+                    }
                 }
                 "multi-select" -> {
                     val containerView = LinearLayoutCompat(this)
@@ -671,7 +808,8 @@ class MainActivity : BaseActivity() {
                             it.select?.forEach { selectOption ->
                                 val checkBox = AppCompatCheckBox(this@MainActivity)
                                     .apply {
-                                        this.text = selectOption.id
+                                        this.text = selectOption.option!![language]
+                                        this.tag = selectOption.id
                                     }
                                 containerView.addView(checkBox)
                             }
@@ -712,11 +850,11 @@ class MainActivity : BaseActivity() {
                 val linearLayout = LayoutInflater.from(this)
                     .inflate(R.layout.choose_language_view, binding.container, false).apply {
                         this.textView.text = languageModel.title
-                        this.textView.setTextColor(languageModel?.titleColor.getColor())
+                        this.textView.setTextColor(languageModel.titleColor.getColor())
                         this.setOnClickListener {
                             languageIsActive = false
                             language = languageModel.langCode ?: "en"
-                            viewModel.requestModel.put("language", language)
+                            viewModel.requestModel["language"] = language
                             initializeViews()
                             viewModel.pageStateLiveData.value = Pair(0, false)
                         }

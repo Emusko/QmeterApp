@@ -12,6 +12,7 @@
     <string name="outgoing_format">Xərc: %1$s</string>
     <string name="password_too_small">Şifrəniz 6 simvoldan az olmamalıdır</string>
     <string name="field_error_message">Bu sahə mütləq doldurulmalıdır</string>
+    <string name="email_field_error_message">E-mail formatı doğru deyil</string>
     <string-array name="months">
         <item>Yanvar</item>
         <item>Fevral</item>

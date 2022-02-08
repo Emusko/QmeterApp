@@ -10,6 +10,7 @@ import android.text.Selection
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.*
@@ -87,6 +88,9 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setPageView() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
         Glide
             .with(this)
             .load(responseModel?.generalSettings?.logo_url)

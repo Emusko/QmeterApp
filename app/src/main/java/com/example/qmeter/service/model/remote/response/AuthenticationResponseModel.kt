@@ -119,7 +119,7 @@ data class AuthenticationResponseModel(
     ) : Serializable
 
     data class Reaction(
-        @SerializedName("text") val text: Label? = Label(),
+        @SerializedName("text") val text: HashMap<String, String>? = hashMapOf(),
         @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("text_bg_color") val textBgColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("text_size") val textSize: String? = null,

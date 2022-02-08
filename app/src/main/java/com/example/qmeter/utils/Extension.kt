@@ -30,7 +30,10 @@ fun AuthenticationResponseModel.Page.makePages(): ArrayList<PageComponent?> {
 
 fun ArrayList<Int>?.getColor(): Int {
     val colorArray = this?: arrayListOf(0, 0, 0)
-    return Color.rgb(colorArray[0], colorArray[1], colorArray[2])
+    return if (colorArray.size == 4)
+        Color.rgb(colorArray[0], colorArray[1], colorArray[2])
+    else
+        0
 }
 
 private const val emailExpn =

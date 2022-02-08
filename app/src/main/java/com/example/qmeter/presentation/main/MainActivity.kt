@@ -73,6 +73,8 @@ class MainActivity : BaseActivity() {
 
     private var condition: AuthenticationResponseModel.ConditionOverallData? = null
 
+    private var finalPageCondition: AuthenticationResponseModel.Reaction? = null
+
     private var language = "en"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,10 +111,13 @@ class MainActivity : BaseActivity() {
                     sliFeedBacks += it.value
                 }
                 if (sliFeedBacks.contains("unacceptable") || sliFeedBacks.contains("bad")) {
+                    finalPageCondition = responseModel?.finalPageData?.negative
                     condition = pages[pageIndex]?.condition?.overall?.negative
                 } else if (sliFeedBacks.contains("excellent") || sliFeedBacks.contains("good")) {
+                    finalPageCondition = responseModel?.finalPageData?.positive
                     condition = pages[pageIndex]?.condition?.overall?.positive
                 } else if (sliFeedBacks.contains("neutral")) {
+                    finalPageCondition = responseModel?.finalPageData?.neutral
                     condition = pages[pageIndex]?.condition?.overall?.neutral
                 }
                 sliCondition.clear()
@@ -197,15 +202,27 @@ class MainActivity : BaseActivity() {
                 page?.makePages()?.forEach { pageComponent ->
                     when (pageComponent) {
                         is AuthenticationResponseModel.SliData -> {
-                            var returning = false
-                            pageComponent.attrs?.service?.forEach {
-                                it.rateOptions.forEach {
-                                    returning = it.selected!!
-                                    return@forEach
+                            val returning = arrayOfNulls<Boolean>(pageComponent.attrs?.service?.size?: 0)
+                            var conditionToReturn = false
+                            run loop@{
+                                pageComponent.attrs?.service?.forEachIndexed { index, service ->
+                                    service.rateOptions.forEach { rateOption ->
+                                        if (rateOption.selected!!) {
+                                            returning[index] = rateOption.selected!!
+                                        }
+                                    }
                                 }
                             }
-                            if (!returning)
+                            run loop@{
+                                returning.forEach {
+                                    if (!(it != null && it != false))
+                                        conditionToReturn = true
+                                    return@loop
+                                }
+                            }
+                            if (conditionToReturn){
                                 return@setOnClickListener
+                            }
                         }
                         is AuthenticationResponseModel.CustomerData -> {
                             pageComponent.attrs.forEach { attr ->
@@ -399,11 +416,25 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
-            viewModel.postFeedback()
+            binding.submit.visibility = View.GONE
+            binding.back.visibility = View.GONE
             binding.container.removeAllViews()
+            viewModel.addToQueue()
+            viewModel.dataPost.postValue(true)
         }
 
         viewModel.dataPost.observe(this, {
+            val finalPageData = responseModel?.finalPageData
+            finalPageData?.pageBg?.let {
+                binding.motherLayout.setBackgroundColor(it.getColor())
+            }
+            val title = LayoutInflater.from(this)
+                .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
+                    this.textView.text = finalPageCondition?.text!![language]
+                    this.textView.setBackgroundColor(finalPageCondition?.textBgColor?.getColor()?: 0)
+                    this.textView.setTextColor(finalPageCondition?.textColor?.getColor()?: 0)
+                }
+            binding.container.addView(title)
             val handler = Handler(Looper.getMainLooper())
             if (it) {
                 responseModel?.pages?.forEach {
@@ -426,17 +457,21 @@ class MainActivity : BaseActivity() {
                     if (it.time!! > 0) {
                         handler
                             .postDelayed({
+                                binding.container.removeAllViews()
                                 pageViews.clear()
                                 getLanguageFromUser()
                                 condition = null
+                                finalPageCondition = null
                             }, it.time.toLong())
                     }
                 }
 
                 logo.setOnClickListener {
+                    binding.container.removeAllViews()
                     pageViews.clear()
                     getLanguageFromUser()
                     condition = null
+                    finalPageCondition = null
                 }
 
             }
@@ -531,7 +566,7 @@ class MainActivity : BaseActivity() {
                                 val newCalendar = Calendar.getInstance()
                                 DatePickerDialog(
                                     this@MainActivity,
-                                    { view, year, monthOfYear, dayOfMonth ->
+                                    { _, year, monthOfYear, dayOfMonth ->
                                         this.passwordEt.setText(
                                             getString(
                                                 R.string.date_picker_format,
@@ -968,6 +1003,7 @@ class MainActivity : BaseActivity() {
         dialogView.title.text = markPageData?.title!![language]
 
 
+        val alertDialog = dialog.create()
         markPageData.marks.forEach { mark ->
             val markText = LayoutInflater.from(this)
                 .inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false)
@@ -1002,6 +1038,7 @@ class MainActivity : BaseActivity() {
                                 )
                             }
                         }
+                        alertDialog.dismiss()
                     }
                 } else {
                     setOnClickListener {
@@ -1035,7 +1072,6 @@ class MainActivity : BaseActivity() {
             }
             dialogView.markContainer.addView(markText)
         }
-        val alertDialog = dialog.create()
         dialogView.skip.setOnClickListener { alertDialog.dismiss() }
         dialogView.submit.setOnClickListener { alertDialog.dismiss() }
         alertDialog.show()

@@ -1,5 +1,7 @@
 package com.example.qmeter.presentation.main
 
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -15,7 +17,10 @@ import com.example.qmeter.service.model.remote.response.AuthenticationResponseMo
 import com.example.qmeter.usecase.PostFeedbackUseCase
 import com.google.android.material.textfield.TextInputEditText
 import okhttp3.Credentials
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MainViewModel @Inject constructor(
     private val postFeedbackUseCase: PostFeedbackUseCase
@@ -24,9 +29,19 @@ class MainViewModel @Inject constructor(
 
     val pageStateLiveData = MutableLiveData<Pair<Int, Boolean>>()
 
+    private val requestList = arrayListOf<HashMap<String?, Any?>>()
+
     val requestModel = hashMapOf<String?, Any?>()
 
     val dataPost = MutableLiveData<Boolean>()
+
+    fun addToQueue(){
+        requestList.add(requestModel)
+    }
+
+    init {
+        executeNotificationTimer()
+    }
 
     fun bindCustomerDataToRequest(
         layout: LinearLayoutCompat?,
@@ -66,19 +81,35 @@ class MainViewModel @Inject constructor(
         requestModel[CUSTOMER_TAG] = customerDataMap
     }
 
+    private fun executeNotificationTimer() {
 
+        val handler = Handler(Looper.getMainLooper())
+        val timer = Timer()
+        val doAsynchronousTask: TimerTask = object : TimerTask() {
+            override fun run() {
+                handler.post {
+                    try {
+                        postFeedback()
+                    } catch (e: Exception) {
+                    }
+                }
+            }
+        }
+        timer.schedule(doAsynchronousTask, 0, 60000)
+    }
     fun postFeedback() {
-        postFeedbackUseCase
-            .execute(
-                arrayListOf(requestModel),
-                {
-                    dataPost.value = true
-                },
-                {
-                    dataPost.value = true
-                },
-                subscriptions
-            )
+        requestList.forEach { request ->
+            postFeedbackUseCase
+                .execute(
+                    arrayListOf(request),
+                    {
+                        requestList.remove(request)
+                    },
+                    {
+                    },
+                    subscriptions
+                )
+        }
     }
 
     fun bindCustomFieldFeedbackDataToRequest(

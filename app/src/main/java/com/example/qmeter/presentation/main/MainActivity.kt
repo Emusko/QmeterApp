@@ -136,17 +136,17 @@ class MainActivity : BaseActivity() {
                         View.GONE
 
                 if (it.customerData == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG)?.visibility =
                         View.VISIBLE
                 else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG)?.visibility =
                         View.GONE
 
                 if (it.customFields == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility =
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
                         View.VISIBLE
                 else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG).visibility =
+                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
                         View.GONE
             }
 
@@ -884,12 +884,19 @@ class MainActivity : BaseActivity() {
 
 
             languageContainer?.addView(title)
+            if (languages?.size?.compareTo(1) == 0){
+                languageIsActive = false
+                language = languages[0].langCode ?: "en"
+                viewModel.requestModel["language"] = language
+                initializeViews()
+                viewModel.pageStateLiveData.value = Pair(0, false)
+            } else {
             languages?.forEach { languageModel ->
 
                 val linearLayout = LayoutInflater.from(this)
                     .inflate(R.layout.choose_language_view, binding.container, false).apply {
-                        this.textView.text = languageModel.title
-                        this.textView.setTextColor(languageModel.titleColor.getColor())
+                        this.textView.text = languageModel.label
+                        this.textView.setTextColor(languageModel.labelColor.getColor())
                         this.setOnClickListener {
                             languageIsActive = false
                             language = languageModel.langCode ?: "en"
@@ -901,6 +908,7 @@ class MainActivity : BaseActivity() {
                 linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
 
                 languageContainer?.addView(linearLayout)
+            }
             }
             binding.container.addView(languageContainer)
         } else {
@@ -985,6 +993,7 @@ class MainActivity : BaseActivity() {
 
 
             container?.tag = SLI_TAG
+            if (sliData.attrs.service.size > 1)
             container?.addView(serviceTitle)
             container?.addView(linearLayout)
         }

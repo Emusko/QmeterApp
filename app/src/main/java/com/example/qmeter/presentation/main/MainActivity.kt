@@ -127,22 +127,22 @@ class MainActivity : BaseActivity() {
                 sliCondition.clear()
             }
 
-            condition?.let {
-                if (it.commentData == true)
+            condition?.let { reaction ->
+                if (reaction.commentData == true)
                     binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
                         View.VISIBLE
                 else
                     binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
                         View.GONE
 
-                if (it.customerData == true)
+                if (reaction.customerData == true)
                     binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG)?.visibility =
                         View.VISIBLE
                 else
                     binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG)?.visibility =
                         View.GONE
 
-                if (it.customFields == true)
+                if (reaction.customFields == true)
                     binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
                         View.VISIBLE
                 else
@@ -151,8 +151,8 @@ class MainActivity : BaseActivity() {
             }
 
             var skipCounter = 0
-            pageViews[pageIndex]?.forEach {
-                if (it.visibility == View.VISIBLE) {
+            pageViews[pageIndex]?.forEach { page ->
+                if (page.visibility == View.VISIBLE) {
                     skipCounter++
                 }
             }
@@ -175,7 +175,8 @@ class MainActivity : BaseActivity() {
                     viewModel.pageStateLiveData.value = Pair(pages.size - 1, true)
                 }
                 pageIndex < pages.size -> {
-                    if (pages[pageIndex]?.properties?.isBackButtonEnabled!!) {
+                    if ((pages[pageIndex]?.properties?.isBackButtonEnabled!!)
+                        || (pageIndex == 0  && responseModel?.languagePage?.languages?.size!! >= 1)) {
                         binding.back.visibility =
                             View.VISIBLE
                     } else {
@@ -377,13 +378,13 @@ class MainActivity : BaseActivity() {
                 viewModel.pageStateLiveData.value =
                     Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
             } else {
-                pageViews.forEach { _, linearLayoutCompat ->
+                pageViews.forEach { (_, linearLayoutCompat) ->
                     linearLayoutCompat?.visibility = View.GONE
                 }
                 binding.next.visibility = View.GONE
                 binding.back.visibility = View.GONE
                 binding.submit.visibility = View.GONE
-                languageContainer?.visibility = View.VISIBLE
+                getLanguageFromUser()
             }
         }
         binding.submit.setOnClickListener {
@@ -470,7 +471,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-                logo.setOnClickListener {
+                binding.qmeterAppLogo.setOnClickListener {
                     binding.container.removeAllViews()
                     pageViews.clear()
                     getLanguageFromUser()
@@ -519,7 +520,10 @@ class MainActivity : BaseActivity() {
                 Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
         } else {
             if (languageIsActive) {
-                super.onBackPressed()
+                if (!(viewModel.pageStateLiveData.value?.first == 0  && responseModel?.languagePage?.languages?.size!! >= 1))
+                    super.onBackPressed()
+                else
+                    binding.back.visibility = View.GONE
             } else {
                 pageViews.forEach { _, linearLayoutCompat ->
                     linearLayoutCompat?.visibility = View.GONE

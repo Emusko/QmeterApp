@@ -2,6 +2,7 @@ package com.example.qmeter.presentation.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
@@ -42,6 +43,9 @@ class AuthenticateActivity : BaseActivity() {
         if (!(viewModel.sharedPreferences.getString("username", "").isNullOrEmpty()&&viewModel.sharedPreferences.getString("username", "").isNullOrEmpty())){
             viewModel.getComponents(viewModel.sharedPreferences.getString("username", "")!!,
                 viewModel.sharedPreferences.getString("password", "")!!)
+        } else {
+            binding.progressBar.visibility = View.GONE
+            binding.credentialContainer.visibility = View.VISIBLE
         }
     }
 
@@ -53,6 +57,8 @@ class AuthenticateActivity : BaseActivity() {
         }
 
         viewModel.error.subscribe {
+            binding.progressBar.visibility = View.GONE
+            binding.credentialContainer.visibility = View.VISIBLE
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         }.addTo(subscriptions)
 
@@ -64,5 +70,8 @@ class AuthenticateActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         subscriptions.clear()
+
+        binding.progressBar.visibility = View.GONE
+        binding.credentialContainer.visibility = View.VISIBLE
     }
 }

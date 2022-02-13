@@ -2,6 +2,8 @@ package com.example.qmeter.presentation.main
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,22 +24,25 @@ import com.example.qmeter.R
 import com.example.qmeter.databinding.ActivityMainBinding
 import com.example.qmeter.di.base.BaseActivity
 import com.example.qmeter.di.factory.ViewModelProviderFactory
+import com.example.qmeter.presentation.auth.AuthenticateActivity
 import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
 import com.example.qmeter.utils.*
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
+import kotlinx.android.synthetic.main.dialog_exit_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.*
+import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
 import kotlinx.android.synthetic.main.markpage_choose_view.view.*
+import kotlinx.android.synthetic.main.markpage_choose_view.view.submit
 import kotlinx.android.synthetic.main.select_dropdown_view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
 import java.util.*
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 
@@ -46,17 +51,13 @@ const val COMMENT_TAG = "comment_data"
 const val CUSTOMER_TAG = "customer_data"
 
 const val CUSTOM_FEEDBACK_TAG = "custom_field_feedback_component"
-private const val emailExpn =
-    ("^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"
-            + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-            + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
-            + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-            + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
-            + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$")
 
 class MainActivity : BaseActivity() {
     @Inject
     lateinit var factory: ViewModelProviderFactory
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
 
     private val viewModel: MainViewModel by viewModels { factory }
 
@@ -77,6 +78,9 @@ class MainActivity : BaseActivity() {
     private var finalPageCondition: AuthenticationResponseModel.Reaction? = null
 
     private var language = "en"
+
+    private var exitCounter = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -88,6 +92,20 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setPageView() {
+        binding.qmeterAppLogo.setOnClickListener {
+            binding.container.removeAllViews()
+            pageViews.clear()
+            getLanguageFromUser()
+            condition = null
+            finalPageCondition = null
+        }
+        binding.exitDummy.setOnClickListener {
+            exitCounter++
+            if (exitCounter == 3){
+                exitCounter = 0
+                popUpExitDialog()
+            }
+        }
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
@@ -110,21 +128,28 @@ class MainActivity : BaseActivity() {
             pageViews[pageIndex - 1]?.visibility = View.GONE
 
             if (sliCondition.isNotEmpty()) {
+                val hasCondition = !pages[pageIndex]!!.condition?.identification.isNullOrEmpty()
                 var sliFeedBacks = ""
                 sliCondition.forEach {
                     sliFeedBacks += it.value
                 }
                 if (sliFeedBacks.contains("unacceptable") || sliFeedBacks.contains("bad")) {
                     finalPageCondition = responseModel?.finalPageData?.negative
-                    condition = pages[pageIndex]?.condition?.overall?.negative
+                    if (hasCondition)
+                        condition = pages[pageIndex]?.condition?.overall?.negative
                 } else if (sliFeedBacks.contains("excellent") || sliFeedBacks.contains("good")) {
                     finalPageCondition = responseModel?.finalPageData?.positive
-                    condition = pages[pageIndex]?.condition?.overall?.positive
+                    if (hasCondition)
+                        condition = pages[pageIndex]?.condition?.overall?.positive
                 } else if (sliFeedBacks.contains("neutral")) {
                     finalPageCondition = responseModel?.finalPageData?.neutral
-                    condition = pages[pageIndex]?.condition?.overall?.neutral
+                    if (hasCondition)
+                        condition = pages[pageIndex]?.condition?.overall?.neutral
                 }
-                sliCondition.clear()
+
+
+            } else {
+                condition = null
             }
 
             condition?.let { reaction ->
@@ -176,7 +201,8 @@ class MainActivity : BaseActivity() {
                 }
                 pageIndex < pages.size -> {
                     if ((pages[pageIndex]?.properties?.isBackButtonEnabled!!)
-                        || (pageIndex == 0  && responseModel?.languagePage?.languages?.size!! >= 1)) {
+                        || (pageIndex == 0 && responseModel?.languagePage?.languages?.size!! >= 1)
+                    ) {
                         binding.back.visibility =
                             View.VISIBLE
                     } else {
@@ -207,7 +233,9 @@ class MainActivity : BaseActivity() {
                 page?.makePages()?.forEach { pageComponent ->
                     when (pageComponent) {
                         is AuthenticationResponseModel.SliData -> {
-                            val returning = arrayOfNulls<Boolean>(pageComponent.attrs?.service?.size?: 0)
+                            val returning = arrayOfNulls<Boolean>(
+                                pageComponent.attrs?.service?.size ?: 0
+                            )
                             var conditionToReturn = false
                             run loop@{
                                 pageComponent.attrs?.service?.forEachIndexed { index, service ->
@@ -225,7 +253,7 @@ class MainActivity : BaseActivity() {
                                     return@loop
                                 }
                             }
-                            if (conditionToReturn){
+                            if (conditionToReturn) {
                                 return@setOnClickListener
                             }
                         }
@@ -241,7 +269,7 @@ class MainActivity : BaseActivity() {
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 } else {
-                                                    if (attr.name == "email" && !it.isEmailValid()){
+                                                    if (attr.name == "email" && !it.isEmailValid()) {
                                                         dataView.error =
                                                             getString(R.string.email_field_error_message)
                                                         return@setOnClickListener
@@ -333,6 +361,7 @@ class MainActivity : BaseActivity() {
                                                 if (it.isEmpty()) {
                                                     dataView.error =
                                                         getString(R.string.field_error_message)
+                                                    dataView.clearFocus()
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -434,12 +463,15 @@ class MainActivity : BaseActivity() {
                 binding.motherLayout.setBackgroundColor(it.getColor())
             }
             val title = LayoutInflater.from(this)
-                .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
-                    this.textView.text = finalPageCondition?.text!![language]
-                    this.textView.setBackgroundColor(finalPageCondition?.textBgColor?.getColor()?: 0)
-                    this.textView.setTextColor(finalPageCondition?.textColor?.getColor()?: 0)
+                .inflate(R.layout.input_from_user_sli_font_view_final_page, binding.container, false).apply {
+                    this.textView.text =
+                        finalPageCondition?.text!![language]?.resolveIconFromAwesome()
+                    this.textView.setBackgroundColor(
+                        finalPageCondition?.textBgColor?.getColor() ?: 0
+                    )
+                    this.textView.setTextColor(finalPageCondition?.textColor?.getColor() ?: 0)
                 }
-            binding.container.addView(title)
+                binding.container.addView(title)
             val handler = Handler(Looper.getMainLooper())
             if (it) {
                 responseModel?.pages?.forEach {
@@ -469,14 +501,6 @@ class MainActivity : BaseActivity() {
                                 finalPageCondition = null
                             }, it.time.toLong())
                     }
-                }
-
-                binding.qmeterAppLogo.setOnClickListener {
-                    binding.container.removeAllViews()
-                    pageViews.clear()
-                    getLanguageFromUser()
-                    condition = null
-                    finalPageCondition = null
                 }
 
             }
@@ -604,7 +628,7 @@ class MainActivity : BaseActivity() {
                             val editText = this.passwordEt
                             editText.tag = it.name
                             editText.setText(it.prefix)
-                            Selection.setSelection(editText.text, editText.text?.length?: 0)
+                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
 
 
                             this.passwordEt.addTextChangedListener(object : TextWatcher {
@@ -623,9 +647,12 @@ class MainActivity : BaseActivity() {
                                 }
 
                                 override fun afterTextChanged(s: Editable) {
-                                    if (!s.toString().startsWith(it.prefix?: "")) {
-                                        editText.setText(it.prefix?: "")
-                                        Selection.setSelection(editText.text, editText.text?.length?: 0)
+                                    if (!s.toString().startsWith(it.prefix ?: "")) {
+                                        editText.setText(it.prefix ?: "")
+                                        Selection.setSelection(
+                                            editText.text,
+                                            editText.text?.length ?: 0
+                                        )
                                     }
                                 }
                             })
@@ -733,7 +760,7 @@ class MainActivity : BaseActivity() {
                             val editText = this.passwordEt
                             editText.tag = it.name
                             editText.setText(it.prefix)
-                            Selection.setSelection(editText.text, editText.text?.length?: 0)
+                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
 
 
                             this.passwordEt.addTextChangedListener(object : TextWatcher {
@@ -752,9 +779,12 @@ class MainActivity : BaseActivity() {
                                 }
 
                                 override fun afterTextChanged(s: Editable) {
-                                    if (!s.toString().startsWith(it.prefix?: "")) {
-                                        editText.setText(it.prefix?: "")
-                                        Selection.setSelection(editText.text, editText.text?.length?: 0)
+                                    if (!s.toString().startsWith(it.prefix ?: "")) {
+                                        editText.setText(it.prefix ?: "")
+                                        Selection.setSelection(
+                                            editText.text,
+                                            editText.text?.length ?: 0
+                                        )
                                     }
                                 }
                             })
@@ -1003,6 +1033,29 @@ class MainActivity : BaseActivity() {
         }
 
         return container
+    }
+
+    private fun popUpExitDialog(){
+        val dialog = AlertDialog.Builder(this)
+        val dialogView = LayoutInflater.from(this)
+            .inflate(R.layout.dialog_exit_view, LinearLayoutCompat(this), false)
+        dialog.setView(dialogView)
+        val alertDialog = dialog.create()
+        dialogView.submit.setOnClickListener {
+            dialogView.passwordEt.text?.toString()?.let {
+                if (it == sharedPreferences.getString("password", "")){
+                    sharedPreferences.edit().clear().apply()
+                    startActivity(Intent(this, AuthenticateActivity::class.java))
+                    finish()
+                    alertDialog.dismiss()
+                }
+            }
+        }
+        dialogView.cancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
     }
 
     private fun popUpMarkPage(

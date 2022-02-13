@@ -11,18 +11,37 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/qmeterAppLogo"
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:paddingStart="10dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="10dp"
-            android:scaleType="fitStart"
-            app:srcCompat="@drawable/ic_logo_qmeter"
-            tools:ignore="RtlSymmetry" />
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/qmeterAppLogo"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:paddingStart="10dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="10dp"
+                android:scaleType="fitStart"
+                app:srcCompat="@drawable/ic_logo_qmeter"
+                tools:ignore="RtlSymmetry" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/exitDummy"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimary"
+                android:paddingStart="10dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="10dp"
+                android:scaleType="fitStart"
+                tools:ignore="RtlSymmetry" />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/motherLayout"
             android:layout_width="match_parent"

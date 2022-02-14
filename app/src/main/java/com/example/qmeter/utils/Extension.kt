@@ -44,8 +44,8 @@ private const val emailExpn =
             + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
             + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$")
 
-fun String.isEmailValid(): Boolean =
-    Pattern.compile(emailExpn, Pattern.CASE_INSENSITIVE).matcher(this).matches()
+fun String?.isEmailValid(): Boolean =
+    Pattern.compile(emailExpn, Pattern.CASE_INSENSITIVE).matcher(this?: " ").matches()
 
 fun String.resolveIconFromAwesome(): String {
     return when (this) {

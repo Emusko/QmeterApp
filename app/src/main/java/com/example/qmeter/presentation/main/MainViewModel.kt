@@ -1,5 +1,6 @@
 package com.example.qmeter.presentation.main
 
+import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.qmeter.di.base.BaseViewModel
 import com.example.qmeter.service.model.remote.request.FeedbackRequestModel
 import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
+import com.example.qmeter.usecase.GetCustomersUseCase
 import com.example.qmeter.usecase.PostFeedbackUseCase
 import com.google.android.material.textfield.TextInputEditText
 import okhttp3.Credentials
@@ -23,6 +25,8 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class MainViewModel @Inject constructor(
+    private val getCustomersUseCase: GetCustomersUseCase,
+    val sharedPreferences: SharedPreferences,
     private val postFeedbackUseCase: PostFeedbackUseCase
 ) : BaseViewModel() {
     val viewData: MutableLiveData<AuthenticationResponseModel> = MutableLiveData()
@@ -36,9 +40,19 @@ class MainViewModel @Inject constructor(
     val dataPost = MutableLiveData<Boolean>()
 
     fun addToQueue(){
-        requestList.add(requestModel)
+        val request = requestModel.clone()
+        requestList.add(request as HashMap<String?, Any?>)
+        postFeedback()
     }
-
+    fun getComponents(){
+        getCustomersUseCase.execute(
+            sharedPreferences.getString("username", "")?: "",
+            sharedPreferences.getString("password", "")?: "",{
+                    viewData.value = it
+            }, {
+                error.onNext(it.localizedMessage?: "")
+            }, subscriptions)
+    }
     init {
         executeNotificationTimer()
     }
@@ -173,7 +187,11 @@ class MainViewModel @Inject constructor(
                 feedBacks.add(feedback)
             }
         }
-        requestModel["feedbacks"] = feedBacks
+        if (requestModel["feedbacks"] is ArrayList<*>){
+            (requestModel["feedbacks"] as ArrayList<FeedbackRequestModel>).addAll(feedBacks)
+        } else {
+            requestModel["feedbacks"] = feedBacks
+        }
     }
 
 

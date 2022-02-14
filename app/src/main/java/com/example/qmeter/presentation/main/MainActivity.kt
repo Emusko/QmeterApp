@@ -93,9 +93,10 @@ class MainActivity : BaseActivity() {
 
     private fun setPageView() {
         binding.qmeterAppLogo.setOnClickListener {
+            viewModel.getComponents()
             binding.container.removeAllViews()
             pageViews.clear()
-            getLanguageFromUser()
+//            getLanguageFromUser()
             condition = null
             finalPageCondition = null
         }
@@ -119,6 +120,13 @@ class MainActivity : BaseActivity() {
 
         getLanguageFromUser()
 
+        viewModel.viewData.observe(this){
+            startActivity(Intent(this, MainActivity::class.java).apply {
+                putExtra("pagesResponse", it)
+            })
+            finish()
+        }
+
         viewModel.pageStateLiveData.observe(this, {
             val pageIndex = it.first
             val back = it.second
@@ -128,51 +136,54 @@ class MainActivity : BaseActivity() {
             pageViews[pageIndex - 1]?.visibility = View.GONE
 
             if (sliCondition.isNotEmpty()) {
-                val hasCondition = !pages[pageIndex]!!.condition?.identification.isNullOrEmpty()
                 var sliFeedBacks = ""
                 sliCondition.forEach {
                     sliFeedBacks += it.value
                 }
                 if (sliFeedBacks.contains("unacceptable") || sliFeedBacks.contains("bad")) {
                     finalPageCondition = responseModel?.finalPageData?.negative
-                    if (hasCondition)
                         condition = pages[pageIndex]?.condition?.overall?.negative
                 } else if (sliFeedBacks.contains("excellent") || sliFeedBacks.contains("good")) {
                     finalPageCondition = responseModel?.finalPageData?.positive
-                    if (hasCondition)
                         condition = pages[pageIndex]?.condition?.overall?.positive
                 } else if (sliFeedBacks.contains("neutral")) {
                     finalPageCondition = responseModel?.finalPageData?.neutral
-                    if (hasCondition)
                         condition = pages[pageIndex]?.condition?.overall?.neutral
                 }
 
-
-            } else {
-                condition = null
             }
 
             condition?.let { reaction ->
-                if (reaction.commentData == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
-                        View.VISIBLE
-                else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
-                        View.GONE
-
-                if (reaction.customerData == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG)?.visibility =
-                        View.VISIBLE
-                else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG)?.visibility =
-                        View.GONE
-
-                if (reaction.customFields == true)
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
-                        View.VISIBLE
-                else
-                    binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
-                        View.GONE
+                reaction.commentData?.let {
+                    sliCondition.clear()
+                    if (it){
+                        binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
+                            View.VISIBLE
+                    } else {
+                        binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
+                            View.GONE
+                    }
+                }
+                reaction.customerData?.let {
+                    sliCondition.clear()
+                    if (it){
+                        binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
+                            View.VISIBLE
+                    } else {
+                        binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
+                            View.GONE
+                    }
+                }
+                reaction.customFields?.let {
+                    sliCondition.clear()
+                    if (it){
+                        binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
+                            View.VISIBLE
+                    } else {
+                        binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
+                            View.GONE
+                    }
+                }
             }
 
             var skipCounter = 0
@@ -259,21 +270,26 @@ class MainActivity : BaseActivity() {
                         }
                         is AuthenticationResponseModel.CustomerData -> {
                             pageComponent.attrs.forEach { attr ->
+                                val dataView =
+                                    binding.container.findViewWithTag<View>(attr.name)
+
+                                if (dataView is TextInputEditText
+                                    && attr.name == "email"
+                                    && dataView.text?.toString()?.isNotEmpty() == true
+                                    && dataView.text?.toString()?.isEmailValid() == false
+                                ) {
+                                    dataView.error =
+                                        getString(R.string.email_field_error_message)
+                                    return@setOnClickListener
+                                }
                                 if (attr.required == true) {
-                                    when (val dataView =
-                                        binding.container.findViewWithTag<View>(attr.name)) {
+                                    when (dataView) {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
                                                 if (it.isEmpty()) {
                                                     dataView.error =
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
-                                                } else {
-                                                    if (attr.name == "email" && !it.isEmailValid()) {
-                                                        dataView.error =
-                                                            getString(R.string.email_field_error_message)
-                                                        return@setOnClickListener
-                                                    }
                                                 }
                                             }
                                         }
@@ -417,33 +433,34 @@ class MainActivity : BaseActivity() {
             }
         }
         binding.submit.setOnClickListener {
+            val response = responseModel?.copy()
             pageViews.forEach { page ->
                 page.value?.forEach { pageView ->
                     when (pageView.tag as? String) {
                         COMMENT_TAG -> {
                             viewModel.bindCommentDataToRequest(
                                 pageView as? LinearLayoutCompat,
-                                responseModel?.pages!![page.key]?.commentData
+                                response?.pages!![page.key]?.commentData
                             )
                         }
                         CUSTOMER_TAG -> {
                             viewModel.bindCustomerDataToRequest(
                                 pageView as? LinearLayoutCompat,
-                                responseModel?.pages!![page.key]?.customerData
+                                response?.pages!![page.key]?.customerData
                             )
                         }
                         CUSTOM_FEEDBACK_TAG -> {
                             viewModel.bindCustomFieldFeedbackDataToRequest(
                                 pageView as? LinearLayoutCompat,
-                                responseModel?.pages!![page.key]?.customFieldFeedbackComponent
+                                response?.pages!![page.key]?.customFieldFeedbackComponent
                             )
                         }
                         SLI_TAG -> {
                             viewModel.bindSliDataToRequest(
                                 language,
                                 page.key,
-                                responseModel?.pages!![page.key]?.sliData,
-                                responseModel?.markPageData
+                                response?.pages!![page.key]?.sliData,
+                                response?.markPageData
                             )
                         }
 
@@ -494,6 +511,7 @@ class MainActivity : BaseActivity() {
                     if (it.time!! > 0) {
                         handler
                             .postDelayed({
+                                viewModel.requestModel.clear()
                                 binding.container.removeAllViews()
                                 pageViews.clear()
                                 getLanguageFromUser()
@@ -505,7 +523,7 @@ class MainActivity : BaseActivity() {
 
             }
         })
-
+        viewModel.requestModel.clear()
     }
 
     private fun initializeViews() {

@@ -25,7 +25,7 @@ import com.example.qmeter.databinding.ActivityMainBinding
 import com.example.qmeter.di.base.BaseActivity
 import com.example.qmeter.di.factory.ViewModelProviderFactory
 import com.example.qmeter.presentation.auth.AuthenticateActivity
-import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
+import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
 import com.example.qmeter.utils.*
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -61,7 +61,7 @@ class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels { factory }
 
-    private val responseModel by lazy { (intent.getSerializableExtra("pagesResponse") as? AuthenticationResponseModel) }
+    private val responseModel by lazy { (intent.getSerializableExtra("pagesResponse") as? GetWidgetsResponseModel) }
     private val pages by lazy { responseModel?.pages ?: arrayListOf() }
 
     private lateinit var binding: ActivityMainBinding
@@ -73,9 +73,9 @@ class MainActivity : BaseActivity() {
 
     private var sliCondition = hashMapOf<String?, String?>()
 
-    private var condition: AuthenticationResponseModel.ConditionOverallData? = null
+    private var condition: GetWidgetsResponseModel.ConditionOverallData? = null
 
-    private var finalPageCondition: AuthenticationResponseModel.Reaction? = null
+    private var finalPageCondition: GetWidgetsResponseModel.Reaction? = null
 
     private var language = "en"
 
@@ -93,7 +93,7 @@ class MainActivity : BaseActivity() {
 
     private fun setPageView() {
         binding.qmeterAppLogo.setOnClickListener {
-            viewModel.getComponents()
+            viewModel.getWidgets()
             binding.container.removeAllViews()
             pageViews.clear()
 //            getLanguageFromUser()
@@ -243,7 +243,7 @@ class MainActivity : BaseActivity() {
                 val page = pages[viewModel.pageStateLiveData.value!!.first]
                 page?.makePages()?.forEach { pageComponent ->
                     when (pageComponent) {
-                        is AuthenticationResponseModel.SliData -> {
+                        is GetWidgetsResponseModel.SliData -> {
                             val returning = arrayOfNulls<Boolean>(
                                 pageComponent.attrs?.service?.size ?: 0
                             )
@@ -268,7 +268,7 @@ class MainActivity : BaseActivity() {
                                 return@setOnClickListener
                             }
                         }
-                        is AuthenticationResponseModel.CustomerData -> {
+                        is GetWidgetsResponseModel.CustomerData -> {
                             pageComponent.attrs.forEach { attr ->
                                 val dataView =
                                     binding.container.findViewWithTag<View>(attr.name)
@@ -323,7 +323,7 @@ class MainActivity : BaseActivity() {
                                 }
                             }
                         }
-                        is AuthenticationResponseModel.CustomFieldFeedbackComponent -> {
+                        is GetWidgetsResponseModel.CustomFieldFeedbackComponent -> {
                             pageComponent.attrs?.forEach { attr ->
                                 if (attr.required == true) {
                                     when (val dataView =
@@ -367,7 +367,7 @@ class MainActivity : BaseActivity() {
                                 }
                             }
                         }
-                        is AuthenticationResponseModel.CommentData -> {
+                        is GetWidgetsResponseModel.CommentData -> {
                             pageComponent.attrs?.let { attr ->
                                 if (attr.required == true) {
                                     when (val dataView =
@@ -493,7 +493,7 @@ class MainActivity : BaseActivity() {
             if (it) {
                 responseModel?.pages?.forEach {
                     it?.makePages()?.forEach {
-                        if (it is AuthenticationResponseModel.SliData) {
+                        if (it is GetWidgetsResponseModel.SliData) {
                             it.attrs?.service?.forEach {
                                 it.rateOptions.forEach {
                                     it.selected = false
@@ -536,16 +536,16 @@ class MainActivity : BaseActivity() {
                 ) as? LinearLayoutCompat
             page?.makePages()?.sortedBy { it?.position }?.forEach { pageComponent ->
                 when (pageComponent) {
-                    is AuthenticationResponseModel.CommentData -> {
+                    is GetWidgetsResponseModel.CommentData -> {
                         pageLayout?.addView(populateCommentView(pageComponent))
                     }
-                    is AuthenticationResponseModel.SliData -> {
+                    is GetWidgetsResponseModel.SliData -> {
                         pageLayout?.addView(populateSliView(pageComponent))
                     }
-                    is AuthenticationResponseModel.CustomerData -> {
+                    is GetWidgetsResponseModel.CustomerData -> {
                         pageLayout?.addView(populateCustomerView(pageComponent))
                     }
-                    is AuthenticationResponseModel.CustomFieldFeedbackComponent -> {
+                    is GetWidgetsResponseModel.CustomFieldFeedbackComponent -> {
                         pageLayout?.addView(populateCustomFeedbackView(pageComponent))
                     }
                 }
@@ -588,7 +588,7 @@ class MainActivity : BaseActivity() {
 //        }
     }
 
-    private fun populateCustomerView(pageComponent: AuthenticationResponseModel.CustomerData): LinearLayoutCompat? {
+    private fun populateCustomerView(pageComponent: GetWidgetsResponseModel.CustomerData): LinearLayoutCompat? {
 
         val container = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
@@ -687,7 +687,7 @@ class MainActivity : BaseActivity() {
                                     language,
                                     this@MainActivity,
                                     android.R.layout.simple_spinner_item,
-                                    mutableListOf<AuthenticationResponseModel.SelectOption?>().apply {
+                                    mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         it.select?.forEach { selectOption ->
                                             this.add(selectOption)
                                         }
@@ -751,7 +751,7 @@ class MainActivity : BaseActivity() {
         return container
     }
 
-    private fun populateCustomFeedbackView(pageComponent: AuthenticationResponseModel.CustomFieldFeedbackComponent): LinearLayoutCompat? {
+    private fun populateCustomFeedbackView(pageComponent: GetWidgetsResponseModel.CustomFieldFeedbackComponent): LinearLayoutCompat? {
 
         val container = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
@@ -852,7 +852,7 @@ class MainActivity : BaseActivity() {
                                     language,
                                     this@MainActivity,
                                     android.R.layout.simple_spinner_item,
-                                    mutableListOf<AuthenticationResponseModel.SelectOption?>().apply {
+                                    mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         it.select?.forEach { selectOption ->
                                             this.add(selectOption)
                                         }
@@ -970,7 +970,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun populateCommentView(commentData: AuthenticationResponseModel.CommentData): LinearLayoutCompat? {
+    private fun populateCommentView(commentData: GetWidgetsResponseModel.CommentData): LinearLayoutCompat? {
         val container = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
 
@@ -987,7 +987,7 @@ class MainActivity : BaseActivity() {
         return container
     }
 
-    private fun populateSliView(sliData: AuthenticationResponseModel.SliData): LinearLayoutCompat? {
+    private fun populateSliView(sliData: GetWidgetsResponseModel.SliData): LinearLayoutCompat? {
 
         val container = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
@@ -1039,7 +1039,13 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }
-
+                val sliText = LayoutInflater.from(this)
+                    .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+                    .apply {
+                        this.textView.text = rateOption.label!![language]?: ""
+                        this.textView.setTextColor(rateOption.textColor.getColor())
+                    }
+                (view as? LinearLayoutCompat)?.addView(sliText)
                 linearLayout.addView(view)
             }
 
@@ -1078,7 +1084,7 @@ class MainActivity : BaseActivity() {
 
     private fun popUpMarkPage(
         sliText: String,
-        rateOption: AuthenticationResponseModel.RateOptions?
+        rateOption: GetWidgetsResponseModel.RateOptions?
     ) {
         val markPageData =
             responseModel?.markPageData?.filter { it.idx == rateOption?.markpageIdx }?.firstOrNull()

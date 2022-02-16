@@ -8,13 +8,12 @@ import coil.decode.SvgDecoder
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.qmeter.R
-import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
+import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
 import com.example.qmeter.service.model.remote.response.PageComponent
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.collections.ArrayList
 
-fun AuthenticationResponseModel.Page.makePages(): ArrayList<PageComponent?> {
+fun GetWidgetsResponseModel.Page.makePages(): ArrayList<PageComponent?> {
 
     val components = arrayListOf<PageComponent?>().apply {
         add(this@makePages.commentData)

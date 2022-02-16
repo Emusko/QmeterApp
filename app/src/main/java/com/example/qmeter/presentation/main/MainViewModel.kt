@@ -14,8 +14,9 @@ import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import com.example.qmeter.di.base.BaseViewModel
 import com.example.qmeter.service.model.remote.request.FeedbackRequestModel
-import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
+import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
 import com.example.qmeter.usecase.GetCustomersUseCase
+import com.example.qmeter.usecase.GetWidgetsUseCase
 import com.example.qmeter.usecase.PostFeedbackUseCase
 import com.google.android.material.textfield.TextInputEditText
 import okhttp3.Credentials
@@ -25,11 +26,11 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class MainViewModel @Inject constructor(
-    private val getCustomersUseCase: GetCustomersUseCase,
     val sharedPreferences: SharedPreferences,
+    private val getWidgetsUseCase: GetWidgetsUseCase,
     private val postFeedbackUseCase: PostFeedbackUseCase
 ) : BaseViewModel() {
-    val viewData: MutableLiveData<AuthenticationResponseModel> = MutableLiveData()
+    val viewData: MutableLiveData<GetWidgetsResponseModel> = MutableLiveData()
 
     val pageStateLiveData = MutableLiveData<Pair<Int, Boolean>>()
 
@@ -44,14 +45,15 @@ class MainViewModel @Inject constructor(
         requestList.add(request as HashMap<String?, Any?>)
         postFeedback()
     }
-    fun getComponents(){
-        getCustomersUseCase.execute(
-            sharedPreferences.getString("username", "")?: "",
-            sharedPreferences.getString("password", "")?: "",{
-                    viewData.value = it
-            }, {
-                error.onNext(it.localizedMessage?: "")
-            }, subscriptions)
+    fun getWidgets(){
+        getWidgetsUseCase.execute(
+            {
+                viewData.value = it
+            },
+            {
+            },
+            subscriptions
+        )
     }
     init {
         executeNotificationTimer()
@@ -59,7 +61,7 @@ class MainViewModel @Inject constructor(
 
     fun bindCustomerDataToRequest(
         layout: LinearLayoutCompat?,
-        customerData: AuthenticationResponseModel.CustomerData?
+        customerData: GetWidgetsResponseModel.CustomerData?
     ) {
         val customerDataMap = hashMapOf<String, Any?>()
         customerData?.attrs?.forEach { attr ->
@@ -73,7 +75,7 @@ class MainViewModel @Inject constructor(
                 }
                 is AppCompatSpinner -> {
                     dataView.selectedItem?.let {
-                        if (it is AuthenticationResponseModel.SelectOption)
+                        if (it is GetWidgetsResponseModel.SelectOption)
                             customerDataMap[attr.name ?: ""] = it.id
                     }
                 }
@@ -128,7 +130,7 @@ class MainViewModel @Inject constructor(
 
     fun bindCustomFieldFeedbackDataToRequest(
         layout: LinearLayoutCompat?,
-        customFieldFeedbackComponent: AuthenticationResponseModel.CustomFieldFeedbackComponent?
+        customFieldFeedbackComponent: GetWidgetsResponseModel.CustomFieldFeedbackComponent?
     ) {
         customFieldFeedbackComponent?.attrs?.forEach { attr ->
 
@@ -141,7 +143,7 @@ class MainViewModel @Inject constructor(
                 }
                 is AppCompatSpinner -> {
                     dataView.selectedItem?.let {
-                        if (it is AuthenticationResponseModel.SelectOption)
+                        if (it is GetWidgetsResponseModel.SelectOption)
                             requestModel[attr.name ?: ""] = it.id
                     }
                 }
@@ -162,8 +164,8 @@ class MainViewModel @Inject constructor(
     fun bindSliDataToRequest(
         language: String,
         pageIndex: Int,
-        sliData: AuthenticationResponseModel.SliData?,
-        markPageData: ArrayList<AuthenticationResponseModel.MarkPageData>?
+        sliData: GetWidgetsResponseModel.SliData?,
+        markPageData: ArrayList<GetWidgetsResponseModel.MarkPageData>?
     ) {
         val feedBacks = arrayListOf<FeedbackRequestModel>()
 
@@ -197,7 +199,7 @@ class MainViewModel @Inject constructor(
 
     fun bindCommentDataToRequest(
         layout: LinearLayoutCompat?,
-        commentData: AuthenticationResponseModel.CommentData?
+        commentData: GetWidgetsResponseModel.CommentData?
     ) {
 
         val commentMap = hashMapOf<String, Any?>()

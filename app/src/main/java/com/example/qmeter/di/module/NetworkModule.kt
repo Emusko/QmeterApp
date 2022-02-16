@@ -40,9 +40,11 @@ class NetworkModule {
     fun providesInterceptor(sharedPreferences: SharedPreferences): Interceptor {
         return Interceptor {
             val request: Request = it.request()
-            val authenticatedRequest: Request = request.newBuilder()
-                .header("Authorization", "Basic ${sharedPreferences.encodeCredentials()}").build()
-            it.proceed(authenticatedRequest)
+            val authenticatedRequest = request.newBuilder()
+            sharedPreferences.getString("token", null)?.let {
+                authenticatedRequest.header("Authorization", it)
+            }
+            it.proceed(authenticatedRequest.build())
         }
     }
 

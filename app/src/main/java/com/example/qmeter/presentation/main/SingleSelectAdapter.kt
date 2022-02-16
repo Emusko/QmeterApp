@@ -5,15 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.AppCompatTextView
-import com.example.qmeter.service.model.remote.response.AuthenticationResponseModel
+import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
 
 
 class SingleSelectAdapter(
     private val language: String?,
     private val context: Activity,
     private val resouceId: Int,
-    list: MutableList<AuthenticationResponseModel.SelectOption?>
-) : ArrayAdapter<AuthenticationResponseModel.SelectOption?>(
+    list: MutableList<GetWidgetsResponseModel.SelectOption?>
+) : ArrayAdapter<GetWidgetsResponseModel.SelectOption?>(
     context, resouceId, list
 ) {
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {

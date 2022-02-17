@@ -34,7 +34,7 @@ class AuthenticateViewModel @Inject constructor(
                 viewData.value = it
             },
             {
-
+                error.onNext(it.localizedMessage?: "")
             },
             subscriptions
         )

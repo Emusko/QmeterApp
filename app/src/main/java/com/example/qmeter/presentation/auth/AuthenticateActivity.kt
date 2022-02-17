@@ -20,11 +20,11 @@ class AuthenticateActivity : BaseActivity() {
     @Inject
     lateinit var factory: ViewModelProviderFactory
 
-    private val username: String
-    get() = binding.usernameEdittext.text.toString()
+    private val username: String?
+    get() = binding.usernameEdittext.text?.toString()
 
-    private val password: String
-    get() = binding.passwordEdittext.text.toString()
+    private val password: String?
+    get() = binding.passwordEdittext.text?.toString()
 
     private val viewModel: AuthenticateViewModel by viewModels { factory }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +63,7 @@ class AuthenticateActivity : BaseActivity() {
         }.addTo(subscriptions)
 
         binding.login.setOnClickListener {
-            viewModel.getComponents(binding.usernameEdittext.text?.toString()?: "", binding.passwordEdittext.text?.toString()?: "")
+            viewModel.getComponents(username?: "", password?: "")
         }
     }
 

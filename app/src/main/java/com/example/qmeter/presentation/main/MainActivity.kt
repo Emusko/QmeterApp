@@ -244,28 +244,11 @@ class MainActivity : BaseActivity() {
                 page?.makePages()?.forEach { pageComponent ->
                     when (pageComponent) {
                         is GetWidgetsResponseModel.SliData -> {
-                            val returning = arrayOfNulls<Boolean>(
-                                pageComponent.attrs?.service?.size ?: 0
-                            )
-                            var conditionToReturn = false
-                            run loop@{
-                                pageComponent.attrs?.service?.forEachIndexed { index, service ->
-                                    service.rateOptions.forEach { rateOption ->
-                                        if (rateOption.selected!!) {
-                                            returning[index] = rateOption.selected!!
-                                        }
-                                    }
+                            pageComponent.attrs?.service?.forEach {
+                                val filteredList = it.rateOptions.filter { it.selected == false }
+                                if (it.required == true && filteredList.size == 5){
+                                    return@setOnClickListener
                                 }
-                            }
-                            run loop@{
-                                returning.forEach {
-                                    if (!(it != null && it != false))
-                                        conditionToReturn = true
-                                    return@loop
-                                }
-                            }
-                            if (conditionToReturn) {
-                                return@setOnClickListener
                             }
                         }
                         is GetWidgetsResponseModel.CustomerData -> {
@@ -688,6 +671,13 @@ class MainActivity : BaseActivity() {
                                     this@MainActivity,
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
+                                        val placeHolderOption = hashMapOf<String, String>()
+                                        placeHolderOption[language] = "Seçin"
+                                        val placeHolder = GetWidgetsResponseModel.SelectOption(
+                                            id = "placeholder",
+                                            option = placeHolderOption
+                                        )
+                                        add(placeHolder)
                                         it.select?.forEach { selectOption ->
                                             this.add(selectOption)
                                         }
@@ -853,6 +843,10 @@ class MainActivity : BaseActivity() {
                                     this@MainActivity,
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
+                                        val placeHolderOption = hashMapOf<String, String>()
+                                        placeHolderOption[language] = "Seçin"
+                                        val placeHolder = GetWidgetsResponseModel.SelectOption(id = "placeholder", option = placeHolderOption)
+                                        add(placeHolder)
                                         it.select?.forEach { selectOption ->
                                             this.add(selectOption)
                                         }

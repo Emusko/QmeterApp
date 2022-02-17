@@ -95,6 +95,13 @@ class MainActivity : BaseActivity() {
 
     private fun setPageView() {
         binding.qmeterAppLogo.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.back.visibility =
+                View.GONE
+            binding.next.visibility =
+                View.GONE
+            binding.submit.visibility =
+                View.GONE
             viewModel.getWidgets()
             binding.container.removeAllViews()
             pageViews.clear()
@@ -1029,7 +1036,7 @@ class MainActivity : BaseActivity() {
         }
 
 
-        sliData.attrs?.service?.forEach { service ->
+        sliData.attrs?.service?.sortedBy { it.position }?.forEach { service ->
 
             val sliComponentLayout = LayoutInflater.from(this)
                 .inflate(R.layout.sli_page_linear_layout, container, false) as? LinearLayoutCompat

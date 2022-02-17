@@ -45,8 +45,16 @@
 
 
         </androidx.appcompat.widget.LinearLayoutCompat>
+        <ProgressBar
+            android:visibility="gone"
+            android:layout_marginTop="24dp"
+            android:id="@+id/progress_bar"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/motherLayout"
+            android:id="@+id/mother_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"

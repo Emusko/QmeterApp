@@ -692,7 +692,8 @@ class MainActivity : BaseActivity() {
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] = it.placeholder!![language]?: " "
+                                        placeHolderOption[language] =
+                                            it.placeholder!![language] ?: " "
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(
                                             id = "placeholder",
                                             option = placeHolderOption
@@ -743,11 +744,15 @@ class MainActivity : BaseActivity() {
                         }
                         .apply {
                             it.select?.forEach { selectOption ->
-                                val checkBox = AppCompatCheckBox(this@MainActivity)
-                                    .apply {
-                                        this.text = selectOption.option!![language] ?: ""
-                                        this.tag = selectOption.id
-                                    }
+                                val checkBox = LayoutInflater.from(this@MainActivity).inflate(
+                                    R.layout.multi_select_checkbox,
+                                    container,
+                                    false
+                                ) as AppCompatCheckBox
+
+                                checkBox.text = selectOption.option!![language] ?: ""
+                                checkBox.tag = selectOption.id
+
                                 containerView.addView(checkBox)
                             }
                         }
@@ -915,11 +920,15 @@ class MainActivity : BaseActivity() {
                         }
                         .apply {
                             it.select?.forEach { selectOption ->
-                                val checkBox = AppCompatCheckBox(this@MainActivity)
-                                    .apply {
-                                        this.text = selectOption.option!![language]
-                                        this.tag = selectOption.id
-                                    }
+                                val checkBox = LayoutInflater.from(this@MainActivity).inflate(
+                                    R.layout.multi_select_checkbox,
+                                    container,
+                                    false
+                                ) as AppCompatCheckBox
+
+                                checkBox.text = selectOption.option!![language] ?: ""
+                                checkBox.tag = selectOption.id
+
                                 containerView.addView(checkBox)
                             }
                         }

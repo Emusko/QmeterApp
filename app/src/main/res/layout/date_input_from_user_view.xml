@@ -4,6 +4,7 @@
     android:id="@+id/loginInputLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
     android:background="@drawable/rounded_input_sli_background_8"
     android:paddingStart="16dp"
     android:paddingTop="9dp"

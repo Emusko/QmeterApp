@@ -75,7 +75,7 @@ class MainViewModel @Inject constructor(
                 }
                 is AppCompatSpinner -> {
                     dataView.selectedItem?.let {
-                        if (it is GetWidgetsResponseModel.SelectOption)
+                        if (it is GetWidgetsResponseModel.SelectOption && it.id != "placeholder")
                             customerDataMap[attr.name ?: ""] = it.id
                     }
                 }
@@ -143,7 +143,7 @@ class MainViewModel @Inject constructor(
                 }
                 is AppCompatSpinner -> {
                     dataView.selectedItem?.let {
-                        if (it is GetWidgetsResponseModel.SelectOption)
+                        if (it is GetWidgetsResponseModel.SelectOption && it.id != "placeholder")
                             requestModel[attr.name ?: ""] = it.id
                     }
                 }

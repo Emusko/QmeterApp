@@ -672,7 +672,7 @@ class MainActivity : BaseActivity() {
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] = "Seçin"
+                                        placeHolderOption[language] = it.placeholder!![language]?: " "
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(
                                             id = "placeholder",
                                             option = placeHolderOption
@@ -844,7 +844,7 @@ class MainActivity : BaseActivity() {
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] = "Seçin"
+                                        placeHolderOption[language] = it.placeholder!![language]?: " "
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(id = "placeholder", option = placeHolderOption)
                                         add(placeHolder)
                                         it.select?.forEach { selectOption ->

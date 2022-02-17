@@ -10,9 +10,11 @@ import android.os.Looper
 import android.text.Editable
 import android.text.Selection
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.LinearLayout
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.*
@@ -102,7 +104,7 @@ class MainActivity : BaseActivity() {
         }
         binding.exitDummy.setOnClickListener {
             exitCounter++
-            if (exitCounter == 3){
+            if (exitCounter == 3) {
                 exitCounter = 0
                 popUpExitDialog()
             }
@@ -120,7 +122,7 @@ class MainActivity : BaseActivity() {
 
         getLanguageFromUser()
 
-        viewModel.viewData.observe(this){
+        viewModel.viewData.observe(this) {
             startActivity(Intent(this, MainActivity::class.java).apply {
                 putExtra("pagesResponse", it)
             })
@@ -142,13 +144,13 @@ class MainActivity : BaseActivity() {
                 }
                 if (sliFeedBacks.contains("unacceptable") || sliFeedBacks.contains("bad")) {
                     finalPageCondition = responseModel?.finalPageData?.negative
-                        condition = pages[pageIndex]?.condition?.overall?.negative
+                    condition = pages[pageIndex]?.condition?.overall?.negative
                 } else if (sliFeedBacks.contains("excellent") || sliFeedBacks.contains("good")) {
                     finalPageCondition = responseModel?.finalPageData?.positive
-                        condition = pages[pageIndex]?.condition?.overall?.positive
+                    condition = pages[pageIndex]?.condition?.overall?.positive
                 } else if (sliFeedBacks.contains("neutral")) {
                     finalPageCondition = responseModel?.finalPageData?.neutral
-                        condition = pages[pageIndex]?.condition?.overall?.neutral
+                    condition = pages[pageIndex]?.condition?.overall?.neutral
                 }
 
             }
@@ -156,7 +158,7 @@ class MainActivity : BaseActivity() {
             condition?.let { reaction ->
                 reaction.commentData?.let {
                     sliCondition.clear()
-                    if (it){
+                    if (it) {
                         binding.container.findViewWithTag<LinearLayoutCompat>(COMMENT_TAG).visibility =
                             View.VISIBLE
                     } else {
@@ -166,7 +168,7 @@ class MainActivity : BaseActivity() {
                 }
                 reaction.customerData?.let {
                     sliCondition.clear()
-                    if (it){
+                    if (it) {
                         binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOMER_TAG).visibility =
                             View.VISIBLE
                     } else {
@@ -176,7 +178,7 @@ class MainActivity : BaseActivity() {
                 }
                 reaction.customFields?.let {
                     sliCondition.clear()
-                    if (it){
+                    if (it) {
                         binding.container.findViewWithTag<LinearLayoutCompat>(CUSTOM_FEEDBACK_TAG)?.visibility =
                             View.VISIBLE
                     } else {
@@ -246,7 +248,7 @@ class MainActivity : BaseActivity() {
                         is GetWidgetsResponseModel.SliData -> {
                             pageComponent.attrs?.service?.forEach {
                                 val filteredList = it.rateOptions.filter { it.selected == false }
-                                if (it.required == true && filteredList.size == 5){
+                                if (it.required == true && filteredList.size == 5) {
                                     return@setOnClickListener
                                 }
                             }
@@ -463,15 +465,21 @@ class MainActivity : BaseActivity() {
                 binding.motherLayout.setBackgroundColor(it.getColor())
             }
             val title = LayoutInflater.from(this)
-                .inflate(R.layout.input_from_user_sli_font_view_final_page, binding.container, false).apply {
-                    this.textView.text =
-                        finalPageCondition?.text!![language]?.resolveIconFromAwesome()
-                    this.textView.setBackgroundColor(
-                        finalPageCondition?.textBgColor?.getColor() ?: 0
-                    )
-                    this.textView.setTextColor(finalPageCondition?.textColor?.getColor() ?: 0)
+                .inflate(
+                    R.layout.input_from_user_sli_font_view_final_page,
+                    binding.container,
+                    false
+                ).apply {
+                    finalPageCondition?.let {
+                        this.textView.text =
+                            it.text!![language]?.resolveIconFromAwesome()
+                        this.textView.setBackgroundColor(
+                            it.textBgColor.getColor() ?: 0
+                        )
+                        this.textView.setTextColor(it.textColor.getColor() ?: 0)
+                    }
                 }
-                binding.container.addView(title)
+            binding.container.addView(title)
             val handler = Handler(Looper.getMainLooper())
             if (it) {
                 responseModel?.pages?.forEach {
@@ -520,16 +528,24 @@ class MainActivity : BaseActivity() {
             page?.makePages()?.sortedBy { it?.position }?.forEach { pageComponent ->
                 when (pageComponent) {
                     is GetWidgetsResponseModel.CommentData -> {
-                        pageLayout?.addView(populateCommentView(pageComponent))
+                        val view = populateCommentView(pageComponent)
+                        view.addTopMargin(24f, this)
+                        pageLayout?.addView(view)
                     }
                     is GetWidgetsResponseModel.SliData -> {
-                        pageLayout?.addView(populateSliView(pageComponent))
+                        val view = populateSliView(pageComponent)
+                        view.addTopMargin(24f, this)
+                        pageLayout?.addView(view)
                     }
                     is GetWidgetsResponseModel.CustomerData -> {
-                        pageLayout?.addView(populateCustomerView(pageComponent))
+                        val view = populateCustomerView(pageComponent)
+                        view.addTopMargin(24f, this)
+                        pageLayout?.addView(view)
                     }
                     is GetWidgetsResponseModel.CustomFieldFeedbackComponent -> {
-                        pageLayout?.addView(populateCustomFeedbackView(pageComponent))
+                        val view = populateCustomFeedbackView(pageComponent)
+                        view.addTopMargin(24f, this)
+                        pageLayout?.addView(view)
                     }
                 }
             }
@@ -545,7 +561,7 @@ class MainActivity : BaseActivity() {
                 Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
         } else {
             if (languageIsActive) {
-                if (!(viewModel.pageStateLiveData.value?.first == 0  && responseModel?.languagePage?.languages?.size!! >= 1))
+                if (!(viewModel.pageStateLiveData.value?.first == 0 && responseModel?.languagePage?.languages?.size!! >= 1))
                     super.onBackPressed()
                 else
                     binding.back.visibility = View.GONE
@@ -585,8 +601,11 @@ class MainActivity : BaseActivity() {
                     val view = LayoutInflater.from(this)
                         .inflate(R.layout.input_from_user_view, binding.container, false)
                         .apply {
-                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                             this.passwordEt.tag = it.name
+                            this.passwordEt?.hint = it.placeholder!![language] ?: ""
+                            if (it.name == "email") {
+                                (this as? TextInputLayout)?.setEndIconDrawable(R.drawable.ic_email)
+                            }
                         }
                     container?.addView(view)
                 }
@@ -595,10 +614,12 @@ class MainActivity : BaseActivity() {
                         .inflate(R.layout.date_input_from_user_view, binding.container, false)
                         .apply {
                             this.passwordEt.tag = it.name
+                            this.passwordEt?.hint = it.placeholder!![language] ?: ""
                             this.passwordEt.setOnClickListener {
                                 val newCalendar = Calendar.getInstance()
                                 DatePickerDialog(
                                     this@MainActivity,
+                                    R.style.DialogTheme,
                                     { _, year, monthOfYear, dayOfMonth ->
                                         this.passwordEt.setText(
                                             getString(
@@ -618,7 +639,6 @@ class MainActivity : BaseActivity() {
                                     newCalendar[Calendar.DAY_OF_MONTH]
                                 ).show()
                             }
-                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                         }
                     container?.addView(view)
                 }
@@ -628,6 +648,7 @@ class MainActivity : BaseActivity() {
                         .apply {
                             val editText = this.passwordEt
                             editText.tag = it.name
+                            editText?.hint = it.placeholder!![language] ?: ""
                             editText.setText(it.prefix)
                             Selection.setSelection(editText.text, editText.text?.length ?: 0)
 
@@ -657,7 +678,6 @@ class MainActivity : BaseActivity() {
                                     }
                                 }
                             })
-                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                         }
                     container?.addView(view)
                 }
@@ -755,8 +775,8 @@ class MainActivity : BaseActivity() {
                     val view = LayoutInflater.from(this)
                         .inflate(R.layout.input_from_user_view, binding.container, false)
                         .apply {
-                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                             this.passwordEt.tag = it.name
+                            this.passwordEt?.hint = it.placeholder!![language] ?: ""
                         }
                     container?.addView(view)
 
@@ -767,6 +787,7 @@ class MainActivity : BaseActivity() {
                         .apply {
                             val editText = this.passwordEt
                             editText.tag = it.name
+                            editText?.hint = it.placeholder!![language] ?: ""
                             editText.setText(it.prefix)
                             Selection.setSelection(editText.text, editText.text?.length ?: 0)
 
@@ -796,7 +817,6 @@ class MainActivity : BaseActivity() {
                                     }
                                 }
                             })
-                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
 
                         }
                     container?.addView(view)
@@ -806,10 +826,12 @@ class MainActivity : BaseActivity() {
                         .inflate(R.layout.date_input_from_user_view, binding.container, false)
                         .apply {
                             this.passwordEt.tag = it.name
+                            this.passwordEt?.hint = it.placeholder!![language] ?: ""
                             this.passwordEt.setOnClickListener { _ ->
                                 val newCalendar = Calendar.getInstance()
                                 DatePickerDialog(
                                     this@MainActivity,
+                                    R.style.DialogTheme,
                                     { view, year, monthOfYear, dayOfMonth ->
                                         this.passwordEt.setText(
                                             getString(
@@ -829,7 +851,6 @@ class MainActivity : BaseActivity() {
                                     newCalendar[Calendar.DAY_OF_MONTH]
                                 ).show()
                             }
-                            (this as? TextInputLayout)?.hint = it.placeholder!![language] ?: ""
                         }
                     container?.addView(view)
                 }
@@ -845,7 +866,10 @@ class MainActivity : BaseActivity() {
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
                                         placeHolderOption[language] = "Seçin"
-                                        val placeHolder = GetWidgetsResponseModel.SelectOption(id = "placeholder", option = placeHolderOption)
+                                        val placeHolder = GetWidgetsResponseModel.SelectOption(
+                                            id = "placeholder",
+                                            option = placeHolderOption
+                                        )
                                         add(placeHolder)
                                         it.select?.forEach { selectOption ->
                                             this.add(selectOption)
@@ -930,31 +954,31 @@ class MainActivity : BaseActivity() {
 
 
             languageContainer?.addView(title)
-            if (languages?.size?.compareTo(1) == 0){
+            if (languages?.size?.compareTo(1) == 0) {
                 languageIsActive = false
                 language = languages[0].langCode ?: "en"
                 viewModel.requestModel["language"] = language
                 initializeViews()
                 viewModel.pageStateLiveData.value = Pair(0, false)
             } else {
-            languages?.forEach { languageModel ->
+                languages?.forEach { languageModel ->
 
-                val linearLayout = LayoutInflater.from(this)
-                    .inflate(R.layout.choose_language_view, binding.container, false).apply {
-                        this.textView.text = languageModel.label
-                        this.textView.setTextColor(languageModel.labelColor.getColor())
-                        this.setOnClickListener {
-                            languageIsActive = false
-                            language = languageModel.langCode ?: "en"
-                            viewModel.requestModel["language"] = language
-                            initializeViews()
-                            viewModel.pageStateLiveData.value = Pair(0, false)
+                    val linearLayout = LayoutInflater.from(this)
+                        .inflate(R.layout.choose_language_view, binding.container, false).apply {
+                            this.textView.text = languageModel.label
+                            this.textView.setTextColor(languageModel.labelColor.getColor())
+                            this.setOnClickListener {
+                                languageIsActive = false
+                                language = languageModel.langCode ?: "en"
+                                viewModel.requestModel["language"] = language
+                                initializeViews()
+                                viewModel.pageStateLiveData.value = Pair(0, false)
+                            }
                         }
-                    }
-                linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
+                    linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
 
-                languageContainer?.addView(linearLayout)
-            }
+                    languageContainer?.addView(linearLayout)
+                }
             }
             binding.container.addView(languageContainer)
         } else {
@@ -971,9 +995,8 @@ class MainActivity : BaseActivity() {
         val view = LayoutInflater.from(this)
             .inflate(R.layout.input_from_user_view, container, false)
 
-        (view as? TextInputLayout)?.hint = commentData.attrs?.placeholder!![language] ?: ""
-
-        view.passwordEt?.tag = commentData.attrs.name
+        view.passwordEt?.tag = commentData.attrs?.name
+        view.passwordEt?.hint = commentData.attrs?.placeholder!![language] ?: ""
 
         container?.tag = COMMENT_TAG
         container?.addView(view)
@@ -999,7 +1022,11 @@ class MainActivity : BaseActivity() {
 
         sliData.attrs?.service?.forEach { service ->
 
+            val sliComponentLayout = LayoutInflater.from(this)
+                .inflate(R.layout.sli_page_linear_layout, container, false) as? LinearLayoutCompat
+
             val linearLayout = LinearLayoutCompat(this)
+
             linearLayout.orientation = LinearLayoutCompat.HORIZONTAL
 
             val serviceTitle = LayoutInflater.from(this)
@@ -1009,7 +1036,7 @@ class MainActivity : BaseActivity() {
                     this.textView.setTextColor(service.textColor.getColor())
                 }
 
-            service.rateOptions.forEach { rateOption ->
+            service.rateOptions.forEachIndexed { index, rateOption ->
                 val view = LayoutInflater.from(this)
                     .inflate(R.layout.input_from_user_sli_font_view, linearLayout, false)
 
@@ -1036,24 +1063,39 @@ class MainActivity : BaseActivity() {
                 val sliText = LayoutInflater.from(this)
                     .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
                     .apply {
-                        this.textView.text = rateOption.label!![language]?: ""
+                        this.textView.text = rateOption.label!![language] ?: ""
                         this.textView.setTextColor(rateOption.textColor.getColor())
                     }
                 (view as? LinearLayoutCompat)?.addView(sliText)
                 linearLayout.addView(view)
+                if (index > 0) {
+                    val params = sliComponentLayout?.layoutParams as LinearLayout.LayoutParams
+                    params.setMargins(
+                        0,
+                        TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            22f,
+                            resources.displayMetrics
+                        ).toInt(),
+                        0,
+                        0
+                    )
+                    sliComponentLayout.layoutParams = params
+                }
             }
 
 
             container?.tag = SLI_TAG
             if (sliData.attrs.service.size > 1)
-            container?.addView(serviceTitle)
-            container?.addView(linearLayout)
+                sliComponentLayout?.addView(serviceTitle)
+            sliComponentLayout?.addView(linearLayout)
+            container?.addView(sliComponentLayout)
         }
 
         return container
     }
 
-    private fun popUpExitDialog(){
+    private fun popUpExitDialog() {
         val dialog = AlertDialog.Builder(this)
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.dialog_exit_view, LinearLayoutCompat(this), false)
@@ -1061,7 +1103,7 @@ class MainActivity : BaseActivity() {
         val alertDialog = dialog.create()
         dialogView.submit.setOnClickListener {
             dialogView.passwordEt.text?.toString()?.let {
-                if (it == sharedPreferences.getString("password", "")){
+                if (it == sharedPreferences.getString("password", "")) {
                     sharedPreferences.edit().clear().apply()
                     startActivity(Intent(this, AuthenticateActivity::class.java))
                     finish()
@@ -1080,8 +1122,8 @@ class MainActivity : BaseActivity() {
         sliText: String,
         rateOption: GetWidgetsResponseModel.RateOptions?
     ) {
-        val markPageData =
-            responseModel?.markPageData?.filter { it.idx == rateOption?.markpageIdx }?.firstOrNull()
+        val filteredList = responseModel?.markPageData?.filter { it.idx == rateOption?.markpageIdx }
+        val markPageData = filteredList?.firstOrNull()
         val dialog = AlertDialog.Builder(this)
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.markpage_choose_view, LinearLayoutCompat(this), false)

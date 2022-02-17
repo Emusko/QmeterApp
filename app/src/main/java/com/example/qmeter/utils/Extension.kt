@@ -1,8 +1,12 @@
 package com.example.qmeter.utils
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.util.TypedValue
+import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.LinearLayoutCompat
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import coil.request.CachePolicy
@@ -34,6 +38,20 @@ fun ArrayList<Int>?.getColor(): Int {
     else
         0
 }
+
+fun LinearLayoutCompat?.addTopMargin(margin: Float, context: Context) {
+    val layoutParams = (this?.layoutParams?: LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)) as? LinearLayoutCompat.LayoutParams
+    layoutParams?.setMargins(
+            0,
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                margin,
+                context.resources?.displayMetrics
+            ).toInt(),
+            0,
+            0
+        )
+    }
 
 private const val emailExpn =
     ("^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"

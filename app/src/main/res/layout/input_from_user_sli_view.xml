@@ -9,13 +9,11 @@
     android:layout_height="wrap_content">
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:ellipsize="end"
+        android:lines="1"
         android:id="@+id/textView"
         android:padding="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="sadgmasdngkjisdangkbjasd"/>
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/text_input_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -555,6 +555,8 @@ class MainActivity : BaseActivity() {
                         pageLayout?.addView(view)
                     }
                 }
+
+                binding.motherLayout.setBackgroundColor(responseModel?.pages!![index]?.properties?.pageBg?.getColor()!!)
             }
             pageLayout?.visibility = View.GONE
             pageViews[index] = pageLayout
@@ -968,11 +970,11 @@ class MainActivity : BaseActivity() {
                     this.textView.text = "Choose language"
                 }
 
-
+            binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBg?.getColor()!!)
             languageContainer?.addView(title)
-            if (languages?.size?.compareTo(1) == 0) {
+            if (languages?.size?.compareTo(1) == 0 || languages.isNullOrEmpty()) {
                 languageIsActive = false
-                language = languages[0].langCode ?: "en"
+                language = languages?.firstOrNull()?.langCode?: "en"
                 viewModel.requestModel["language"] = language
                 initializeViews()
                 viewModel.pageStateLiveData.value = Pair(0, false)

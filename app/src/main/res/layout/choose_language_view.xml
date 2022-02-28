@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.appcompat.widget.LinearLayoutCompat
+    android:padding="16dp"
     android:layout_marginTop="12dp"
     android:gravity="center"
     android:id="@+id/rootLinearLayout"
+    android:background="@drawable/rounded_input_sli_background_8"
     android:orientation="horizontal"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -19,8 +21,8 @@
         tools:text="sadgmasdngkjisdangkbjasd"/>
 
     <androidx.cardview.widget.CardView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:elevation="12dp"
         android:id="@+id/view2"
         app:cardCornerRadius="40dp"
@@ -30,6 +32,7 @@
         android:thicknessRatio="1.9">
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:visibility="gone"
             android:scaleType="fitXY"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

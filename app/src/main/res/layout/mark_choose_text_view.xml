@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.AppCompatTextView
-    android:layout_gravity="center"
-    android:layout_marginTop="8dp"
-    android:padding="12dp"
-    android:backgroundTint="@color/colorPrimary"
-    android:gravity="center"
-    android:textColor="@color/black"
-    tools:text="asdgn dsahfbgjuhadsbgfhidsa"
-    android:background="@drawable/rounded_input_background_8"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_marginTop="8dp"
+    android:background="@drawable/rounded_input_background_8"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="12dp">
 
-</androidx.appcompat.widget.AppCompatTextView>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/check_mark_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="7"
+        android:gravity="start"
+        android:textColor="@color/black"
+        tools:text="asdgn dsahfbgjuhadsbgfhidsa" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:visibility="gone"
+        android:id="@+id/checked_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/ic_checkmark" />
+</androidx.appcompat.widget.LinearLayoutCompat>

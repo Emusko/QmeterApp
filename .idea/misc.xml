@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Amrah/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/drawable/rounded_input_background_8.xml" value="0.322" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/drawable/rounded_input_exit_background_8.xml" value="0.322" />
+        <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/drawable/rounded_input_sli_background_8.xml" value="0.322" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/drawable/rounded_submit_mark_background_24.xml" value="0.322" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/layout/activity_main.xml" value="0.2708333333333333" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/layout/choose_language_view.xml" value="0.2708333333333333" />
@@ -18,6 +20,7 @@
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/layout/multi_select_title_view.xml" value="0.22" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/layout/page_linear_layout.xml" value="0.2708333333333333" />
         <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/layout/select_dropdown_view.xml" value="0.2708333333333333" />
+        <entry key="..\:/Users/Amrah/StudioProjects/QmeterApp/app/src/main/res/layout/single_select_view.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/emrah/AndroidStudioProjects/QmeterApp/app/src/main/res/drawable/ic_password_end_icon.xml" value="0.2703125" />
         <entry key="..\:/Users/emrah/AndroidStudioProjects/QmeterApp/app/src/main/res/drawable/ic_username_end_icon.xml" value="0.2703125" />
         <entry key="..\:/Users/emrah/AndroidStudioProjects/QmeterApp/app/src/main/res/drawable/rounded_input_background_8.xml" value="0.2703125" />

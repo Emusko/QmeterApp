@@ -28,7 +28,7 @@ class AuthenticateViewModel @Inject constructor(
             }, subscriptions)
     }
 
-    private fun getWidgets(){
+    fun getWidgets(){
         getWidgetsUseCase.execute(
             {
                 viewData.value = it

@@ -40,9 +40,8 @@ class AuthenticateActivity : BaseActivity() {
     }
 
     private fun checkUser() {
-        if (!(viewModel.sharedPreferences.getString("username", "").isNullOrEmpty()&&viewModel.sharedPreferences.getString("username", "").isNullOrEmpty())){
-            viewModel.getComponents(viewModel.sharedPreferences.getString("username", "")!!,
-                viewModel.sharedPreferences.getString("password", "")!!)
+        if (!viewModel.sharedPreferences.getString("token", "").isNullOrEmpty()){
+            viewModel.getWidgets()
         } else {
             binding.progressBar.visibility = View.GONE
             binding.credentialContainer.visibility = View.VISIBLE

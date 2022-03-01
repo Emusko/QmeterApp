@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.appcompat.widget.LinearLayoutCompat
-    android:layout_marginTop="4dp"
-    android:background="@drawable/rounded_input_sli_background_8"
-    android:orientation="vertical"
-    android:padding="12dp"
+<androidx.appcompat.widget.AppCompatSpinner
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/spinner"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:background="@null">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/selectTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/text_input_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <androidx.appcompat.widget.AppCompatSpinner
-        android:layout_marginTop="4dp"
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </androidx.appcompat.widget.AppCompatSpinner>
-</androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.AppCompatSpinner>

@@ -34,21 +34,13 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.dialog_exit_view.view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_font_view_final_page.view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
-import kotlinx.android.synthetic.main.input_from_user_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
 import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.submit
-import kotlinx.android.synthetic.main.markpage_choose_view.view.title
 import kotlinx.android.synthetic.main.multi_select_container_view.view.*
-import kotlinx.android.synthetic.main.select_dropdown_view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
-import java.lang.reflect.Type
 import java.util.*
 import javax.inject.Inject
 
@@ -293,10 +285,6 @@ class MainActivity : BaseActivity() {
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
                                                 if (it.isEmpty()) {
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                        R.id.text_input_error
-                                                    )?.text =
-                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -309,10 +297,6 @@ class MainActivity : BaseActivity() {
                                                 }
                                             }
                                             if (checkedList.isNullOrEmpty()) {
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                    R.id.text_input_error
-                                                )?.text =
-                                                    getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
                                         }
@@ -337,10 +321,6 @@ class MainActivity : BaseActivity() {
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
                                                 if (it.isEmpty()) {
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                        R.id.text_input_error
-                                                    )?.text =
-                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -353,10 +333,6 @@ class MainActivity : BaseActivity() {
                                                 }
                                             }
                                             if (checkedList.isNullOrEmpty()) {
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                    R.id.text_input_error
-                                                )?.text =
-                                                    getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
                                         }
@@ -382,10 +358,7 @@ class MainActivity : BaseActivity() {
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
                                                 if (it.isEmpty()) {
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                        R.id.text_input_error
-                                                    )?.text =
-                                                        getString(R.string.field_error_message)
+
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -398,10 +371,6 @@ class MainActivity : BaseActivity() {
                                                 }
                                             }
                                             if (checkedList.isNullOrEmpty()) {
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                    R.id.text_input_error
-                                                )?.text =
-                                                    getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
                                         }
@@ -697,17 +666,17 @@ class MainActivity : BaseActivity() {
                 }
                 "select" -> {
                     if (it.select_design == null || it.select_design.value == "dropdown") {
-                        val view = LayoutInflater.from(this)
-                            .inflate(R.layout.select_dropdown_view, binding.container, false)
+                        val view = (LayoutInflater.from(this)
+                            .inflate(R.layout.select_dropdown_view, binding.container, false) as AppCompatSpinner)
                             .apply {
                                 val spinnerArrayAdapter = SingleSelectAdapter(
                                     language,
                                     this@MainActivity,
+                                    R.layout.single_select_view,
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] =
-                                            it.placeholder!![language] ?: " "
+                                        placeHolderOption[language] = "Seçin"
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(
                                             id = "placeholder",
                                             option = placeHolderOption
@@ -719,10 +688,8 @@ class MainActivity : BaseActivity() {
                                     }
                                 )
 
-                                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                                this.spinner?.adapter = spinnerArrayAdapter
-                                this.spinner?.tag = it.name
-                                this.selectTitle.text = it.placeholder!![language] ?: ""
+                                this.adapter = spinnerArrayAdapter
+                                this.tag = it.name
                             }
                         container?.addView(view)
                     } else if (it.select_design.value == "radio_button") {
@@ -867,12 +834,13 @@ class MainActivity : BaseActivity() {
                 }
                 "select" -> {
                     if (it.select_design == null || it.select_design.value == "dropdown") {
-                        val view = LayoutInflater.from(this)
-                            .inflate(R.layout.select_dropdown_view, binding.container, false)
+                        val view = (LayoutInflater.from(this)
+                            .inflate(R.layout.select_dropdown_view, binding.container, false) as AppCompatSpinner)
                             .apply {
                                 val spinnerArrayAdapter = SingleSelectAdapter(
                                     language,
                                     this@MainActivity,
+                                    R.layout.single_select_view,
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
@@ -888,10 +856,8 @@ class MainActivity : BaseActivity() {
                                     }
                                 )
 
-                                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                                this.spinner?.adapter = spinnerArrayAdapter
-                                this.spinner?.tag = it.name
-                                this.selectTitle.text = it.placeholder!![language] ?: ""
+                                this.adapter = spinnerArrayAdapter
+                                this.tag = it.name
                             }
                         container?.addView(view)
                     } else if (it.select_design.value == "radio_button") {

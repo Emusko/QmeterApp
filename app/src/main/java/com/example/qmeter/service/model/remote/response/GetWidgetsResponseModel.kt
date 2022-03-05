@@ -25,7 +25,7 @@ data class GetWidgetsResponseModel(
     ) : Serializable
 
     data class LanguagePage(
-        @SerializedName("properties") val properties: PageProperties? = null,
+        @SerializedName("properties") val properties: LanguageProperties? = null,
         @SerializedName("languages") val languages: ArrayList<Language>? = arrayListOf()
     ) : Serializable
 
@@ -165,8 +165,8 @@ data class GetWidgetsResponseModel(
         @SerializedName("mark_selected_color") val markSelectedColor: ArrayList<Int> = arrayListOf()
     ) : Serializable
 
-    data class Properties(
-        @SerializedName("page_background") val pageBackground: ArrayList<Int> = arrayListOf(),
+    data class LanguageProperties(
+        @SerializedName("page_bg") val pageBackground: ArrayList<Int> = arrayListOf(),
         @SerializedName("dimmer_color") val dimmerColor: ArrayList<String> = arrayListOf(),
         @SerializedName("dimmer_opacity") val dimmerOpacity: Double? = null,
         @SerializedName("animated_title_size") val animatedTitleSize: String? = null,
@@ -175,8 +175,8 @@ data class GetWidgetsResponseModel(
         @SerializedName("show_smile") val showSmile: Boolean? = null,
         @SerializedName("show_labels") val showLabels: Boolean? = null,
         @SerializedName("language_label_style") val languageLabelStyle: ArrayList<String> = arrayListOf(),
-        @SerializedName("title_color") val titleColor: ArrayList<String> = arrayListOf(),
-        @SerializedName("smiley_color") val smileyColor: ArrayList<String> = arrayListOf(),
+        @SerializedName("title_color") val titleColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("smiley_color") val smileyColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("smiley_size") val smileySize: String? = null,
         @SerializedName("background_image_url") val backgroundImageUrl: String? = null,
         @SerializedName("single") val single: String? = null,

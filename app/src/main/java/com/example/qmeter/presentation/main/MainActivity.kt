@@ -34,15 +34,12 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.dialog_exit_view.view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_view.*
-import kotlinx.android.synthetic.main.input_from_user_sli_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
-import kotlinx.android.synthetic.main.input_from_user_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
+import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.submit
-import kotlinx.android.synthetic.main.select_dropdown_view.*
+import kotlinx.android.synthetic.main.multi_select_container_view.view.*
 import kotlinx.android.synthetic.main.select_dropdown_view.view.*
 import java.util.*
 import javax.inject.Inject
@@ -136,7 +133,7 @@ class MainActivity : BaseActivity() {
             finish()
         }
 
-        viewModel.pageStateLiveData.observe(this, {
+        viewModel.pageStateLiveData.observe(this) {
             val pageIndex = it.first
             val back = it.second
             languageContainer?.visibility = View.GONE
@@ -248,7 +245,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
-        })
+        }
 
         binding.next.setOnClickListener {
             if (pages.size - 1 != viewModel.pageStateLiveData.value?.first) {
@@ -291,10 +288,6 @@ class MainActivity : BaseActivity() {
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
                                                 if (it.isEmpty()) {
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                        R.id.text_input_error
-                                                    )?.text =
-                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -307,10 +300,6 @@ class MainActivity : BaseActivity() {
                                                 }
                                             }
                                             if (checkedList.isNullOrEmpty()) {
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                    R.id.text_input_error
-                                                )?.text =
-                                                    getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
                                         }
@@ -335,10 +324,6 @@ class MainActivity : BaseActivity() {
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
                                                 if (it.isEmpty()) {
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                        R.id.text_input_error
-                                                    )?.text =
-                                                        getString(R.string.field_error_message)
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -351,10 +336,6 @@ class MainActivity : BaseActivity() {
                                                 }
                                             }
                                             if (checkedList.isNullOrEmpty()) {
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                    R.id.text_input_error
-                                                )?.text =
-                                                    getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
                                         }
@@ -380,10 +361,7 @@ class MainActivity : BaseActivity() {
                                         is AppCompatSpinner -> {
                                             dataView.selectedItem?.toString()?.let {
                                                 if (it.isEmpty()) {
-                                                    (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                        R.id.text_input_error
-                                                    )?.text =
-                                                        getString(R.string.field_error_message)
+
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -396,10 +374,6 @@ class MainActivity : BaseActivity() {
                                                 }
                                             }
                                             if (checkedList.isNullOrEmpty()) {
-                                                (dataView.parent as? LinearLayoutCompat)?.findViewById<AppCompatTextView>(
-                                                    R.id.text_input_error
-                                                )?.text =
-                                                    getString(R.string.field_error_message)
                                                 return@setOnClickListener
                                             }
                                         }
@@ -469,7 +443,7 @@ class MainActivity : BaseActivity() {
             viewModel.dataPost.postValue(true)
         }
 
-        viewModel.dataPost.observe(this, {
+        viewModel.dataPost.observe(this) {
             val finalPageData = responseModel?.finalPageData
             finalPageData?.pageBg?.let {
                 binding.motherLayout.setBackgroundColor(it.getColor())
@@ -523,7 +497,7 @@ class MainActivity : BaseActivity() {
                 }
 
             }
-        })
+        }
         viewModel.requestModel.clear()
     }
 
@@ -694,17 +668,17 @@ class MainActivity : BaseActivity() {
                 }
                 "select" -> {
                     if (it.select_design == null || it.select_design.value == "dropdown") {
-                        val view = LayoutInflater.from(this)
-                            .inflate(R.layout.select_dropdown_view, binding.container, false)
+                        val view = (LayoutInflater.from(this)
+                            .inflate(R.layout.select_dropdown_view, binding.container, false) as AppCompatSpinner)
                             .apply {
                                 val spinnerArrayAdapter = SingleSelectAdapter(
                                     language,
                                     this@MainActivity,
+                                    R.layout.single_select_view,
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] =
-                                            it.placeholder!![language] ?: " "
+                                        placeHolderOption[language] = "Seçin"
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(
                                             id = "placeholder",
                                             option = placeHolderOption
@@ -716,10 +690,8 @@ class MainActivity : BaseActivity() {
                                     }
                                 )
 
-                                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                                this.spinner?.adapter = spinnerArrayAdapter
-                                this.spinner?.tag = it.name
-                                this.selectTitle.text = it.placeholder!![language] ?: ""
+                                this.adapter = spinnerArrayAdapter
+                                this.tag = it.name
                             }
                         container?.addView(view)
                     } else if (it.select_design.value == "radio_button") {
@@ -744,31 +716,23 @@ class MainActivity : BaseActivity() {
                     }
                 }
                 "multi-select" -> {
-                    val containerView = LinearLayoutCompat(this).apply {
-                        orientation = LinearLayoutCompat.VERTICAL
+                    val containerView = LayoutInflater.from(this@MainActivity)
+                        .inflate(R.layout.multi_select_container_view, container, false) as LinearLayoutCompat
+                    containerView.title_text_view.text = it.label!![language]
+                    it.select?.forEach { selectOption ->
+                        val checkBox = LayoutInflater.from(this@MainActivity).inflate(
+                            R.layout.multi_select_checkbox,
+                            container,
+                            false
+                        ) as AppCompatCheckBox
+
+                        checkBox.text = selectOption.option!![language] ?: ""
+                        checkBox.tag = selectOption.id
+
+                        containerView.addView(checkBox)
                     }
-                    val title = LayoutInflater.from(this@MainActivity)
-                        .inflate(R.layout.input_from_user_sli_view, containerView, false)
-                        .apply {
-                            this.textView.text = it.label!![language] ?: ""
-                            this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
-                        }
-                        .apply {
-                            it.select?.forEach { selectOption ->
-                                val checkBox = LayoutInflater.from(this@MainActivity).inflate(
-                                    R.layout.multi_select_checkbox,
-                                    container,
-                                    false
-                                ) as AppCompatCheckBox
 
-                                checkBox.text = selectOption.option!![language] ?: ""
-                                checkBox.tag = selectOption.id
-
-                                containerView.addView(checkBox)
-                            }
-                        }
                     containerView.tag = it.name
-                    container?.addView(title)
                     container?.addView(containerView)
                 }
             }
@@ -872,12 +836,13 @@ class MainActivity : BaseActivity() {
                 }
                 "select" -> {
                     if (it.select_design == null || it.select_design.value == "dropdown") {
-                        val view = LayoutInflater.from(this)
-                            .inflate(R.layout.select_dropdown_view, binding.container, false)
+                        val view = (LayoutInflater.from(this)
+                            .inflate(R.layout.select_dropdown_view, binding.container, false) as AppCompatSpinner)
                             .apply {
                                 val spinnerArrayAdapter = SingleSelectAdapter(
                                     language,
                                     this@MainActivity,
+                                    R.layout.single_select_view,
                                     android.R.layout.simple_spinner_item,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
@@ -893,10 +858,8 @@ class MainActivity : BaseActivity() {
                                     }
                                 )
 
-                                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                                this.spinner?.adapter = spinnerArrayAdapter
-                                this.spinner?.tag = it.name
-                                this.selectTitle.text = it.placeholder!![language] ?: ""
+                                this.adapter = spinnerArrayAdapter
+                                this.tag = it.name
                             }
                         container?.addView(view)
                     } else if (it.select_design.value == "radio_button") {
@@ -922,29 +885,23 @@ class MainActivity : BaseActivity() {
                     }
                 }
                 "multi-select" -> {
-                    val containerView = LinearLayoutCompat(this)
-                    val title = LayoutInflater.from(this@MainActivity)
-                        .inflate(R.layout.input_from_user_sli_view, containerView, false)
-                        .apply {
-                            this.textView.text = it.label!![language] ?: ""
-                            this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
-                        }
-                        .apply {
-                            it.select?.forEach { selectOption ->
-                                val checkBox = LayoutInflater.from(this@MainActivity).inflate(
-                                    R.layout.multi_select_checkbox,
-                                    container,
-                                    false
-                                ) as AppCompatCheckBox
+                    val containerView = LayoutInflater.from(this@MainActivity)
+                        .inflate(R.layout.multi_select_container_view, container, false) as LinearLayoutCompat
+                    containerView.title_text_view.text = it.label!![language]
+                    it.select?.forEach { selectOption ->
+                        val checkBox = LayoutInflater.from(this@MainActivity).inflate(
+                            R.layout.multi_select_checkbox,
+                            container,
+                            false
+                        ) as AppCompatCheckBox
 
-                                checkBox.text = selectOption.option!![language] ?: ""
-                                checkBox.tag = selectOption.id
+                        checkBox.text = selectOption.option!![language] ?: ""
+                        checkBox.tag = selectOption.id
 
-                                containerView.addView(checkBox)
-                            }
-                        }
+                        containerView.addView(checkBox)
+                    }
+
                     containerView.tag = it.name
-                    container?.addView(title)
                     container?.addView(containerView)
                 }
             }
@@ -970,20 +927,29 @@ class MainActivity : BaseActivity() {
             val languages = responseModel?.languagePage?.languages
             val title = LayoutInflater.from(this)
                 .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
-                    this.textView.text = "Choose language"
+                    this.textView.text = languages?.firstOrNull()?.title ?: ""
                 }
 
-            binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBg?.getColor()!!)
+            binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBackground?.getColor()!!)
             languageContainer?.addView(title)
             if (languages?.size?.compareTo(1) == 0 || languages.isNullOrEmpty()) {
                 languageIsActive = false
-                language = languages?.firstOrNull()?.langCode?: "en"
+                language = languages?.firstOrNull()?.langCode ?: "en"
                 viewModel.requestModel["language"] = language
                 binding.logo.visibility = View.VISIBLE
                 initializeViews()
                 viewModel.pageStateLiveData.value = Pair(0, false)
             } else {
-                languages?.forEach { languageModel ->
+
+                val view = LayoutInflater.from(this)
+                    .inflate(R.layout.input_from_user_sli_font_view, languageContainer, false)
+                view.setBackgroundColor(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
+                view.textView.apply {
+                    this.text = "A"
+                    this.setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
+                }
+                languageContainer?.addView(view)
+                languages.forEach { languageModel ->
 
                     val linearLayout = LayoutInflater.from(this)
                         .inflate(R.layout.choose_language_view, binding.container, false).apply {
@@ -992,20 +958,28 @@ class MainActivity : BaseActivity() {
                             this.setOnClickListener {
                                 languageIsActive = false
                                 language = languageModel.langCode ?: "en"
+                                binding.logo.visibility = View.VISIBLE
                                 viewModel.requestModel["language"] = language
                                 initializeViews()
                                 viewModel.pageStateLiveData.value = Pair(0, false)
                             }
                         }
+                    responseModel?.languagePage?.properties?.showFlags?.let {
+                        if (it)
+                            linearLayout.flagImage.visibility = View.VISIBLE
+                    }
                     linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
+
 
                     languageContainer?.addView(linearLayout)
                 }
+
             }
             binding.container.addView(languageContainer)
         } else {
             languageIsActive = false
             language = "en"
+            binding.logo.visibility = View.VISIBLE
             viewModel.pageStateLiveData.value = Pair(0, false)
         }
     }
@@ -1016,11 +990,18 @@ class MainActivity : BaseActivity() {
 
         val view = LayoutInflater.from(this)
             .inflate(R.layout.input_from_user_view, container, false)
-
+        val title = LayoutInflater.from(this@MainActivity)
+            .inflate(R.layout.input_from_user_sli_view, container, false)
+            .apply {
+                this.textView.text = commentData.attrs?.label!![language] ?: ""
+                this.textView.setTextColor( commentData.attrs?.label_text_color?.getColor() ?: 0)
+            }
+        view.minimumHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics).toInt()
         view.passwordEt?.tag = commentData.attrs?.name
         view.passwordEt?.hint = commentData.attrs?.placeholder!![language] ?: ""
 
         container?.tag = COMMENT_TAG
+        container?.addView(title)
         container?.addView(view)
 
         return container
@@ -1158,36 +1139,23 @@ class MainActivity : BaseActivity() {
         val alertDialog = dialog.create()
         markPageData.marks.forEach { mark ->
             val markText = LayoutInflater.from(this)
-                .inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false)
+                .inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false) as LinearLayoutCompat
             markText.apply {
-                (this as? AppCompatTextView)?.text = mark.name!![language]
+                this.check_mark_text.text = mark.name!![language]
                 if (markPageData.isSingle == true) {
                     setOnClickListener {
                         dialogView.markContainer.forEach { child ->
-                            if (markText != child) {
+                            if (this != child) {
                                 mark.selected = false
-                                child.background = ContextCompat.getDrawable(
-                                    this@MainActivity,
-                                    R.drawable.rounded_input_background_8
-                                )
-                                (child as? AppCompatTextView)?.setTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.black
-                                    )
-                                )
+
+                                this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                                this.checked_image.visibility = View.GONE
                             } else {
                                 mark.selected = true
-                                child.background = ContextCompat.getDrawable(
-                                    this@MainActivity,
-                                    R.drawable.rounded_accent_input_background_8
-                                )
-                                (child as? AppCompatTextView)?.setTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.white
-                                    )
-                                )
+
+                                this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.colorMarkPageSelected))
+
+                                this.checked_image.visibility = View.VISIBLE
                             }
                         }
                         alertDialog.dismiss()
@@ -1200,24 +1168,12 @@ class MainActivity : BaseActivity() {
                                 this@MainActivity,
                                 R.drawable.rounded_input_background_8
                             )
-                            (this as? AppCompatTextView)?.setTextColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.black
-                                )
-                            )
+                            this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                            this.checked_image.visibility = View.GONE
                         } else {
                             mark.selected = true
-                            this.background = ContextCompat.getDrawable(
-                                this@MainActivity,
-                                R.drawable.rounded_accent_input_background_8
-                            )
-                            (this as? AppCompatTextView)?.setTextColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.white
-                                )
-                            )
+                            this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.colorMarkPageSelected))
+                            this.checked_image.visibility = View.VISIBLE
                         }
                     }
                 }

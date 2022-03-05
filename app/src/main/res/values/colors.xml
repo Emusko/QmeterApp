@@ -5,4 +5,5 @@
     <color name="black">#000000</color>
     <color name="colorPrimaryDark">#C6395F</color>
     <color name="colorAccent">#C6395F</color>
+    <color name="colorMarkPageSelected">#F2F2F6</color>
 </resources>

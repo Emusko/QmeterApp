@@ -144,6 +144,9 @@ class MainActivity : BaseActivity() {
             pageViews[pageIndex + 1]?.visibility = View.GONE
             pageViews[pageIndex - 1]?.visibility = View.GONE
 
+
+            binding.motherLayout.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageBg?.getColor()!!)
+
             if (sliCondition.isNotEmpty()) {
                 var sliFeedBacks = ""
                 sliCondition.forEach {
@@ -556,7 +559,6 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-                binding.motherLayout.setBackgroundColor(responseModel?.pages!![index]?.properties?.pageBg?.getColor()!!)
             }
             pageLayout?.visibility = View.GONE
             pageViews[index] = pageLayout
@@ -962,6 +964,7 @@ class MainActivity : BaseActivity() {
         if (responseModel?.languagePage != null) {
             languageIsActive = true
             binding.next.visibility = View.GONE
+            binding.logo.visibility = View.GONE
             binding.back.visibility = View.GONE
             binding.submit.visibility = View.GONE
             val languages = responseModel?.languagePage?.languages
@@ -976,6 +979,7 @@ class MainActivity : BaseActivity() {
                 languageIsActive = false
                 language = languages?.firstOrNull()?.langCode?: "en"
                 viewModel.requestModel["language"] = language
+                binding.logo.visibility = View.VISIBLE
                 initializeViews()
                 viewModel.pageStateLiveData.value = Pair(0, false)
             } else {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat
+    android:background="@drawable/rounded_transparent_input_background_8"
     android:paddingTop="24dp"
     android:orientation="vertical"
     android:gravity="center"
@@ -28,7 +29,7 @@
             android:inputType="textPassword"
             android:padding="16dp"
             android:hint="Password"
-            android:background="@null"
+            android:background="#F5F5F5"
             android:id="@+id/passwordEt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

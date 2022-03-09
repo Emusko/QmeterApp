@@ -305,7 +305,7 @@ data class GetWidgetsResponseModel(
         @SerializedName("is_component_title") val is_component_title: Boolean? = null,
         @SerializedName("component_title_bg_color") val component_title_bg_color: ArrayList<Int> = arrayListOf(),
         @SerializedName("component_title_text_color") val component_title_text_color: ArrayList<Int> = arrayListOf(),
-        @SerializedName("component_title") val component_title: Label? = Label(),
+        @SerializedName("component_title") val component_title: HashMap<String, String>? = hashMapOf(),
         @SerializedName("component_title_size") val component_title_size: String? = null
 
     ) : PageComponent, Serializable

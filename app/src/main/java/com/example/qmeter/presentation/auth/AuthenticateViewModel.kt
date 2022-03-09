@@ -34,6 +34,7 @@ class AuthenticateViewModel @Inject constructor(
                 viewData.value = it
             },
             {
+                sharedPreferences.edit().clear().apply()
                 error.onNext(it.localizedMessage?: "")
             },
             subscriptions

@@ -40,7 +40,6 @@ import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.submit
 import kotlinx.android.synthetic.main.multi_select_container_view.view.*
-import kotlinx.android.synthetic.main.select_dropdown_view.view.*
 import java.util.*
 import javax.inject.Inject
 
@@ -270,6 +269,7 @@ class MainActivity : BaseActivity() {
                                     && dataView.text?.toString()?.isNotEmpty() == true
                                     && dataView.text?.toString()?.isEmailValid() == false
                                 ) {
+                                    dataView.requestFocus()
                                     dataView.error =
                                         getString(R.string.email_field_error_message)
                                     return@setOnClickListener
@@ -279,6 +279,7 @@ class MainActivity : BaseActivity() {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
                                                 if (it.isEmpty()) {
+                                                    dataView.requestFocus()
                                                     dataView.error =
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
@@ -315,6 +316,7 @@ class MainActivity : BaseActivity() {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
                                                 if (it.isEmpty()) {
+                                                    dataView.requestFocus()
                                                     dataView.error =
                                                         getString(R.string.field_error_message)
                                                     return@setOnClickListener
@@ -351,9 +353,9 @@ class MainActivity : BaseActivity() {
                                         is TextInputEditText -> {
                                             dataView.text?.toString()?.let {
                                                 if (it.isEmpty()) {
+                                                    dataView.requestFocus()
                                                     dataView.error =
                                                         getString(R.string.field_error_message)
-                                                    dataView.clearFocus()
                                                     return@setOnClickListener
                                                 }
                                             }
@@ -578,6 +580,16 @@ class MainActivity : BaseActivity() {
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
 
         val attrs = pageComponent.attrs
+
+        val title = LayoutInflater.from(this@MainActivity)
+            .inflate(R.layout.title_view, container, false) as AppCompatTextView
+
+        title.text = pageComponent.component_title!![language]
+
+        title.setTextColor(pageComponent.component_title_text_color.getColor())
+        title.setBackgroundColor(pageComponent.component_title_bg_color.getColor())
+
+        container?.addView(title)
 
         attrs.sortBy { it.position }
         attrs.forEach {
@@ -911,7 +923,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun getLanguageFromUser() {
-
+        val timer = Timer()
         binding.next.visibility = View.GONE
         binding.back.visibility = View.GONE
 
@@ -925,14 +937,28 @@ class MainActivity : BaseActivity() {
             binding.back.visibility = View.GONE
             binding.submit.visibility = View.GONE
             val languages = responseModel?.languagePage?.languages
-            val title = LayoutInflater.from(this)
-                .inflate(R.layout.input_from_user_sli_view, binding.container, false).apply {
-                    this.textView.text = languages?.firstOrNull()?.title ?: ""
+            val title = (LayoutInflater.from(this)
+                .inflate(R.layout.input_from_user_sli_view, binding.container, false) as? LinearLayoutCompat).apply {
+                    this?.textView?.text = languages?.firstOrNull()?.title ?: ""
+                }
+            timer.schedule(object : TimerTask(){
+                override fun run() {
+                    runOnUiThread {
+
+                        val index = languages?.indexOfFirst { it.title == title?.textView?.text.toString()}
+                        val newIndex = if (index == languages?.size?.minus(1)){
+                            0
+                        } else {
+                            index?.plus(1)
+                        }
+                        title?.textView?.text = languages!![newIndex!!].title
+                    }
                 }
 
+            }, 0L, 2000L)
             binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBackground?.getColor()!!)
-            languageContainer?.addView(title)
             if (languages?.size?.compareTo(1) == 0 || languages.isNullOrEmpty()) {
+                timer.cancel()
                 languageIsActive = false
                 language = languages?.firstOrNull()?.langCode ?: "en"
                 viewModel.requestModel["language"] = language
@@ -941,14 +967,19 @@ class MainActivity : BaseActivity() {
                 viewModel.pageStateLiveData.value = Pair(0, false)
             } else {
 
-                val view = LayoutInflater.from(this)
+
+                val smileView = LayoutInflater.from(this)
                     .inflate(R.layout.input_from_user_sli_font_view, languageContainer, false)
-                view.setBackgroundColor(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
-                view.textView.apply {
+                smileView.setBackgroundColor(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
+                smileView.textView.apply {
                     this.text = "A"
                     this.setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
                 }
-                languageContainer?.addView(view)
+                responseModel?.languagePage?.properties?.showSmile?.let {
+                    if (it)
+                        languageContainer?.addView(smileView)
+                }
+                languageContainer?.addView(title)
                 languages.forEach { languageModel ->
 
                     val linearLayout = LayoutInflater.from(this)
@@ -956,6 +987,7 @@ class MainActivity : BaseActivity() {
                             this.textView.text = languageModel.label
                             this.textView.setTextColor(languageModel.labelColor.getColor())
                             this.setOnClickListener {
+                                timer.cancel()
                                 languageIsActive = false
                                 language = languageModel.langCode ?: "en"
                                 binding.logo.visibility = View.VISIBLE
@@ -964,19 +996,21 @@ class MainActivity : BaseActivity() {
                                 viewModel.pageStateLiveData.value = Pair(0, false)
                             }
                         }
+                    linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
                     responseModel?.languagePage?.properties?.showFlags?.let {
                         if (it)
-                            linearLayout.flagImage.visibility = View.VISIBLE
+                            linearLayout.flagImageContainer.visibility = View.VISIBLE
                     }
-                    linearLayout.flagImage.loadSvgOrOther(languageModel.flagUrl)
 
 
                     languageContainer?.addView(linearLayout)
                 }
 
+
             }
             binding.container.addView(languageContainer)
         } else {
+            timer.cancel()
             languageIsActive = false
             language = "en"
             binding.logo.visibility = View.VISIBLE
@@ -994,7 +1028,7 @@ class MainActivity : BaseActivity() {
             .inflate(R.layout.input_from_user_sli_view, container, false)
             .apply {
                 this.textView.text = commentData.attrs?.label!![language] ?: ""
-                this.textView.setTextColor( commentData.attrs?.label_text_color?.getColor() ?: 0)
+                this.textView.setTextColor( commentData.attrs.label_text_color?.getColor() ?: 0)
             }
         view.minimumHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics).toInt()
         view.passwordEt?.tag = commentData.attrs?.name

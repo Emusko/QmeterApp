@@ -4,6 +4,14 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -244,6 +252,8 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
+            if (!responseModel?.languagePage?.languages.isNullOrEmpty() && responseModel?.languagePage?.languages?.size == 1)
+                binding.back.visibility = View.GONE
         }
 
         binding.next.setOnClickListener {
@@ -547,20 +557,13 @@ class MainActivity : BaseActivity() {
             viewModel.pageStateLiveData.value =
                 Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
         } else {
-            if (languageIsActive) {
-                if (!(viewModel.pageStateLiveData.value?.first == 0 && responseModel?.languagePage?.languages?.size!! >= 1))
-                    super.onBackPressed()
-                else
-                    binding.back.visibility = View.GONE
-            } else {
-                pageViews.forEach { _, linearLayoutCompat ->
-                    linearLayoutCompat?.visibility = View.GONE
-                }
-                binding.next.visibility = View.GONE
-                binding.back.visibility = View.GONE
-                binding.submit.visibility = View.GONE
-                languageContainer?.visibility = View.VISIBLE
+            pageViews.forEach { (_, linearLayoutCompat) ->
+                linearLayoutCompat?.visibility = View.GONE
             }
+            binding.next.visibility = View.GONE
+            binding.back.visibility = View.GONE
+            binding.submit.visibility = View.GONE
+            getLanguageFromUser()
         }
 //        if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
 //            viewModel.pageStateLiveData.value =
@@ -598,6 +601,7 @@ class MainActivity : BaseActivity() {
                     val view = LayoutInflater.from(this)
                         .inflate(R.layout.input_from_user_view, binding.container, false)
                         .apply {
+                            this.passwordEt?.setDynamicSize(it.label_text_size)
                             this.passwordEt.tag = it.name
                             this.passwordEt?.hint = it.placeholder!![language] ?: ""
                             if (it.name == "email") {
@@ -612,6 +616,7 @@ class MainActivity : BaseActivity() {
                         .apply {
                             this.passwordEt.tag = it.name
                             this.passwordEt?.hint = it.placeholder!![language] ?: ""
+                            this.passwordEt?.setDynamicSize(it.label_text_size)
                             this.passwordEt.setOnClickListener {
                                 val newCalendar = Calendar.getInstance()
                                 DatePickerDialog(
@@ -646,6 +651,7 @@ class MainActivity : BaseActivity() {
                             val editText = this.passwordEt
                             editText.tag = it.name
                             editText?.hint = it.placeholder!![language] ?: ""
+                            this.passwordEt?.setDynamicSize(it.label_text_size)
                             editText.setText(it.prefix)
                             Selection.setSelection(editText.text, editText.text?.length ?: 0)
 
@@ -681,7 +687,11 @@ class MainActivity : BaseActivity() {
                 "select" -> {
                     if (it.select_design == null || it.select_design.value == "dropdown") {
                         val view = (LayoutInflater.from(this)
-                            .inflate(R.layout.select_dropdown_view, binding.container, false) as AppCompatSpinner)
+                            .inflate(
+                                R.layout.select_dropdown_view,
+                                binding.container,
+                                false
+                            ) as AppCompatSpinner)
                             .apply {
                                 val spinnerArrayAdapter = SingleSelectAdapter(
                                     language,
@@ -729,7 +739,12 @@ class MainActivity : BaseActivity() {
                 }
                 "multi-select" -> {
                     val containerView = LayoutInflater.from(this@MainActivity)
-                        .inflate(R.layout.multi_select_container_view, container, false) as LinearLayoutCompat
+                        .inflate(
+                            R.layout.multi_select_container_view,
+                            container,
+                            false
+                        ) as LinearLayoutCompat
+
                     containerView.title_text_view.text = it.label!![language]
                     it.select?.forEach { selectOption ->
                         val checkBox = LayoutInflater.from(this@MainActivity).inflate(
@@ -737,7 +752,7 @@ class MainActivity : BaseActivity() {
                             container,
                             false
                         ) as AppCompatCheckBox
-
+                        checkBox.setDynamicSize(it.label_text_size)
                         checkBox.text = selectOption.option!![language] ?: ""
                         checkBox.tag = selectOption.id
 
@@ -849,7 +864,11 @@ class MainActivity : BaseActivity() {
                 "select" -> {
                     if (it.select_design == null || it.select_design.value == "dropdown") {
                         val view = (LayoutInflater.from(this)
-                            .inflate(R.layout.select_dropdown_view, binding.container, false) as AppCompatSpinner)
+                            .inflate(
+                                R.layout.select_dropdown_view,
+                                binding.container,
+                                false
+                            ) as AppCompatSpinner)
                             .apply {
                                 val spinnerArrayAdapter = SingleSelectAdapter(
                                     language,
@@ -898,7 +917,11 @@ class MainActivity : BaseActivity() {
                 }
                 "multi-select" -> {
                     val containerView = LayoutInflater.from(this@MainActivity)
-                        .inflate(R.layout.multi_select_container_view, container, false) as LinearLayoutCompat
+                        .inflate(
+                            R.layout.multi_select_container_view,
+                            container,
+                            false
+                        ) as LinearLayoutCompat
                     containerView.title_text_view.text = it.label!![language]
                     it.select?.forEach { selectOption ->
                         val checkBox = LayoutInflater.from(this@MainActivity).inflate(
@@ -926,7 +949,7 @@ class MainActivity : BaseActivity() {
         val timer = Timer()
         binding.next.visibility = View.GONE
         binding.back.visibility = View.GONE
-
+        binding.container.removeView(languageContainer)
         languageContainer = LayoutInflater.from(this)
             .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
 
@@ -938,15 +961,21 @@ class MainActivity : BaseActivity() {
             binding.submit.visibility = View.GONE
             val languages = responseModel?.languagePage?.languages
             val title = (LayoutInflater.from(this)
-                .inflate(R.layout.input_from_user_sli_view, binding.container, false) as? LinearLayoutCompat).apply {
-                    this?.textView?.text = languages?.firstOrNull()?.title ?: ""
-                }
-            timer.schedule(object : TimerTask(){
+                .inflate(
+                    R.layout.input_from_user_sli_view,
+                    binding.container,
+                    false
+                ) as? LinearLayoutCompat).apply {
+                this?.textView?.text = languages?.firstOrNull()?.title ?: ""
+                this?.textView?.setDynamicSize(responseModel?.languagePage?.properties?.languageLabelSize)
+            }
+            timer.schedule(object : TimerTask() {
                 override fun run() {
                     runOnUiThread {
 
-                        val index = languages?.indexOfFirst { it.title == title?.textView?.text.toString()}
-                        val newIndex = if (index == languages?.size?.minus(1)){
+                        val index =
+                            languages?.indexOfFirst { it.title == title?.textView?.text.toString() }
+                        val newIndex = if (index == languages?.size?.minus(1)) {
                             0
                         } else {
                             index?.plus(1)
@@ -969,11 +998,11 @@ class MainActivity : BaseActivity() {
 
 
                 val smileView = LayoutInflater.from(this)
-                    .inflate(R.layout.input_from_user_sli_font_view, languageContainer, false)
-                smileView.setBackgroundColor(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
+                    .inflate(R.layout.input_from_user_sli_font_view_final_page, languageContainer, false)
                 smileView.textView.apply {
-                    this.text = "A"
-                    this.setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
+                    setDynamicSize(responseModel?.languagePage?.properties?.smileySize)
+                    text = "A"
+                    setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
                 }
                 responseModel?.languagePage?.properties?.showSmile?.let {
                     if (it)
@@ -984,9 +1013,25 @@ class MainActivity : BaseActivity() {
 
                     val linearLayout = LayoutInflater.from(this)
                         .inflate(R.layout.choose_language_view, binding.container, false).apply {
-                            this.textView.text = languageModel.label
-                            this.textView.setTextColor(languageModel.labelColor.getColor())
-                            this.setOnClickListener {
+//                            backgroundTintList = ColorStateList.valueOf(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
+                            val backgroundDrawable = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_input_language_background_8)
+                            val newBackground = (backgroundDrawable as? GradientDrawable)
+                            newBackground?.setColor(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
+                            newBackground?.setStroke(5, responseModel?.languagePage?.properties?.languageLabelBorderColor?.getColor()!!)
+                            background = newBackground
+
+                            responseModel?.languagePage?.properties?.languageLabelStyle?.forEach {
+                                when (it) {
+                                    "b" -> textView.setTypeface(textView.typeface, Typeface.BOLD)
+                                    "u" -> textView.paintFlags =
+                                        textView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+                                    "i" -> textView.setTypeface(textView.typeface, Typeface.ITALIC)
+                                }
+                            }
+                            textView.text = languageModel.label
+                            textView.setTextColor(languageModel.labelColor.getColor())
+                            textView.setDynamicSize(responseModel?.languagePage?.properties?.languageLabelSize)
+                            setOnClickListener {
                                 timer.cancel()
                                 languageIsActive = false
                                 language = languageModel.langCode ?: "en"
@@ -1027,11 +1072,15 @@ class MainActivity : BaseActivity() {
         val title = LayoutInflater.from(this@MainActivity)
             .inflate(R.layout.input_from_user_sli_view, container, false)
             .apply {
+                this.textView.setDynamicSize(commentData.componentTitleSize)
                 this.textView.text = commentData.attrs?.label!![language] ?: ""
-                this.textView.setTextColor( commentData.attrs.label_text_color?.getColor() ?: 0)
+                this.textView.setTextColor(commentData.attrs.label_text_color?.getColor() ?: 0)
             }
-        view.minimumHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics).toInt()
+        view.minimumHeight =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics)
+                .toInt()
         view.passwordEt?.tag = commentData.attrs?.name
+        view.passwordEt?.setDynamicSize(commentData.attrs?.label_text_size)
         view.passwordEt?.hint = commentData.attrs?.placeholder!![language] ?: ""
 
         container?.tag = COMMENT_TAG
@@ -1173,7 +1222,11 @@ class MainActivity : BaseActivity() {
         val alertDialog = dialog.create()
         markPageData.marks.forEach { mark ->
             val markText = LayoutInflater.from(this)
-                .inflate(R.layout.mark_choose_text_view, dialogView.markContainer, false) as LinearLayoutCompat
+                .inflate(
+                    R.layout.mark_choose_text_view,
+                    dialogView.markContainer,
+                    false
+                ) as LinearLayoutCompat
             markText.apply {
                 this.check_mark_text.text = mark.name!![language]
                 if (markPageData.isSingle == true) {
@@ -1182,12 +1235,22 @@ class MainActivity : BaseActivity() {
                             if (this != child) {
                                 mark.selected = false
 
-                                this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                                this.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.white
+                                    )
+                                )
                                 this.checked_image.visibility = View.GONE
                             } else {
                                 mark.selected = true
 
-                                this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.colorMarkPageSelected))
+                                this.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.colorMarkPageSelected
+                                    )
+                                )
 
                                 this.checked_image.visibility = View.VISIBLE
                             }
@@ -1202,11 +1265,21 @@ class MainActivity : BaseActivity() {
                                 this@MainActivity,
                                 R.drawable.rounded_input_background_8
                             )
-                            this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                            this.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.white
+                                )
+                            )
                             this.checked_image.visibility = View.GONE
                         } else {
                             mark.selected = true
-                            this.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.colorMarkPageSelected))
+                            this.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorMarkPageSelected
+                                )
+                            )
                             this.checked_image.visibility = View.VISIBLE
                         }
                     }

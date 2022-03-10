@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.util.TypedValue
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import coil.ImageLoader
 import coil.decode.SvgDecoder
@@ -14,6 +16,7 @@ import coil.request.ImageRequest
 import com.example.qmeter.R
 import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
 import com.example.qmeter.service.model.remote.response.PageComponent
+import com.google.android.material.textfield.TextInputEditText
 import java.util.*
 import java.util.regex.Pattern
 
@@ -37,6 +40,30 @@ fun ArrayList<Int>?.getColor(): Int {
         Color.rgb(colorArray[0], colorArray[1], colorArray[2])
     else
         0
+}
+
+fun AppCompatTextView.setDynamicSize(size: String? = "S"){
+    when(size) {
+        "S" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+        "M" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f)
+        "L" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34f)
+    }
+}
+
+fun TextInputEditText.setDynamicSize(size: String? = "S"){
+    when(size) {
+        "S" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+        "M" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f)
+        "L" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34f)
+    }
+}
+
+fun CheckBox.setDynamicSize(size: String? = "S"){
+    when(size) {
+        "S" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+        "M" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f)
+        "L" -> this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34f)
+    }
 }
 
 fun LinearLayoutCompat?.addTopMargin(margin: Float, context: Context) {

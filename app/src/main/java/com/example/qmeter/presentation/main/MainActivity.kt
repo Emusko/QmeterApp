@@ -1229,6 +1229,24 @@ class MainActivity : BaseActivity() {
                 ) as LinearLayoutCompat
             markText.apply {
                 this.check_mark_text.text = mark.name!![language]
+                if (!mark.selected!!) {
+                    this.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this@MainActivity,
+                            R.color.white
+                        )
+                    )
+                    this.checked_image.visibility = View.GONE
+                } else {
+                    this.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this@MainActivity,
+                            R.color.colorMarkPageSelected
+                        )
+                    )
+
+                    this.checked_image.visibility = View.VISIBLE
+                }
                 if (markPageData.isSingle == true) {
                     setOnClickListener {
                         dialogView.markContainer.forEach { child ->

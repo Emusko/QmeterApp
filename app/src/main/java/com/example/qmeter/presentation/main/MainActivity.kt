@@ -5,13 +5,12 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -27,6 +26,8 @@ import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
 import com.bumptech.glide.Glide
@@ -42,6 +43,7 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.dialog_exit_view.view.*
+import kotlinx.android.synthetic.main.input_from_user_sli_font_view_final_page.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
 import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
@@ -467,12 +469,13 @@ class MainActivity : BaseActivity() {
                     false
                 ).apply {
                     finalPageCondition?.let {
-                        this.textView.text =
+                        this.smileView.text =
                             it.text!![language]?.resolveIconFromAwesome()
-                        this.textView.setBackgroundColor(
+                        this.smileView.setBackgroundColor(
                             it.textBgColor.getColor() ?: 0
                         )
-                        this.textView.setTextColor(it.textColor.getColor() ?: 0)
+                        this.smileView.setTextColor(it.textColor.getColor())
+                        this.smileView.setDynamicSize(it.textSize)
                     }
                 }
             binding.container.addView(title)
@@ -590,7 +593,11 @@ class MainActivity : BaseActivity() {
         title.text = pageComponent.component_title!![language]
 
         title.setTextColor(pageComponent.component_title_text_color.getColor())
-        title.setBackgroundColor(pageComponent.component_title_bg_color.getColor())
+        title.background.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+            pageComponent.component_title_bg_color.getColor(),
+            BlendModeCompat.SRC_ATOP
+        )
+        title.setDynamicSize(pageComponent.component_title_size)
 
         container?.addView(title)
 
@@ -653,34 +660,33 @@ class MainActivity : BaseActivity() {
                             editText?.hint = it.placeholder!![language] ?: ""
                             this.passwordEt?.setDynamicSize(it.label_text_size)
                             editText.setText(it.prefix)
-                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
-
-
-                            this.passwordEt.addTextChangedListener(object : TextWatcher {
-                                override fun onTextChanged(
-                                    s: CharSequence,
-                                    start: Int,
-                                    before: Int,
-                                    count: Int
-                                ) {
-                                }
-
-                                override fun beforeTextChanged(
-                                    s: CharSequence, start: Int, count: Int,
-                                    after: Int
-                                ) {
-                                }
-
-                                override fun afterTextChanged(s: Editable) {
-                                    if (!s.toString().startsWith(it.prefix ?: "")) {
-                                        editText.setText(it.prefix ?: "")
-                                        Selection.setSelection(
-                                            editText.text,
-                                            editText.text?.length ?: 0
-                                        )
-                                    }
-                                }
-                            })
+//                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
+//
+//                            this.passwordEt.addTextChangedListener(object : TextWatcher {
+//                                override fun onTextChanged(
+//                                    s: CharSequence,
+//                                    start: Int,
+//                                    before: Int,
+//                                    count: Int
+//                                ) {
+//                                }
+//
+//                                override fun beforeTextChanged(
+//                                    s: CharSequence, start: Int, count: Int,
+//                                    after: Int
+//                                ) {
+//                                }
+//
+//                                override fun afterTextChanged(s: Editable) {
+//                                    if (!s.toString().startsWith(it.prefix ?: "")) {
+//                                        editText.setText(it.prefix ?: "")
+//                                        Selection.setSelection(
+//                                            editText.text,
+//                                            editText.text?.length ?: 0
+//                                        )
+//                                    }
+//                                }
+//                            })
                         }
                     container?.addView(view)
                 }
@@ -698,9 +704,10 @@ class MainActivity : BaseActivity() {
                                     this@MainActivity,
                                     R.layout.single_select_view,
                                     android.R.layout.simple_spinner_item,
+                                    it.label_text_size,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] = "Seçin"
+                                        placeHolderOption[language] = it.placeholder!![language]!!
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(
                                             id = "placeholder",
                                             option = placeHolderOption
@@ -746,6 +753,13 @@ class MainActivity : BaseActivity() {
                         ) as LinearLayoutCompat
 
                     containerView.title_text_view.text = it.label!![language]
+                    containerView.title_text_view.setDynamicSize(it.label_text_size)
+                    containerView.title_text_view.setTextColor(it.label_text_color.getColor())
+                    container?.background?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                        pageComponent.component_title_bg_color.getColor(),
+                        BlendModeCompat.SRC_ATOP
+                    )
+//                    containerView.title_text_view.setBackgroundColor(it.label_bg_color.getColor())
                     it.select?.forEach { selectOption ->
                         val checkBox = LayoutInflater.from(this@MainActivity).inflate(
                             R.layout.multi_select_checkbox,
@@ -875,9 +889,10 @@ class MainActivity : BaseActivity() {
                                     this@MainActivity,
                                     R.layout.single_select_view,
                                     android.R.layout.simple_spinner_item,
+                                    it.label_text_size,
                                     mutableListOf<GetWidgetsResponseModel.SelectOption?>().apply {
                                         val placeHolderOption = hashMapOf<String, String>()
-                                        placeHolderOption[language] = "Seçin"
+                                        placeHolderOption[language] = it.placeholder!![language]!!
                                         val placeHolder = GetWidgetsResponseModel.SelectOption(
                                             id = "placeholder",
                                             option = placeHolderOption
@@ -967,7 +982,9 @@ class MainActivity : BaseActivity() {
                     false
                 ) as? LinearLayoutCompat).apply {
                 this?.textView?.text = languages?.firstOrNull()?.title ?: ""
+                this?.textView?.setTextColor(responseModel?.languagePage?.properties?.titleColor.getColor())
                 this?.textView?.setDynamicSize(responseModel?.languagePage?.properties?.languageLabelSize)
+                this?.background = null
             }
             timer.schedule(object : TimerTask() {
                 override fun run() {
@@ -998,8 +1015,12 @@ class MainActivity : BaseActivity() {
 
 
                 val smileView = LayoutInflater.from(this)
-                    .inflate(R.layout.input_from_user_sli_font_view_final_page, languageContainer, false)
-                smileView.textView.apply {
+                    .inflate(
+                        R.layout.input_from_user_sli_font_view_final_page,
+                        languageContainer,
+                        false
+                    )
+                smileView.smileView.apply {
                     setDynamicSize(responseModel?.languagePage?.properties?.smileySize)
                     text = "A"
                     setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
@@ -1014,10 +1035,16 @@ class MainActivity : BaseActivity() {
                     val linearLayout = LayoutInflater.from(this)
                         .inflate(R.layout.choose_language_view, binding.container, false).apply {
 //                            backgroundTintList = ColorStateList.valueOf(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
-                            val backgroundDrawable = ContextCompat.getDrawable(this@MainActivity, R.drawable.rounded_input_language_background_8)
+                            val backgroundDrawable = ContextCompat.getDrawable(
+                                this@MainActivity,
+                                R.drawable.rounded_input_language_background_8
+                            )
                             val newBackground = (backgroundDrawable as? GradientDrawable)
                             newBackground?.setColor(responseModel?.languagePage?.properties?.languageLabelBgColor?.getColor()!!)
-                            newBackground?.setStroke(5, responseModel?.languagePage?.properties?.languageLabelBorderColor?.getColor()!!)
+                            newBackground?.setStroke(
+                                5,
+                                responseModel?.languagePage?.properties?.languageLabelBorderColor?.getColor()!!
+                            )
                             background = newBackground
 
                             responseModel?.languagePage?.properties?.languageLabelStyle?.forEach {
@@ -1073,8 +1100,12 @@ class MainActivity : BaseActivity() {
             .inflate(R.layout.input_from_user_sli_view, container, false)
             .apply {
                 this.textView.setDynamicSize(commentData.componentTitleSize)
-                this.textView.text = commentData.attrs?.label!![language] ?: ""
-                this.textView.setTextColor(commentData.attrs.label_text_color?.getColor() ?: 0)
+                this.textView.text = commentData.componentTitle!![language] ?: ""
+                this.textView.setTextColor(commentData.componentTitleTextColor?.getColor() ?: 0)
+                background?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    commentData.componentTitleBgColor?.getColor() ?: 0,
+                    BlendModeCompat.SRC_ATOP
+                )
             }
         view.minimumHeight =
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics)
@@ -1082,7 +1113,17 @@ class MainActivity : BaseActivity() {
         view.passwordEt?.tag = commentData.attrs?.name
         view.passwordEt?.setDynamicSize(commentData.attrs?.label_text_size)
         view.passwordEt?.hint = commentData.attrs?.placeholder!![language] ?: ""
+        view.loginInputLayout.background.colorFilter =
+            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                commentData.attrs.textarea_bg_color?.getColor() ?: 0,
+                BlendModeCompat.SRC_ATOP
+            )
 
+//        val newBackground = (view.background as? GradientDrawable)
+//        newBackground?.setColor(commentData.attrs.label_bg_color?.getColor()!!)
+//        newBackground?.setStroke(5, commentData.attrs?.label_bg_color?.getColor()!!)
+//        view.background = newBackground
+//TODO bacgkround resolution
         container?.tag = COMMENT_TAG
         container?.addView(title)
         container?.addView(view)
@@ -1100,7 +1141,11 @@ class MainActivity : BaseActivity() {
                 .inflate(R.layout.input_from_user_sli_view, container, false).apply {
                     this.textView.text = it
                     this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
-                    this.textView.setBackgroundColor(sliData.componentTitleBgColor.getColor())
+                    background?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                        sliData.componentTitleBgColor.getColor(),
+                        BlendModeCompat.SRC_ATOP
+                    )
+                    textView.setDynamicSize(sliData.componentTitleSize)
                 }
             container?.addView(title)
         }
@@ -1150,9 +1195,10 @@ class MainActivity : BaseActivity() {
                     .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
                     .apply {
                         this.textView.text = rateOption.label!![language] ?: ""
-                        this.textView.setTextColor(rateOption.textColor.getColor())
+                        this.textView.setTextColor(rateOption.rateIconColor.getColor())
                     }
-                (view as? LinearLayoutCompat)?.addView(sliText)
+                if (sliData.showRateLabels == true)
+                    (view as? LinearLayoutCompat)?.addView(sliText)
                 linearLayout.addView(view)
                 if (index > 0) {
                     val params = sliComponentLayout?.layoutParams as LinearLayout.LayoutParams
@@ -1248,10 +1294,12 @@ class MainActivity : BaseActivity() {
                     this.checked_image.visibility = View.VISIBLE
                 }
                 if (markPageData.isSingle == true) {
+                    dialogView.skip.visibility = View.GONE
+                    dialogView.submit.visibility = View.GONE
                     setOnClickListener {
-                        dialogView.markContainer.forEach { child ->
-                            if (this != child) {
-                                mark.selected = false
+                        dialogView.markContainer.forEachIndexed { index, view ->
+                            if (this != view) {
+                                markPageData.marks[index].selected = false
 
                                 this.setBackgroundColor(
                                     ContextCompat.getColor(
@@ -1261,8 +1309,7 @@ class MainActivity : BaseActivity() {
                                 )
                                 this.checked_image.visibility = View.GONE
                             } else {
-                                mark.selected = true
-
+                                markPageData.marks[index].selected = mark.selected == false
                                 this.setBackgroundColor(
                                     ContextCompat.getColor(
                                         this@MainActivity,
@@ -1305,7 +1352,12 @@ class MainActivity : BaseActivity() {
             }
             dialogView.markContainer.addView(markText)
         }
-        dialogView.skip.setOnClickListener { alertDialog.dismiss() }
+        dialogView.skip.setOnClickListener {
+            markPageData.marks.forEach {
+                it.selected = false
+            }
+            alertDialog.dismiss()
+        }
         dialogView.submit.setOnClickListener { alertDialog.dismiss() }
         alertDialog.show()
     }

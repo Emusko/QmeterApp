@@ -10,7 +10,8 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:ellipsize="end"

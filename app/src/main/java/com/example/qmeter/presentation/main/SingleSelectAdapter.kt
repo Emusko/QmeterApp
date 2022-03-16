@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.widget.AppCompatTextView
 import kotlinx.android.synthetic.main.single_select_view.view.*
 import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
+import com.example.qmeter.utils.setDynamicSize
 
 
 class SingleSelectAdapter(
@@ -14,6 +15,7 @@ class SingleSelectAdapter(
     private val context: Activity,
     private val resourceId: Int,
     private val dropDownView: Int,
+    private val size: String?,
     list: MutableList<GetWidgetsResponseModel.SelectOption?>
 ) : ArrayAdapter<GetWidgetsResponseModel.SelectOption?>(
     context, resourceId, list
@@ -24,6 +26,7 @@ class SingleSelectAdapter(
             rowView = context.layoutInflater.inflate(dropDownView, null)
         }
         (rowView as? AppCompatTextView)?.text = getItem(position)?.option!![language]
+        (rowView as? AppCompatTextView)?.setDynamicSize(size)
         (rowView as? AppCompatTextView)?.setPadding(18, 18, 18,18 )
         return rowView!!
 
@@ -35,6 +38,7 @@ class SingleSelectAdapter(
             rowView = context.layoutInflater.inflate(resourceId, null)
         }
         rowView?.appCompatTextView?.text = getItem(position)?.option!![language]
+        rowView?.appCompatTextView?.setDynamicSize(size)
         return rowView!!
     }
 }

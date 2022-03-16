@@ -7,14 +7,13 @@
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_weight="1"
     android:gravity="center"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <com.example.qmeter.utils.FontAwesome
         android:textSize="36sp"
-        android:id="@+id/textView"
+        android:id="@+id/smileView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="A"/>

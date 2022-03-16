@@ -280,7 +280,7 @@ data class GetWidgetsResponseModel(
     data class CommentData(
         @SerializedName("position") override val position: Int? = null,
         @SerializedName("is_component_title") val isComponentTitle: Boolean? = null,
-        @SerializedName("component_title") val componentTitle: Label? = Label(),
+        @SerializedName("component_title") val componentTitle: HashMap<String, String>? = hashMapOf(),
         @SerializedName("component_title_size") val componentTitleSize: String? = null,
         @SerializedName("component_title_bg_color") val componentTitleBgColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("component_title_text_color") val componentTitleTextColor: ArrayList<Int> = arrayListOf(),

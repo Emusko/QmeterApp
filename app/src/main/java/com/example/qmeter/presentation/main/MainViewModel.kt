@@ -32,18 +32,24 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
     val viewData: MutableLiveData<GetWidgetsResponseModel> = MutableLiveData()
 
+    val customerDataMap = hashMapOf<String, Any?>()
+
     val pageStateLiveData = MutableLiveData<Pair<Int, Boolean>>()
 
     private val requestList = arrayListOf<HashMap<String?, Any?>>()
 
     val requestModel = hashMapOf<String?, Any?>()
+    val feedBacks = arrayListOf<FeedbackRequestModel>()
 
     val dataPost = MutableLiveData<Boolean>()
 
     fun addToQueue(){
+        requestModel[CUSTOMER_TAG] = customerDataMap.clone()
         val request = requestModel.clone()
         requestList.add(request as HashMap<String?, Any?>)
         postFeedback()
+        customerDataMap.clear()
+        feedBacks.clear()
     }
     fun getWidgets(){
         getWidgetsUseCase.execute(
@@ -63,7 +69,6 @@ class MainViewModel @Inject constructor(
         layout: LinearLayoutCompat?,
         customerData: GetWidgetsResponseModel.CustomerData?
     ) {
-        val customerDataMap = hashMapOf<String, Any?>()
         customerData?.attrs?.forEach { attr ->
 
             when (val dataView = layout?.findViewWithTag<View>(attr.name)) {
@@ -94,7 +99,6 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
-        requestModel[CUSTOMER_TAG] = customerDataMap
     }
 
     private fun executeNotificationTimer() {
@@ -167,7 +171,6 @@ class MainViewModel @Inject constructor(
         sliData: GetWidgetsResponseModel.SliData?,
         markPageData: ArrayList<GetWidgetsResponseModel.MarkPageData>?
     ) {
-        val feedBacks = arrayListOf<FeedbackRequestModel>()
 
         sliData?.attrs?.service?.forEach { service ->
             service.rateOptions.filter { it.selected == true }.forEach { rateOptions ->
@@ -192,7 +195,7 @@ class MainViewModel @Inject constructor(
         if (requestModel["feedbacks"] is ArrayList<*>){
             (requestModel["feedbacks"] as ArrayList<FeedbackRequestModel>).addAll(feedBacks)
         } else {
-            requestModel["feedbacks"] = feedBacks
+            requestModel["feedbacks"] = feedBacks.clone()
         }
     }
 
@@ -202,7 +205,6 @@ class MainViewModel @Inject constructor(
         commentData: GetWidgetsResponseModel.CommentData?
     ) {
 
-        val commentMap = hashMapOf<String, Any?>()
         commentData?.attrs?.let {
 
             when (val dataView = layout?.findViewWithTag<View>(it.name)) {

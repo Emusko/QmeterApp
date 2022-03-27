@@ -10,15 +10,14 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.text.Editable
 import android.text.Selection
 import android.text.TextWatcher
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
@@ -87,6 +86,8 @@ class MainActivity : BaseActivity() {
 
     private var language = "en"
 
+    private var mCountDownTimer: CountDownTimer? = null
+
     private var exitCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -149,7 +150,55 @@ class MainActivity : BaseActivity() {
             pageViews[pageIndex]?.visibility = View.VISIBLE
             pageViews[pageIndex + 1]?.visibility = View.GONE
             pageViews[pageIndex - 1]?.visibility = View.GONE
+            val handler = Handler(Looper.getMainLooper())
 
+            mCountDownTimer?.cancel()
+            pages[pageIndex]?.properties?.timeout?.let {
+                if (it.time!! > 0) {
+                    mCountDownTimer = object :CountDownTimer(pages[pageIndex]?.properties?.timeout?.time?.toLong()!!, 10L){
+                        override fun onTick(p0: Long) {
+
+                        }
+
+                        override fun onFinish() {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.back.visibility =
+                                View.GONE
+                            binding.next.visibility =
+                                View.GONE
+                            binding.submit.visibility =
+                                View.GONE
+                            viewModel.getWidgets()
+                            binding.container.removeAllViews()
+                            pageViews.clear()
+                            condition = null
+                            finalPageCondition = null
+                        }
+                    }
+                }
+                mCountDownTimer?.start()
+            }
+            binding.next.setTextColor(pages[pageIndex]?.properties?.nextButtonTxtColor.getColor())
+            binding.next.background?.colorFilter =
+                BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    pages[pageIndex]?.properties?.nextButtonBgColor.getColor() ?: 0,
+                    BlendModeCompat.SRC_ATOP
+                )
+
+            binding.back.setTextColor(pages[pageIndex]?.properties?.backButtonTxtColor.getColor())
+            binding.back.background?.colorFilter =
+                BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    pages[pageIndex]?.properties?.backButtonBgColor.getColor(),
+                    BlendModeCompat.SRC_ATOP
+                )
+
+
+            binding.submit.setTextColor(pages[pageIndex]?.properties?.submitButtonTxtColor.getColor())
+            binding.back.background?.colorFilter =
+                BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    pages[pageIndex]?.properties?.submitButtonBgColor.getColor(),
+                    BlendModeCompat.SRC_ATOP
+                )
 
             binding.motherLayout.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageBg?.getColor()!!)
 
@@ -254,11 +303,12 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
-            if (!responseModel?.languagePage?.languages.isNullOrEmpty() && responseModel?.languagePage?.languages?.size == 1)
+            if (pageIndex == 0 && !responseModel?.languagePage?.languages.isNullOrEmpty() && responseModel?.languagePage?.languages?.size == 1)
                 binding.back.visibility = View.GONE
         }
 
         binding.next.setOnClickListener {
+            mCountDownTimer?.cancel()
             if (pages.size - 1 != viewModel.pageStateLiveData.value?.first) {
                 val page = pages[viewModel.pageStateLiveData.value!!.first]
                 page?.makePages()?.forEach { pageComponent ->
@@ -402,6 +452,7 @@ class MainActivity : BaseActivity() {
             }
         }
         binding.back.setOnClickListener {
+            mCountDownTimer?.cancel()
             if (viewModel.pageStateLiveData.value != null && viewModel.pageStateLiveData.value?.first != 0) {
                 viewModel.pageStateLiveData.value =
                     Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
@@ -416,6 +467,7 @@ class MainActivity : BaseActivity() {
             }
         }
         binding.submit.setOnClickListener {
+            mCountDownTimer?.cancel()
             val response = responseModel?.copy()
             pageViews.forEach { page ->
                 page.value?.forEach { pageView ->
@@ -524,6 +576,21 @@ class MainActivity : BaseActivity() {
                     binding.container,
                     false
                 ) as? LinearLayoutCompat
+            val title = LayoutInflater.from(this@MainActivity)
+                .inflate(R.layout.input_from_user_sli_view, container, false)
+                .apply {
+                    this.textView.setDynamicSize(page?.properties?.pageTitleSize)
+                    this.textView.text = page?.properties?.pageTitle!![language]
+                    this.textView.setTextColor(page.properties.pageTitleTextColor.getColor() ?: 0)
+                    background?.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            page.properties.pageTitleBgColor.getColor() ?: 0,
+                            BlendModeCompat.SRC_ATOP
+                        )
+                }
+            if (page?.properties?.isPageTitle == true)
+                pageLayout?.addView(title)
+
             page?.makePages()?.sortedBy { it?.position }?.forEach { pageComponent ->
                 when (pageComponent) {
                     is GetWidgetsResponseModel.CommentData -> {
@@ -553,6 +620,75 @@ class MainActivity : BaseActivity() {
             pageViews[index] = pageLayout
             binding.container.addView(pageViews[index])
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mCountDownTimer?.cancel()
+        viewModel.pageStateLiveData.value?.let {
+
+            responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]?.properties?.timeout?.time?.let {
+
+                mCountDownTimer = object : CountDownTimer(it.toLong(), 10L) {
+                    override fun onTick(p0: Long) {
+
+                    }
+
+                    override fun onFinish() {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.back.visibility =
+                            View.GONE
+                        binding.next.visibility =
+                            View.GONE
+                        binding.submit.visibility =
+                            View.GONE
+                        viewModel.getWidgets()
+                        binding.container.removeAllViews()
+                        pageViews.clear()
+                        condition = null
+                        finalPageCondition = null
+                    }
+
+                }
+
+                mCountDownTimer?.start()
+            }
+        }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        Log.i("TOUCH", "SCREEN REACTING")
+        mCountDownTimer?.cancel()
+        viewModel.pageStateLiveData.value?.let {
+
+            responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]?.properties?.timeout?.time?.let {
+
+                mCountDownTimer = object : CountDownTimer(it.toLong(), 10L) {
+                    override fun onTick(p0: Long) {
+
+                    }
+
+                    override fun onFinish() {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.back.visibility =
+                            View.GONE
+                        binding.next.visibility =
+                            View.GONE
+                        binding.submit.visibility =
+                            View.GONE
+                        viewModel.getWidgets()
+                        binding.container.removeAllViews()
+                        pageViews.clear()
+                        condition = null
+                        finalPageCondition = null
+                    }
+
+                }
+
+                mCountDownTimer?.start()
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     override fun onBackPressed() {
@@ -598,8 +734,8 @@ class MainActivity : BaseActivity() {
             BlendModeCompat.SRC_ATOP
         )
         title.setDynamicSize(pageComponent.component_title_size)
-
-        container?.addView(title)
+        if (pageComponent.is_component_title == true)
+            container?.addView(title)
 
         attrs.sortBy { it.position }
         attrs.forEach {
@@ -728,7 +864,7 @@ class MainActivity : BaseActivity() {
                         val title = LayoutInflater.from(this@MainActivity)
                             .inflate(R.layout.input_from_user_sli_view, containerView, false)
                             .apply {
-                                this.textView.text = it.label!![language] ?: ""
+                                this.textView.text = it.placeholder!![language] ?: ""
                             }
                             .apply {
                                 it.select?.forEach { selectOption ->
@@ -752,13 +888,14 @@ class MainActivity : BaseActivity() {
                             false
                         ) as LinearLayoutCompat
 
-                    containerView.title_text_view.text = it.label!![language]
+                    containerView.title_text_view.text = it.placeholder!![language]
                     containerView.title_text_view.setDynamicSize(it.label_text_size)
                     containerView.title_text_view.setTextColor(it.label_text_color.getColor())
-                    container?.background?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                        pageComponent.component_title_bg_color.getColor(),
-                        BlendModeCompat.SRC_ATOP
-                    )
+                    containerView.title_text_view?.background?.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            it.label_bg_color.getColor(),
+                            BlendModeCompat.SRC_ATOP
+                        )
 //                    containerView.title_text_view.setBackgroundColor(it.label_bg_color.getColor())
                     it.select?.forEach { selectOption ->
                         val checkBox = LayoutInflater.from(this@MainActivity).inflate(
@@ -913,7 +1050,7 @@ class MainActivity : BaseActivity() {
                         val title = LayoutInflater.from(this@MainActivity)
                             .inflate(R.layout.input_from_user_sli_view, containerView, false)
                             .apply {
-                                this.textView.text = it.label!![language] ?: ""
+                                this.textView.text = it.placeholder!![language] ?: ""
                                 this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
                             }
                             .apply {
@@ -937,14 +1074,23 @@ class MainActivity : BaseActivity() {
                             container,
                             false
                         ) as LinearLayoutCompat
-                    containerView.title_text_view.text = it.label!![language]
+
+                    containerView.title_text_view.text = it.placeholder!![language]
+                    containerView.title_text_view.setDynamicSize(it.label_text_size)
+                    containerView.title_text_view.setTextColor(it.label_text_color.getColor())
+                    containerView.title_text_view?.background?.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            it.label_bg_color.getColor(),
+                            BlendModeCompat.SRC_ATOP
+                        )
+//                    containerView.title_text_view.setBackgroundColor(it.label_bg_color.getColor())
                     it.select?.forEach { selectOption ->
                         val checkBox = LayoutInflater.from(this@MainActivity).inflate(
                             R.layout.multi_select_checkbox,
                             container,
                             false
                         ) as AppCompatCheckBox
-
+                        checkBox.setDynamicSize(it.label_text_size)
                         checkBox.text = selectOption.option!![language] ?: ""
                         checkBox.tag = selectOption.id
 
@@ -983,7 +1129,7 @@ class MainActivity : BaseActivity() {
                 ) as? LinearLayoutCompat).apply {
                 this?.textView?.text = languages?.firstOrNull()?.title ?: ""
                 this?.textView?.setTextColor(responseModel?.languagePage?.properties?.titleColor.getColor())
-                this?.textView?.setDynamicSize(responseModel?.languagePage?.properties?.languageLabelSize)
+                this?.textView?.setDynamicSize(responseModel?.languagePage?.properties?.animatedTitleSize)
                 this?.background = null
             }
             timer.schedule(object : TimerTask() {
@@ -1055,6 +1201,8 @@ class MainActivity : BaseActivity() {
                                     "i" -> textView.setTypeface(textView.typeface, Typeface.ITALIC)
                                 }
                             }
+                            if (responseModel?.languagePage?.properties?.showLabels == false)
+                                textView.visibility = View.GONE
                             textView.text = languageModel.label
                             textView.setTextColor(languageModel.labelColor.getColor())
                             textView.setDynamicSize(responseModel?.languagePage?.properties?.languageLabelSize)
@@ -1102,16 +1250,18 @@ class MainActivity : BaseActivity() {
                 this.textView.setDynamicSize(commentData.componentTitleSize)
                 this.textView.text = commentData.componentTitle!![language] ?: ""
                 this.textView.setTextColor(commentData.componentTitleTextColor?.getColor() ?: 0)
-                background?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                    commentData.componentTitleBgColor?.getColor() ?: 0,
-                    BlendModeCompat.SRC_ATOP
-                )
+                background?.colorFilter =
+                    BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                        commentData.componentTitleBgColor?.getColor() ?: 0,
+                        BlendModeCompat.SRC_ATOP
+                    )
             }
         view.minimumHeight =
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics)
                 .toInt()
         view.passwordEt?.tag = commentData.attrs?.name
         view.passwordEt?.setDynamicSize(commentData.attrs?.label_text_size)
+        view.passwordEt?.setTextColor(commentData.attrs?.label_text_color.getColor())
         view.passwordEt?.hint = commentData.attrs?.placeholder!![language] ?: ""
         view.loginInputLayout.background.colorFilter =
             BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
@@ -1119,13 +1269,9 @@ class MainActivity : BaseActivity() {
                 BlendModeCompat.SRC_ATOP
             )
 
-//        val newBackground = (view.background as? GradientDrawable)
-//        newBackground?.setColor(commentData.attrs.label_bg_color?.getColor()!!)
-//        newBackground?.setStroke(5, commentData.attrs?.label_bg_color?.getColor()!!)
-//        view.background = newBackground
-//TODO bacgkround resolution
         container?.tag = COMMENT_TAG
-        container?.addView(title)
+        if (commentData.isComponentTitle == true)
+            container?.addView(title)
         container?.addView(view)
 
         return container
@@ -1141,10 +1287,11 @@ class MainActivity : BaseActivity() {
                 .inflate(R.layout.input_from_user_sli_view, container, false).apply {
                     this.textView.text = it
                     this.textView.setTextColor(sliData.componentTitleTextColor.getColor())
-                    background?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                        sliData.componentTitleBgColor.getColor(),
-                        BlendModeCompat.SRC_ATOP
-                    )
+                    background?.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            sliData.componentTitleBgColor.getColor(),
+                            BlendModeCompat.SRC_ATOP
+                        )
                     textView.setDynamicSize(sliData.componentTitleSize)
                 }
             container?.addView(title)
@@ -1161,9 +1308,10 @@ class MainActivity : BaseActivity() {
             linearLayout.orientation = LinearLayoutCompat.HORIZONTAL
 
             val serviceTitle = LayoutInflater.from(this)
-                .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+                .inflate(R.layout.sli_title_view, linearLayout, false)
                 .apply {
                     this.textView.text = service.name!![language] ?: ""
+//                    this.textView.setDynamicSize(servi)
                     this.textView.setTextColor(service.textColor.getColor())
                 }
 
@@ -1192,7 +1340,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
                 val sliText = LayoutInflater.from(this)
-                    .inflate(R.layout.input_from_user_sli_view, linearLayout, false)
+                    .inflate(R.layout.sli_title_view, linearLayout, false)
                     .apply {
                         this.textView.text = rateOption.label!![language] ?: ""
                         this.textView.setTextColor(rateOption.rateIconColor.getColor())

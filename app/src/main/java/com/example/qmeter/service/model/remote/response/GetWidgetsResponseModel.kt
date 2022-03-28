@@ -167,7 +167,7 @@ data class GetWidgetsResponseModel(
 
     data class LanguageProperties(
         @SerializedName("page_bg") val pageBackground: ArrayList<Int> = arrayListOf(),
-        @SerializedName("dimmer_color") val dimmerColor: ArrayList<String> = arrayListOf(),
+        @SerializedName("dimmer_color") val dimmerColor: ArrayList<Int> = arrayListOf(),
         @SerializedName("dimmer_opacity") val dimmerOpacity: Double? = null,
         @SerializedName("animated_title_size") val animatedTitleSize: String? = null,
         @SerializedName("language_label_size") val languageLabelSize: String? = null,

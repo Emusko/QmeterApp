@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,6 +8,8 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/linearLayoutCompat2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -40,6 +43,10 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <ProgressBar
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,89 +55,114 @@
         android:indeterminateTint="@color/colorPrimary"
         android:visibility="gone" />
 
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/mother_layout"
+    <RelativeLayout
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutCompat2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/relativeLayout"
-        app:layout_constraintTop_toBottomOf="@id/logo">
+        android:layout_height="0dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_alignParentTop="true"
+            app:srcCompat="@drawable/simba_test"
+            android:scaleType="centerCrop"
+            android:id="@+id/languageImageBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"/>
+
+        <View
+            android:layout_alignTop="@id/languageImageBackground"
+            android:background="@color/black"
+            android:alpha="0.6"
+            android:scaleType="centerCrop"
+            android:id="@+id/languageImageBackgroundDimmer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_alignTop="@id/languageImageBackgroundDimmer"
+            android:background="@android:color/transparent"
+            android:id="@+id/mother_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/logo"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="26dp"
-                android:scaleType="centerInside"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/container"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@id/logo" />
+                android:padding="24dp">
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/logo"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_marginTop="26dp"
+                    android:scaleType="centerInside"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <RelativeLayout
-                android:id="@+id/relativeLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="75dp"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/container">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:textSize="20sp"
-                    android:id="@+id/back"
-                    android:layout_width="wrap_content"
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:background="@null"
-                    android:text="Back"
-                    android:textAllCaps="false"
-                    android:textColor="#636366"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toBottomOf="@id/logo" >
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:textSize="20sp"
-                    android:id="@+id/next"
-                    android:layout_width="wrap_content"
+
+                <RelativeLayout
+                    android:id="@+id/relativeLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:background="@null"
-                    android:text="Next"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorPrimary"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:layout_marginTop="75dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/container">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:textSize="20sp"
-                    android:id="@+id/submit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:background="@null"
-                    android:text="Submit"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorPrimary"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
-            </RelativeLayout>
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/back"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:background="@null"
+                        android:text="Back"
+                        android:textAllCaps="false"
+                        android:textColor="#636366"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/next"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:background="@null"
+                        android:text="Next"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
-    </androidx.core.widget.NestedScrollView>
-</androidx.appcompat.widget.LinearLayoutCompat>
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/submit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:background="@null"
+                        android:text="Submit"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+                </RelativeLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

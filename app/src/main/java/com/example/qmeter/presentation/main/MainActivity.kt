@@ -24,6 +24,7 @@ import android.widget.LinearLayout
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
@@ -47,6 +48,7 @@ import kotlinx.android.synthetic.main.input_from_user_sli_font_view_final_page.v
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
 import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
+import kotlinx.android.synthetic.main.page_language_container_layout.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.submit
 import kotlinx.android.synthetic.main.multi_select_container_view.view.*
@@ -77,7 +79,7 @@ class MainActivity : BaseActivity() {
     private val pageViews = hashMapOf<Int, LinearLayoutCompat?>()
     private var languageIsActive = true
 
-    private var languageContainer: LinearLayoutCompat? = null
+    private var languageContainer: ConstraintLayout? = null
 
     private var sliCondition = hashMapOf<String?, String?>()
 
@@ -155,8 +157,8 @@ class MainActivity : BaseActivity() {
 
             mCountDownTimer?.cancel()
             pages[pageIndex]?.properties?.timeout?.let {
-                if (it.time!! > 0) {
-                    mCountDownTimer = object :CountDownTimer(pages[pageIndex]?.properties?.timeout?.time?.toLong()!!, 10L){
+                if (it.time!! > 0 && it.enable == true) {
+                    mCountDownTimer = object :CountDownTimer(it.time.toLong(), 10L){
                         override fun onTick(p0: Long) {
 
                         }
@@ -551,7 +553,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
                 responseModel?.finalPageData?.timeout?.let {
-                    if (it.time!! > 0) {
+                    if (it.time!! > 0 && it.enable == true) {
                         handler
                             .postDelayed({
                                 viewModel.requestModel.clear()
@@ -628,31 +630,32 @@ class MainActivity : BaseActivity() {
         mCountDownTimer?.cancel()
         viewModel.pageStateLiveData.value?.let {
 
-            responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]?.properties?.timeout?.time?.let {
+            responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]?.properties?.timeout?.let {
+                if (it.enable == true && it.time!! > 0) {
+                    mCountDownTimer = object : CountDownTimer(it.time.toLong(), 10L) {
+                        override fun onTick(p0: Long) {
 
-                mCountDownTimer = object : CountDownTimer(it.toLong(), 10L) {
-                    override fun onTick(p0: Long) {
+                        }
+
+                        override fun onFinish() {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.back.visibility =
+                                View.GONE
+                            binding.next.visibility =
+                                View.GONE
+                            binding.submit.visibility =
+                                View.GONE
+                            viewModel.getWidgets()
+                            binding.container.removeAllViews()
+                            pageViews.clear()
+                            condition = null
+                            finalPageCondition = null
+                        }
 
                     }
 
-                    override fun onFinish() {
-                        binding.progressBar.visibility = View.VISIBLE
-                        binding.back.visibility =
-                            View.GONE
-                        binding.next.visibility =
-                            View.GONE
-                        binding.submit.visibility =
-                            View.GONE
-                        viewModel.getWidgets()
-                        binding.container.removeAllViews()
-                        pageViews.clear()
-                        condition = null
-                        finalPageCondition = null
-                    }
-
+                    mCountDownTimer?.start()
                 }
-
-                mCountDownTimer?.start()
             }
         }
     }
@@ -662,31 +665,33 @@ class MainActivity : BaseActivity() {
         mCountDownTimer?.cancel()
         viewModel.pageStateLiveData.value?.let {
 
-            responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]?.properties?.timeout?.time?.let {
+            responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]?.properties?.timeout?.let {
 
-                mCountDownTimer = object : CountDownTimer(it.toLong(), 10L) {
-                    override fun onTick(p0: Long) {
+                if (it.enable == true && it.time!! > 0) {
+                    mCountDownTimer = object : CountDownTimer(it.time.toLong(), 10L) {
+                        override fun onTick(p0: Long) {
+
+                        }
+
+                        override fun onFinish() {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.back.visibility =
+                                View.GONE
+                            binding.next.visibility =
+                                View.GONE
+                            binding.submit.visibility =
+                                View.GONE
+                            viewModel.getWidgets()
+                            binding.container.removeAllViews()
+                            pageViews.clear()
+                            condition = null
+                            finalPageCondition = null
+                        }
 
                     }
 
-                    override fun onFinish() {
-                        binding.progressBar.visibility = View.VISIBLE
-                        binding.back.visibility =
-                            View.GONE
-                        binding.next.visibility =
-                            View.GONE
-                        binding.submit.visibility =
-                            View.GONE
-                        viewModel.getWidgets()
-                        binding.container.removeAllViews()
-                        pageViews.clear()
-                        condition = null
-                        finalPageCondition = null
-                    }
-
+                    mCountDownTimer?.start()
                 }
-
-                mCountDownTimer?.start()
             }
         }
         return super.dispatchTouchEvent(ev)
@@ -1109,18 +1114,21 @@ class MainActivity : BaseActivity() {
 
     private fun getLanguageFromUser() {
         val timer = Timer()
+        binding.languageImageBackground.visibility = View.VISIBLE
+        binding.languageImageBackgroundDimmer.visibility = View.VISIBLE
         binding.next.visibility = View.GONE
         binding.back.visibility = View.GONE
+        binding.submit.visibility = View.GONE
         binding.container.removeView(languageContainer)
         languageContainer = LayoutInflater.from(this)
-            .inflate(R.layout.page_linear_layout, binding.container, false) as? LinearLayoutCompat
+            .inflate(R.layout.page_language_container_layout, binding.container, false) as? ConstraintLayout
 
+        Glide.with(this).load(responseModel?.languagePage?.properties?.backgroundImageUrl).into(binding.languageImageBackground)
+        binding.languageImageBackground.alpha = responseModel?.languagePage?.properties?.dimmerOpacity?.toFloat()?: 0.0f
+        binding.languageImageBackgroundDimmer.setBackgroundColor(responseModel?.languagePage?.properties?.dimmerColor?.getColor()?: 0)
         if (responseModel?.languagePage != null) {
             languageIsActive = true
-            binding.next.visibility = View.GONE
             binding.logo.visibility = View.GONE
-            binding.back.visibility = View.GONE
-            binding.submit.visibility = View.GONE
             val languages = responseModel?.languagePage?.languages
             val title = (LayoutInflater.from(this)
                 .inflate(
@@ -1149,10 +1157,13 @@ class MainActivity : BaseActivity() {
                 }
 
             }, 0L, 2000L)
+            if (responseModel?.languagePage?.properties?.backgroundImageUrl.isNullOrEmpty())
             binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBackground?.getColor()!!)
             if (languages?.size?.compareTo(1) == 0 || languages.isNullOrEmpty()) {
                 timer.cancel()
                 languageIsActive = false
+                binding.languageImageBackground.visibility = View.GONE
+                binding.languageImageBackgroundDimmer.visibility = View.GONE
                 language = languages?.firstOrNull()?.langCode ?: "en"
                 viewModel.requestModel["language"] = language
                 binding.logo.visibility = View.VISIBLE
@@ -1164,19 +1175,23 @@ class MainActivity : BaseActivity() {
                 val smileView = LayoutInflater.from(this)
                     .inflate(
                         R.layout.input_from_user_sli_font_view_final_page,
-                        languageContainer,
+                        languageContainer?.languageContainer,
                         false
                     )
                 smileView.smileView.apply {
-                    setDynamicSize(responseModel?.languagePage?.properties?.smileySize)
+                    when(responseModel?.languagePage?.properties?.smileySize){
+                        "S" -> {this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)}
+                        "M" -> {this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)}
+                        "L" -> {this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)}
+                    }
                     text = "A"
                     setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
                 }
                 responseModel?.languagePage?.properties?.showSmile?.let {
                     if (it)
-                        languageContainer?.addView(smileView)
+                        languageContainer?.languageContainer?.addView(smileView)
                 }
-                languageContainer?.addView(title)
+                languageContainer?.languageContainer?.addView(title)
                 languages.forEach { languageModel ->
 
                     val linearLayout = LayoutInflater.from(this)
@@ -1210,6 +1225,8 @@ class MainActivity : BaseActivity() {
                             setOnClickListener {
                                 timer.cancel()
                                 languageIsActive = false
+                                binding.languageImageBackgroundDimmer.visibility = View.GONE
+                                binding.languageImageBackground.visibility = View.GONE
                                 language = languageModel.langCode ?: "en"
                                 binding.logo.visibility = View.VISIBLE
                                 viewModel.requestModel["language"] = language
@@ -1224,13 +1241,15 @@ class MainActivity : BaseActivity() {
                     }
 
 
-                    languageContainer?.addView(linearLayout)
+                    languageContainer?.languageContainer?.addView(linearLayout)
                 }
 
 
             }
             binding.container.addView(languageContainer)
         } else {
+            binding.languageImageBackgroundDimmer.visibility = View.GONE
+            binding.languageImageBackground.visibility = View.GONE
             timer.cancel()
             languageIsActive = false
             language = "en"

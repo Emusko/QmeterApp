@@ -29,6 +29,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
+import androidx.core.view.size
 import com.bumptech.glide.Glide
 import com.example.qmeter.R
 import com.example.qmeter.databinding.ActivityMainBinding
@@ -1311,7 +1312,7 @@ class MainActivity : BaseActivity() {
                 .inflate(R.layout.sli_title_view, linearLayout, false)
                 .apply {
                     this.textView.text = service.name!![language] ?: ""
-//                    this.textView.setDynamicSize(servi)
+                    this.textView.setDynamicSize(sliData.attrs.serviceNameSize)
                     this.textView.setTextColor(service.textColor.getColor())
                 }
 

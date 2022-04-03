@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.graphics.ColorUtils
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import coil.request.CachePolicy
@@ -34,10 +35,10 @@ fun GetWidgetsResponseModel.Page.makePages(): ArrayList<PageComponent?> {
     return components
 }
 
-fun ArrayList<Int>?.getColor(): Int {
-    val colorArray = this?: arrayListOf(0, 0, 0)
+fun ArrayList<Any>?.getColor(): Int {
+    val colorArray = this?: arrayListOf(0, 0, 0, 0)
     return if (colorArray.size == 4)
-        Color.rgb(colorArray[0], colorArray[1], colorArray[2])
+       Color.argb(colorArray[3].toString().toFloat(), colorArray[0].toString().toFloat(), colorArray[1].toString().toFloat(), colorArray[2].toString().toFloat())
     else
         0
 }

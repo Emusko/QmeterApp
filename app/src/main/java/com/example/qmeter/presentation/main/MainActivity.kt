@@ -16,10 +16,7 @@ import android.text.Selection
 import android.text.TextWatcher
 import android.util.Log
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import androidx.activity.viewModels
@@ -30,6 +27,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
+import androidx.core.view.marginTop
 import androidx.core.view.size
 import com.bumptech.glide.Glide
 import com.example.qmeter.R
@@ -533,7 +531,27 @@ class MainActivity : BaseActivity() {
                         this.smileView.setDynamicSize(it.textSize)
                     }
                 }
+            val finalText = LayoutInflater.from(this)
+                .inflate(
+                    R.layout.input_from_user_sli_view,
+                    binding.container,
+                    false
+                ).apply {
+                    finalPageCondition?.let {
+
+                        this.textView.text =
+                            it.text!![language]
+                        this.textView.background?.colorFilter =
+                            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                it.textBgColor.getColor(),
+                                BlendModeCompat.SRC_ATOP
+                            )
+                        this.textView.setTextColor(it.textColor.getColor())
+                        this.textView.setDynamicSize(it.textSize)
+                    }
+                }
             binding.container.addView(title)
+            binding.container.addView(finalText)
             val handler = Handler(Looper.getMainLooper())
             if (it) {
                 responseModel?.pages?.forEach {
@@ -556,10 +574,16 @@ class MainActivity : BaseActivity() {
                     if (it.time!! > 0 && it.enable == true) {
                         handler
                             .postDelayed({
-                                viewModel.requestModel.clear()
+                                binding.progressBar.visibility = View.VISIBLE
+                                binding.back.visibility =
+                                    View.GONE
+                                binding.next.visibility =
+                                    View.GONE
+                                binding.submit.visibility =
+                                    View.GONE
+                                viewModel.getWidgets()
                                 binding.container.removeAllViews()
                                 pageViews.clear()
-                                getLanguageFromUser()
                                 condition = null
                                 finalPageCondition = null
                             }, it.time.toLong())
@@ -881,6 +905,9 @@ class MainActivity : BaseActivity() {
                                     containerView.addView(checkBox)
                                 }
                             }
+                        val params = RadioGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        params.setMargins(100, 0,0,0)
+                        containerView.layoutParams = params
                         containerView.tag = it.name
                         container?.addView(title)
                         container?.addView(containerView)
@@ -1068,6 +1095,9 @@ class MainActivity : BaseActivity() {
                                     containerView.addView(checkBox)
                                 }
                             }
+                        val params = LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT)
+                        params.setMargins(100, 100,0,0)
+                        containerView.layoutParams = params
                         containerView.tag = it.name
                         container?.addView(title)
                         container?.addView(containerView)

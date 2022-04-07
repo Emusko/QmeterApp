@@ -1124,7 +1124,7 @@ class MainActivity : BaseActivity() {
             .inflate(R.layout.page_language_container_layout, binding.container, false) as? ConstraintLayout
 
         Glide.with(this).load(responseModel?.languagePage?.properties?.backgroundImageUrl).into(binding.languageImageBackground)
-        binding.languageImageBackground.alpha = responseModel?.languagePage?.properties?.dimmerOpacity?.toFloat()?: 0.0f
+        binding.languageImageBackgroundDimmer.alpha = responseModel?.languagePage?.properties?.dimmerOpacity?.toFloat()?: 0.0f
         binding.languageImageBackgroundDimmer.setBackgroundColor(responseModel?.languagePage?.properties?.dimmerColor?.getColor()?: 0)
         if (responseModel?.languagePage != null) {
             languageIsActive = true
@@ -1322,7 +1322,11 @@ class MainActivity : BaseActivity() {
 
             val sliComponentLayout = LayoutInflater.from(this)
                 .inflate(R.layout.sli_page_linear_layout, container, false) as? LinearLayoutCompat
-
+            sliComponentLayout?.background?.colorFilter =
+                BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    service.bgColor.getColor(),
+                    BlendModeCompat.SRC_ATOP
+                )
             val linearLayout = LinearLayoutCompat(this)
 
             linearLayout.orientation = LinearLayoutCompat.HORIZONTAL
@@ -1342,7 +1346,11 @@ class MainActivity : BaseActivity() {
                 view.textView.apply {
                     text = rateOption.name?.resolveIconFromAwesome()
                     setTextColor(rateOption.rateIconColor.getColor())
-                    setBackgroundColor(rateOption.rateBgColor.getColor())
+                    background?.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            rateOption.bgColor.getColor(),
+                            BlendModeCompat.SRC_ATOP
+                        )
                     setOnClickListener {
                         linearLayout.forEachIndexed { index, child ->
                             if (view != child) {

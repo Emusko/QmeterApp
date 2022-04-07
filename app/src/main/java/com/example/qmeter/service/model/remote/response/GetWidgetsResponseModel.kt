@@ -36,8 +36,8 @@ data class GetWidgetsResponseModel(
         @SerializedName("title") var title: String? = null,
         @SerializedName("label") var label: String? = null,
         @SerializedName("position") var position: Int? = null,
-        @SerializedName("labelColor") var labelColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("titleColor") var titleColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("labelColor") var labelColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("titleColor") var titleColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("ltr") var ltr: Boolean? = null,
         @SerializedName("flag_url") var flagUrl: String? = null
 
@@ -73,8 +73,8 @@ data class GetWidgetsResponseModel(
         val default: String? = null,
         val is_show: Boolean? = null,
         val select_design: SelectDesign? = null,
-        val label_text_color: ArrayList<Int>? = arrayListOf(),
-        val label_bg_color: ArrayList<Int>? = arrayListOf(),
+        val label_text_color: ArrayList<Any>? = arrayListOf(),
+        val label_bg_color: ArrayList<Any>? = arrayListOf(),
         val label_text_size: String? = null
     ) : Serializable
 
@@ -85,22 +85,22 @@ data class GetWidgetsResponseModel(
     ) : Serializable
 
     data class PageProperties(
-        @SerializedName("submit_button_txt_color") val submitButtonTxtColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("submit_button_bg_color") val submitButtonBgColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("submit_button_txt_color") val submitButtonTxtColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("submit_button_bg_color") val submitButtonBgColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("is_submit_enabled") val isSubmitEnabled: Boolean? = false,
         @SerializedName("is_next_button_enabled") val isNextButtonEnabled: Boolean? = false,
-        @SerializedName("next_button_txt_color") val nextButtonTxtColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("next_button_bg_color") val nextButtonBgColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("next_button_txt_color") val nextButtonTxtColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("next_button_bg_color") val nextButtonBgColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("is_back_button_enabled") val isBackButtonEnabled: Boolean? = false,
-        @SerializedName("back_button_txt_color") val backButtonTxtColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("back_button_bg_color") val backButtonBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("page_bg") val pageBg: ArrayList<Int> = arrayListOf(),
-        @SerializedName("page_header") val pageHeader: ArrayList<Int> = arrayListOf(),
+        @SerializedName("back_button_txt_color") val backButtonTxtColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("back_button_bg_color") val backButtonBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("page_bg") val pageBg: ArrayList<Any> = arrayListOf(),
+        @SerializedName("page_header") val pageHeader: ArrayList<Any> = arrayListOf(),
         @SerializedName("is_page_title") val isPageTitle: Boolean? = null,
         @SerializedName("page_title") val pageTitle: HashMap<String, String>? = hashMapOf(),
         @SerializedName("page_title_size") val pageTitleSize: String? = null,
-        @SerializedName("page_title_text_color") val pageTitleTextColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("page_title_bg_color") val pageTitleBgColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("page_title_text_color") val pageTitleTextColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("page_title_bg_color") val pageTitleBgColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("timeout") val timeout: Timeout? = Timeout(),
         @SerializedName("service_with_rate") val serviceWithRate: Boolean? = null
     ) : Serializable
@@ -108,8 +108,8 @@ data class GetWidgetsResponseModel(
     data class FinalPageData(
 
         val isAllPageBg: Boolean? = null,
-        val pageBg: ArrayList<Int> = arrayListOf(),
-        val pageHeader: ArrayList<Int> = arrayListOf(),
+        @SerializedName("page_bg") val pageBg: ArrayList<Any> = arrayListOf(),
+        @SerializedName("page_header") val pageHeader: ArrayList<Any> = arrayListOf(),
         val sizes: ArrayList<String> = arrayListOf(),
         val positive: Reaction? = null,
         val negative: Reaction? = null,
@@ -120,10 +120,10 @@ data class GetWidgetsResponseModel(
 
     data class Reaction(
         @SerializedName("text") val text: HashMap<String, String>? = hashMapOf(),
-        @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("text_bg_color") val textBgColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("text_color") val textColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("text_bg_color") val textBgColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("text_size") val textSize: String? = null,
-        @SerializedName("page_bg") val pageBg: ArrayList<Int> = arrayListOf()
+        @SerializedName("page_bg") val pageBg: ArrayList<Any> = arrayListOf()
     ) : Serializable
 
     data class Timeout(
@@ -137,14 +137,14 @@ data class GetWidgetsResponseModel(
         @SerializedName("idx") val idx: String? = null,
         @SerializedName("name") val name: Label? = Label(),
         @SerializedName("title") val title: HashMap<String?, String?>? = hashMapOf(),
-        @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("skip_button_text_color") val skipButtonTextColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("skip_button_bg_color") val skipButtonBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("submit_button_text_color") val submitButtonTextColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("submit_button_bg_color") val submitButtonBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("rate_icon_color") val rateIconColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("title_bg_color") val titleBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("title_text_color") val titleTextColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("bg_color") val bgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("skip_button_text_color") val skipButtonTextColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("skip_button_bg_color") val skipButtonBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("submit_button_text_color") val submitButtonTextColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("submit_button_bg_color") val submitButtonBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("rate_icon_color") val rateIconColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("title_bg_color") val titleBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("title_text_color") val titleTextColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("title_size") val titleSize: String? = null,
         @SerializedName("required") val required: Boolean? = null,
         @SerializedName("is_title") val isTitle: Boolean? = null,
@@ -159,15 +159,15 @@ data class GetWidgetsResponseModel(
         @SerializedName("id") val id: Int? = null,
         @SerializedName("name") val name: HashMap<String, String>? = hashMapOf(),
         @SerializedName("position") val position: Int? = null,
-        @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("mark_border_color") val markBorderColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("mark_selected_color") val markSelectedColor: ArrayList<Int> = arrayListOf()
+        @SerializedName("bg_color") val bgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("text_color") val textColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("mark_border_color") val markBorderColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("mark_selected_color") val markSelectedColor: ArrayList<Any> = arrayListOf()
     ) : Serializable
 
     data class LanguageProperties(
-        @SerializedName("page_bg") val pageBackground: ArrayList<Int> = arrayListOf(),
-        @SerializedName("dimmer_color") val dimmerColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("page_bg") val pageBackground: ArrayList<Any> = arrayListOf(),
+        @SerializedName("dimmer_color") val dimmerColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("dimmer_opacity") val dimmerOpacity: Double? = null,
         @SerializedName("animated_title_size") val animatedTitleSize: String? = null,
         @SerializedName("language_label_size") val languageLabelSize: String? = null,
@@ -175,24 +175,24 @@ data class GetWidgetsResponseModel(
         @SerializedName("show_smile") val showSmile: Boolean? = null,
         @SerializedName("show_labels") val showLabels: Boolean? = null,
         @SerializedName("language_label_style") val languageLabelStyle: ArrayList<String> = arrayListOf(),
-        @SerializedName("title_color") val titleColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("smiley_color") val smileyColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("title_color") val titleColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("smiley_color") val smileyColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("smiley_size") val smileySize: String? = null,
         @SerializedName("background_image_url") val backgroundImageUrl: String? = null,
         @SerializedName("single") val single: String? = null,
         @SerializedName("default_lang") val defaultLang: String? = null,
-        @SerializedName("language_label_color") val languageLabelColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("language_label_bg_color") val languageLabelBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("language_label_border_color") val languageLabelBorderColor: ArrayList<Int> = arrayListOf()
+        @SerializedName("language_label_color") val languageLabelColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("language_label_bg_color") val languageLabelBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("language_label_border_color") val languageLabelBorderColor: ArrayList<Any> = arrayListOf()
     ) : Serializable
 
 
     data class SliData(
         @SerializedName("is_component_title") val isComponentTitle: Boolean? = null,
         @SerializedName("component_title") val componentTitle: HashMap<String, String>? = null,
-        @SerializedName("component_title_text_color") val componentTitleTextColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("component_title_text_color") val componentTitleTextColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("component_title_size") val componentTitleSize: String? = null,
-        @SerializedName("component_title_bg_color") val componentTitleBgColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("component_title_bg_color") val componentTitleBgColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("position") override val position: Int? = null,
         @SerializedName("show_rate_labels") val showRateLabels: Boolean? = null,
         @SerializedName("attrs") val attrs: SliAttrs? = null
@@ -208,13 +208,13 @@ data class GetWidgetsResponseModel(
         @SerializedName("id") val id: String? = null,
         @SerializedName("name") val name: String? = null,
         @SerializedName("label") val label: HashMap<String, String>? = hashMapOf(),
-        @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("bg_color") val bgColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("markpage_id") val markpageId: Int? = null,
         @SerializedName("markpage_idx") val markpageIdx: String? = null,
-        @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("rate_bg_color") val rateBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("rate_icon_color") val rateIconColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("rate_selected_color") val rateSelectedColor: ArrayList<Int> = arrayListOf()
+        @SerializedName("text_color") val textColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("rate_bg_color") val rateBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("rate_icon_color") val rateIconColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("rate_selected_color") val rateSelectedColor: ArrayList<Any> = arrayListOf()
 
     ) : Serializable
 
@@ -222,13 +222,13 @@ data class GetWidgetsResponseModel(
 
         @SerializedName("id") val id: Int? = null,
         @SerializedName("name") val name: HashMap<String, String>? = hashMapOf(),
-        @SerializedName("bg_color") val bgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("text_color") val textColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("rate_bg_color") val rateBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("rate_icon_color") val rateIconColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("bg_color") val bgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("text_color") val textColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("rate_bg_color") val rateBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("rate_icon_color") val rateIconColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("position") val position: Int? = null,
         @SerializedName("rate_options") val rateOptions: ArrayList<RateOptions> = arrayListOf(),
-        @SerializedName("rate_selected_color") val rateSelectedColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("rate_selected_color") val rateSelectedColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("required") val required: Boolean? = null
 
     ) : Serializable
@@ -247,8 +247,8 @@ data class GetWidgetsResponseModel(
         val default: String? = null,
         val is_show: Boolean? = null,
         val select_design: SelectDesign? = null,
-        val label_text_color: ArrayList<Int>? = arrayListOf(),
-        val label_bg_color: ArrayList<Int>? = arrayListOf(),
+        val label_text_color: ArrayList<Any>? = arrayListOf(),
+        val label_bg_color: ArrayList<Any>? = arrayListOf(),
         val label_text_size: String? = null
     ) : Serializable
 
@@ -270,11 +270,11 @@ data class GetWidgetsResponseModel(
         val required: Boolean? = false,
         val min_length: Int? = null,
         val max_length: Int? = null,
-        val text_color: ArrayList<Int>? = arrayListOf(),
-        val textarea_bg_color: ArrayList<Int>? = arrayListOf(),
-        val label_text_color: ArrayList<Int>? = arrayListOf(),
+        val text_color: ArrayList<Any>? = arrayListOf(),
+        val textarea_bg_color: ArrayList<Any>? = arrayListOf(),
+        val label_text_color: ArrayList<Any>? = arrayListOf(),
         val label_text_size: String? = null,
-        val label_bg_color: ArrayList<Int>? = arrayListOf()
+        val label_bg_color: ArrayList<Any>? = arrayListOf()
     ) : Serializable
 
     data class CommentData(
@@ -282,8 +282,8 @@ data class GetWidgetsResponseModel(
         @SerializedName("is_component_title") val isComponentTitle: Boolean? = null,
         @SerializedName("component_title") val componentTitle: HashMap<String, String>? = hashMapOf(),
         @SerializedName("component_title_size") val componentTitleSize: String? = null,
-        @SerializedName("component_title_bg_color") val componentTitleBgColor: ArrayList<Int> = arrayListOf(),
-        @SerializedName("component_title_text_color") val componentTitleTextColor: ArrayList<Int> = arrayListOf(),
+        @SerializedName("component_title_bg_color") val componentTitleBgColor: ArrayList<Any> = arrayListOf(),
+        @SerializedName("component_title_text_color") val componentTitleTextColor: ArrayList<Any> = arrayListOf(),
         @SerializedName("attrs") val attrs: CommentAttrs? = null
     ) : PageComponent, Serializable
 
@@ -303,8 +303,8 @@ data class GetWidgetsResponseModel(
         @SerializedName("attrs") val attrs: ArrayList<Attrs> = arrayListOf(),
         @SerializedName("position") override val position: Int? = null,
         @SerializedName("is_component_title") val is_component_title: Boolean? = null,
-        @SerializedName("component_title_bg_color") val component_title_bg_color: ArrayList<Int> = arrayListOf(),
-        @SerializedName("component_title_text_color") val component_title_text_color: ArrayList<Int> = arrayListOf(),
+        @SerializedName("component_title_bg_color") val component_title_bg_color: ArrayList<Any> = arrayListOf(),
+        @SerializedName("component_title_text_color") val component_title_text_color: ArrayList<Any> = arrayListOf(),
         @SerializedName("component_title") val component_title: HashMap<String, String>? = hashMapOf(),
         @SerializedName("component_title_size") val component_title_size: String? = null
 
@@ -319,7 +319,7 @@ data class GetWidgetsResponseModel(
         val is_kiosk_mode: Boolean? = null,
         val is_enable_policy: Boolean? = null,
         val policy_label: Label? = Label(),
-        val policy_label_color: ArrayList<Int> = arrayListOf(),
+        val policy_label_color: ArrayList<Any> = arrayListOf(),
         val terms_title: Label? = Label(),
         val terms_title_size: String? = null,
         val terms_description_text: String? = null,

@@ -20,6 +20,7 @@ import com.example.qmeter.usecase.GetWidgetsUseCase
 import com.example.qmeter.usecase.PostFeedbackUseCase
 import com.google.android.material.textfield.TextInputEditText
 import okhttp3.Credentials
+import retrofit2.HttpException
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -43,7 +44,9 @@ class MainViewModel @Inject constructor(
 
     val dataPost = MutableLiveData<Boolean>()
 
-    fun addToQueue(){
+    val unauthorizedError = MutableLiveData<Boolean>()
+
+    fun addToQueue() {
         requestModel[CUSTOMER_TAG] = customerDataMap.clone()
         val request = requestModel.clone()
         requestList.add(request as HashMap<String?, Any?>)
@@ -51,16 +54,24 @@ class MainViewModel @Inject constructor(
         customerDataMap.clear()
         feedBacks.clear()
     }
-    fun getWidgets(){
+
+    fun getWidgets() {
         getWidgetsUseCase.execute(
             {
                 viewData.value = it
             },
             {
+                if (it is HttpException) {
+                    if (it.code() == 401) {
+                        sharedPreferences.edit().clear().apply()
+                        unauthorizedError.postValue(true)
+                    }
+                }
             },
             subscriptions
         )
     }
+
     init {
         executeNotificationTimer()
     }
@@ -95,7 +106,8 @@ class MainViewModel @Inject constructor(
                         customerDataMap[attr.name ?: ""] = checkedList
                 }
                 is RadioGroup -> {
-                    customerDataMap[attr.name ?: ""] = layout.findViewById<RadioButton>(dataView.checkedRadioButtonId)?.text?.toString()
+                    customerDataMap[attr.name ?: ""] =
+                        layout.findViewById<RadioButton>(dataView.checkedRadioButtonId)?.text?.toString()
                 }
             }
         }
@@ -117,6 +129,7 @@ class MainViewModel @Inject constructor(
         }
         timer.schedule(doAsynchronousTask, 0, 60000)
     }
+
     fun postFeedback() {
         requestList.forEach { request ->
             postFeedbackUseCase
@@ -192,7 +205,7 @@ class MainViewModel @Inject constructor(
                 feedBacks.add(feedback)
             }
         }
-        if (requestModel["feedbacks"] is ArrayList<*>){
+        if (requestModel["feedbacks"] is ArrayList<*>) {
             (requestModel["feedbacks"] as ArrayList<FeedbackRequestModel>).addAll(feedBacks)
         } else {
             requestModel["feedbacks"] = feedBacks.clone()

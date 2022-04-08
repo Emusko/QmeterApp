@@ -25,6 +25,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
+import androidx.core.text.italic
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
 import androidx.core.view.marginTop
@@ -144,6 +147,11 @@ class MainActivity : BaseActivity() {
             finish()
         }
 
+        viewModel.unauthorizedError.observe(this) {
+            startActivity(Intent(this, AuthenticateActivity::class.java))
+            finish()
+        }
+
         viewModel.pageStateLiveData.observe(this) {
             val pageIndex = it.first
             val back = it.second
@@ -156,7 +164,7 @@ class MainActivity : BaseActivity() {
             mCountDownTimer?.cancel()
             pages[pageIndex]?.properties?.timeout?.let {
                 if (it.time!! > 0 && it.enable == true) {
-                    mCountDownTimer = object :CountDownTimer(it.time.toLong(), 10L){
+                    mCountDownTimer = object : CountDownTimer(it.time.toLong(), 10L) {
                         override fun onTick(p0: Long) {
 
                         }
@@ -515,6 +523,20 @@ class MainActivity : BaseActivity() {
             finalPageData?.pageBg?.let {
                 binding.motherLayout.setBackgroundColor(it.getColor())
             }
+            if (finalPageData == null) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.back.visibility =
+                    View.GONE
+                binding.next.visibility =
+                    View.GONE
+                binding.submit.visibility =
+                    View.GONE
+                viewModel.getWidgets()
+                binding.container.removeAllViews()
+                pageViews.clear()
+                condition = null
+                finalPageCondition = null
+            }
             val title = LayoutInflater.from(this)
                 .inflate(
                     R.layout.input_from_user_sli_font_view_final_page,
@@ -528,7 +550,21 @@ class MainActivity : BaseActivity() {
                             it.textBgColor.getColor() ?: 0
                         )
                         this.smileView.setTextColor(it.textColor.getColor())
-                        this.smileView.setDynamicSize(it.textSize)
+                        this.smileView.apply {
+                            when (responseModel?.languagePage?.properties?.smileySize) {
+                                "S" -> {
+                                    this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+                                }
+                                "M" -> {
+                                    this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)
+                                }
+                                "L" -> {
+                                    this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)
+                                }
+                            }
+                            text = "A"
+                            setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
+                        }
                     }
                 }
             val finalText = LayoutInflater.from(this)
@@ -905,8 +941,11 @@ class MainActivity : BaseActivity() {
                                     containerView.addView(checkBox)
                                 }
                             }
-                        val params = RadioGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                        params.setMargins(100, 0,0,0)
+                        val params = RadioGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                        params.setMargins(100, 0, 0, 0)
                         containerView.layoutParams = params
                         containerView.tag = it.name
                         container?.addView(title)
@@ -1095,8 +1134,11 @@ class MainActivity : BaseActivity() {
                                     containerView.addView(checkBox)
                                 }
                             }
-                        val params = LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT)
-                        params.setMargins(100, 100,0,0)
+                        val params = LinearLayoutCompat.LayoutParams(
+                            LinearLayoutCompat.LayoutParams.MATCH_PARENT,
+                            LinearLayoutCompat.LayoutParams.WRAP_CONTENT
+                        )
+                        params.setMargins(100, 100, 0, 0)
                         containerView.layoutParams = params
                         containerView.tag = it.name
                         container?.addView(title)
@@ -1151,11 +1193,19 @@ class MainActivity : BaseActivity() {
         binding.submit.visibility = View.GONE
         binding.container.removeView(languageContainer)
         languageContainer = LayoutInflater.from(this)
-            .inflate(R.layout.page_language_container_layout, binding.container, false) as? ConstraintLayout
+            .inflate(
+                R.layout.page_language_container_layout,
+                binding.container,
+                false
+            ) as? ConstraintLayout
 
-        Glide.with(this).load(responseModel?.languagePage?.properties?.backgroundImageUrl).into(binding.languageImageBackground)
-        binding.languageImageBackgroundDimmer.alpha = responseModel?.languagePage?.properties?.dimmerOpacity?.toFloat()?: 0.0f
-        binding.languageImageBackgroundDimmer.setBackgroundColor(responseModel?.languagePage?.properties?.dimmerColor?.getColor()?: 0)
+        Glide.with(this).load(responseModel?.languagePage?.properties?.backgroundImageUrl)
+            .into(binding.languageImageBackground)
+        binding.languageImageBackgroundDimmer.alpha =
+            responseModel?.languagePage?.properties?.dimmerOpacity?.toFloat() ?: 0.0f
+        binding.languageImageBackgroundDimmer.setBackgroundColor(
+            responseModel?.languagePage?.properties?.dimmerColor?.getColor() ?: 0
+        )
         if (responseModel?.languagePage != null) {
             languageIsActive = true
             binding.logo.visibility = View.GONE
@@ -1171,24 +1221,8 @@ class MainActivity : BaseActivity() {
                 this?.textView?.setDynamicSize(responseModel?.languagePage?.properties?.animatedTitleSize)
                 this?.background = null
             }
-            timer.schedule(object : TimerTask() {
-                override fun run() {
-                    runOnUiThread {
-
-                        val index =
-                            languages?.indexOfFirst { it.title == title?.textView?.text.toString() }
-                        val newIndex = if (index == languages?.size?.minus(1)) {
-                            0
-                        } else {
-                            index?.plus(1)
-                        }
-                        title?.textView?.text = languages!![newIndex!!].title
-                    }
-                }
-
-            }, 0L, 2000L)
             if (responseModel?.languagePage?.properties?.backgroundImageUrl.isNullOrEmpty())
-            binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBackground?.getColor()!!)
+                binding.motherLayout.setBackgroundColor(responseModel?.languagePage?.properties?.pageBackground?.getColor()!!)
             if (languages?.size?.compareTo(1) == 0 || languages.isNullOrEmpty()) {
                 timer.cancel()
                 languageIsActive = false
@@ -1200,8 +1234,22 @@ class MainActivity : BaseActivity() {
                 initializeViews()
                 viewModel.pageStateLiveData.value = Pair(0, false)
             } else {
+                timer.schedule(object : TimerTask() {
+                    override fun run() {
+                        runOnUiThread {
 
+                            val index =
+                                languages?.indexOfFirst { it.title == title?.textView?.text.toString() }
+                            val newIndex = if (index == languages?.size?.minus(1)) {
+                                0
+                            } else {
+                                index?.plus(1)
+                            }
+                            title?.textView?.text = languages!![newIndex!!].title
+                        }
+                    }
 
+                }, 0L, 2000L)
                 val smileView = LayoutInflater.from(this)
                     .inflate(
                         R.layout.input_from_user_sli_font_view_final_page,
@@ -1209,10 +1257,16 @@ class MainActivity : BaseActivity() {
                         false
                     )
                 smileView.smileView.apply {
-                    when(responseModel?.languagePage?.properties?.smileySize){
-                        "S" -> {this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)}
-                        "M" -> {this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)}
-                        "L" -> {this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)}
+                    when (responseModel?.languagePage?.properties?.smileySize) {
+                        "S" -> {
+                            this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+                        }
+                        "M" -> {
+                            this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)
+                        }
+                        "L" -> {
+                            this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)
+                        }
                     }
                     text = "A"
                     setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
@@ -1238,18 +1292,44 @@ class MainActivity : BaseActivity() {
                                 responseModel?.languagePage?.properties?.languageLabelBorderColor?.getColor()!!
                             )
                             background = newBackground
-
-                            responseModel?.languagePage?.properties?.languageLabelStyle?.forEach {
-                                when (it) {
-                                    "b" -> textView.setTypeface(textView.typeface, Typeface.BOLD)
-                                    "u" -> textView.paintFlags =
-                                        textView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-                                    "i" -> textView.setTypeface(textView.typeface, Typeface.ITALIC)
+                            var typeFace = ""
+                            if (responseModel?.languagePage?.properties?.languageLabelStyle?.contains(
+                                    "b"
+                                ) == true
+                            ) {
+                                typeFace += "b"
+                            }
+                            if (responseModel?.languagePage?.properties?.languageLabelStyle?.contains(
+                                    "u"
+                                ) == true
+                            ) {
+                                textView.paintFlags =
+                                    textView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+                            }
+                            if (responseModel?.languagePage?.properties?.languageLabelStyle?.contains(
+                                    "i"
+                                ) == true
+                            ) {
+                                typeFace += "i"
+                            }
+                            val formattedString = if (typeFace == "bi") {
+                                buildSpannedString {
+                                    bold { italic { append(languageModel.label) } }
                                 }
+                            } else if (typeFace == "i") {
+                                buildSpannedString {
+                                    italic { append(languageModel.label) }
+                                }
+                            } else if (typeFace == "b") {
+                                buildSpannedString {
+                                    bold { append(languageModel.label) }
+                                }
+                            } else {
+                                languageModel.label
                             }
                             if (responseModel?.languagePage?.properties?.showLabels == false)
                                 textView.visibility = View.GONE
-                            textView.text = languageModel.label
+                            textView.text = formattedString
                             textView.setTextColor(languageModel.labelColor.getColor())
                             textView.setDynamicSize(responseModel?.languagePage?.properties?.languageLabelSize)
                             setOnClickListener {

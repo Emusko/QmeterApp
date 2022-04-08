@@ -40,7 +40,7 @@ fun ArrayList<Any>?.getColor(): Int {
     return if (colorArray.size == 4)
        Color.argb(colorArray[3].toString().toFloat(), colorArray[0].toString().toFloat(), colorArray[1].toString().toFloat(), colorArray[2].toString().toFloat())
     else
-        0
+        Color.TRANSPARENT
 }
 
 fun AppCompatTextView.setDynamicSize(size: String? = "S"){

@@ -50,6 +50,10 @@ import kotlinx.android.synthetic.main.page_language_container_layout.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.*
 import kotlinx.android.synthetic.main.markpage_choose_view.view.submit
 import kotlinx.android.synthetic.main.multi_select_container_view.view.*
+import kotlinx.android.synthetic.main.multi_select_container_view.view.item_container
+import kotlinx.android.synthetic.main.radio_group_container_view.view.*
+import kotlinx.android.synthetic.main.multi_select_container_view.view.title_text_view
+import kotlinx.android.synthetic.main.radio_group_container_view.view.*
 import java.util.*
 import javax.inject.Inject
 
@@ -458,13 +462,18 @@ class MainActivity : BaseActivity() {
                 viewModel.pageStateLiveData.value =
                     Pair(viewModel.pageStateLiveData.value?.first?.minus(1) ?: 0, true)
             } else {
-                pageViews.forEach { (_, linearLayoutCompat) ->
-                    linearLayoutCompat?.visibility = View.GONE
-                }
-                binding.next.visibility = View.GONE
-                binding.back.visibility = View.GONE
-                binding.submit.visibility = View.GONE
-                getLanguageFromUser()
+                binding.progressBar.visibility = View.VISIBLE
+                binding.back.visibility =
+                    View.GONE
+                binding.next.visibility =
+                    View.GONE
+                binding.submit.visibility =
+                    View.GONE
+                viewModel.getWidgets()
+                binding.container.removeAllViews()
+                pageViews.clear()
+                condition = null
+                finalPageCondition = null
             }
         }
         binding.submit.setOnClickListener {
@@ -523,7 +532,7 @@ class MainActivity : BaseActivity() {
                 ).apply {
                     finalPageCondition?.let {
                         this.smileView.text =
-                            it.text!![language]?.resolveIconFromAwesome()
+                            it.text!![language]?.resolveFinalIconFromAwesome()
                         this.smileView.setBackgroundColor(
                             it.textBgColor.getColor() ?: 0
                         )
@@ -890,26 +899,28 @@ class MainActivity : BaseActivity() {
                             }
                         container?.addView(view)
                     } else if (it.select_design.value == "radio_button") {
-                        val containerView = RadioGroup(this)
-                        val title = LayoutInflater.from(this@MainActivity)
-                            .inflate(R.layout.input_from_user_sli_view, containerView, false)
-                            .apply {
-                                this.textView.text = it.placeholder!![language] ?: ""
-                            }
-                            .apply {
-                                it.select?.forEach { selectOption ->
-                                    val checkBox = AppCompatRadioButton(this@MainActivity)
-                                        .apply {
-                                            this.text = selectOption.option!![language]
-                                        }
-                                    containerView.addView(checkBox)
+                        val containerView = LayoutInflater.from(this@MainActivity)
+                            .inflate(
+                                R.layout.radio_group_container_view,
+                                container,
+                                false
+                            ) as LinearLayoutCompat
+                        it.select?.forEach { selectOption ->
+                            val checkBox = AppCompatRadioButton(this@MainActivity)
+                                .apply {
+                                    this.text = selectOption.option!![language]
                                 }
-                            }
-                        val params = RadioGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                        params.setMargins(100, 0,0,0)
-                        containerView.layoutParams = params
-                        containerView.tag = it.name
-                        container?.addView(title)
+                            containerView.radio_group.addView(checkBox)
+                        }
+                        containerView.title_text_view.text = it.placeholder!![language] ?: ""
+                        containerView.title_text_view.setDynamicSize(it.label_text_size)
+                        containerView.title_text_view.setTextColor(it.label_text_color.getColor())
+                        containerView.title_text_view?.background?.colorFilter =
+                            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                it.label_bg_color.getColor(),
+                                BlendModeCompat.SRC_ATOP
+                            )
+                        containerView.radio_group.tag = it.name
                         container?.addView(containerView)
                     }
                 }
@@ -1079,27 +1090,28 @@ class MainActivity : BaseActivity() {
                             }
                         container?.addView(view)
                     } else if (it.select_design.value == "radio_button") {
-                        val containerView = LinearLayoutCompat(this)
-                        val title = LayoutInflater.from(this@MainActivity)
-                            .inflate(R.layout.input_from_user_sli_view, containerView, false)
-                            .apply {
-                                this.textView.text = it.placeholder!![language] ?: ""
-                                this.textView.setTextColor(it.label_text_color?.getColor() ?: 0)
-                            }
-                            .apply {
-                                it.select?.forEach { selectOption ->
-                                    val checkBox = AppCompatRadioButton(this@MainActivity)
-                                        .apply {
-                                            this.text = selectOption.option!![language]
-                                        }
-                                    containerView.addView(checkBox)
+                        val containerView = LayoutInflater.from(this@MainActivity)
+                            .inflate(
+                                R.layout.radio_group_container_view,
+                                container,
+                                false
+                            ) as LinearLayoutCompat
+                        it.select?.forEach { selectOption ->
+                            val checkBox = AppCompatRadioButton(this@MainActivity)
+                                .apply {
+                                    this.text = selectOption.option!![language]
                                 }
-                            }
-                        val params = LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT)
-                        params.setMargins(100, 100,0,0)
-                        containerView.layoutParams = params
-                        containerView.tag = it.name
-                        container?.addView(title)
+                            containerView.radio_group.addView(checkBox)
+                        }
+                        containerView.title_text_view.text = it.placeholder!![language] ?: ""
+                        containerView.title_text_view.setDynamicSize(it.label_text_size)
+                        containerView.title_text_view.setTextColor(it.label_text_color.getColor())
+                        containerView.title_text_view?.background?.colorFilter =
+                            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                it.label_bg_color.getColor(),
+                                BlendModeCompat.SRC_ATOP
+                            )
+                        containerView.radio_group.tag = it.name
                         container?.addView(containerView)
                     }
                 }

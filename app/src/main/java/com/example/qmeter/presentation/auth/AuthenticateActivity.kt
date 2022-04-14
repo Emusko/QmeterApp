@@ -21,10 +21,10 @@ class AuthenticateActivity : BaseActivity() {
     lateinit var factory: ViewModelProviderFactory
 
     private val username: String?
-    get() = binding.usernameEdittext.text?.toString()
+    get() = binding.usernameEdittext.text?.toString()?.trim()
 
     private val password: String?
-    get() = binding.passwordEdittext.text?.toString()
+    get() = binding.passwordEdittext.text?.toString()?.trim()
 
     private val viewModel: AuthenticateViewModel by viewModels { factory }
     override fun onCreate(savedInstanceState: Bundle?) {

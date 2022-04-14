@@ -35,10 +35,10 @@ fun GetWidgetsResponseModel.Page.makePages(): ArrayList<PageComponent?> {
     return components
 }
 
-fun ArrayList<Any>?.getColor(): Int {
+fun ArrayList<Double>?.getColor(): Int {
     val colorArray = this?: arrayListOf(0, 0, 0, 0)
     return if (colorArray.size == 4)
-       Color.argb(colorArray[3].toString().toFloat(), colorArray[0].toString().toFloat(), colorArray[1].toString().toFloat(), colorArray[2].toString().toFloat())
+       ColorUtils.setAlphaComponent(Color.rgb(colorArray[0].toInt(), colorArray[1].toInt(), colorArray[2].toInt()), (colorArray[3].toFloat()*255).toInt())
     else
         Color.TRANSPARENT
 }
@@ -99,6 +99,14 @@ fun String.resolveIconFromAwesome(): String {
         "neutral" -> "C"
         "bad" -> "D"
         "unacceptable" -> "E"
+        else -> ""
+    }
+}
+fun String.resolveFinalIconFromAwesome(): String {
+    return when (this) {
+        "positive" -> "A"
+        "neutral" -> "C"
+        "negative" -> "E"
         else -> ""
     }
 }

@@ -45,6 +45,7 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.dialog_exit_view.view.*
+import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view_final_page.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt

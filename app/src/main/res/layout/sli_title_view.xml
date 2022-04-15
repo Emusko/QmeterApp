@@ -11,7 +11,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:ellipsize="end"
         android:gravity="center"
-        android:id="@+id/textView"
+        android:id="@+id/sli_text"
         android:padding="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

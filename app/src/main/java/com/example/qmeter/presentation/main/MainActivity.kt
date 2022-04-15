@@ -47,6 +47,7 @@ import kotlinx.android.synthetic.main.choose_language_view.view.*
 import kotlinx.android.synthetic.main.dialog_exit_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view_final_page.view.*
+import kotlinx.android.synthetic.main.input_from_user_sli_view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
 import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
@@ -58,6 +59,8 @@ import kotlinx.android.synthetic.main.multi_select_container_view.view.item_cont
 import kotlinx.android.synthetic.main.radio_group_container_view.view.*
 import kotlinx.android.synthetic.main.multi_select_container_view.view.title_text_view
 import kotlinx.android.synthetic.main.radio_group_container_view.view.*
+import kotlinx.android.synthetic.main.sli_title_view.*
+import kotlinx.android.synthetic.main.sli_title_view.view.*
 import java.util.*
 import javax.inject.Inject
 
@@ -1449,18 +1452,32 @@ class MainActivity : BaseActivity() {
             val serviceTitle = LayoutInflater.from(this)
                 .inflate(R.layout.sli_title_view, linearLayout, false)
                 .apply {
-                    this.textView.text = service.name!![language] ?: ""
-                    this.textView.setDynamicSize(sliData.attrs.serviceNameSize)
-                    this.textView.setTextColor(service.textColor.getColor())
+                    this.sli_text.text = service.name!![language] ?: ""
+                    this.sli_text.setDynamicSize(sliData.attrs.serviceNameSize)
+                    this.sli_text.setTextColor(service.textColor.getColor())
                 }
 
             service.rateOptions.forEachIndexed { index, rateOption ->
                 val view = LayoutInflater.from(this)
                     .inflate(R.layout.input_from_user_sli_font_view, linearLayout, false)
+                    .apply {
+                        background?.colorFilter =
+                            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                service.rateBgColor.getColor(),
+                                BlendModeCompat.SRC_ATOP
+                            )
+                    }
 
+
+                val sliText = LayoutInflater.from(this)
+                    .inflate(R.layout.sli_title_view, linearLayout, false)
+                    .apply {
+                        this.sli_text.text = rateOption.label!![language] ?: ""
+                        this.sli_text.setTextColor(service.rateIconColor.getColor())
+                    }
                 view.textView.apply {
                     text = rateOption.name?.resolveIconFromAwesome()
-                    setTextColor(rateOption.rateIconColor.getColor())
+                    setTextColor(service.rateIconColor.getColor())
                     background?.colorFilter =
                         BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                             rateOption.bgColor.getColor(),
@@ -1470,10 +1487,12 @@ class MainActivity : BaseActivity() {
                         linearLayout.forEachIndexed { index, child ->
                             if (view != child) {
                                 service.rateOptions[index].selected = false
-                                child.textView.setTextColor(rateOption.rateIconColor.getColor())
+                                child.textView.setTextColor(service.rateIconColor.getColor())
+                                child.sli_text?.setTextColor(service.rateIconColor.getColor())
                             } else {
                                 service.rateOptions[index].selected = true
-                                this.setTextColor(rateOption.rateSelectedColor.getColor())
+                                this.setTextColor(service.rateSelectedColor.getColor())
+                                child.sli_text?.setTextColor(service.rateSelectedColor.getColor())
                             }
                         }
                         sliCondition[service.name!![language]] = rateOption.name
@@ -1482,12 +1501,7 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }
-                val sliText = LayoutInflater.from(this)
-                    .inflate(R.layout.sli_title_view, linearLayout, false)
-                    .apply {
-                        this.textView.text = rateOption.label!![language] ?: ""
-                        this.textView.setTextColor(rateOption.rateIconColor.getColor())
-                    }
+
                 if (sliData.showRateLabels == true)
                     (view as? LinearLayoutCompat)?.addView(sliText)
                 linearLayout.addView(view)

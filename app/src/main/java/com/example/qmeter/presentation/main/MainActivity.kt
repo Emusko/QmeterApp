@@ -44,10 +44,14 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.choose_language_view.view.*
+import kotlinx.android.synthetic.main.component_title_view.*
+import kotlinx.android.synthetic.main.component_title_view.component_title
+import kotlinx.android.synthetic.main.component_title_view.view.*
 import kotlinx.android.synthetic.main.dialog_exit_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_font_view_final_page.view.*
 import kotlinx.android.synthetic.main.input_from_user_sli_view.*
+import kotlinx.android.synthetic.main.input_from_user_sli_view.textView
 import kotlinx.android.synthetic.main.input_from_user_sli_view.view.textView
 import kotlinx.android.synthetic.main.input_from_user_view.view.passwordEt
 import kotlinx.android.synthetic.main.mark_choose_text_view.view.*
@@ -95,6 +99,8 @@ class MainActivity : BaseActivity() {
     private var condition: GetWidgetsResponseModel.ConditionOverallData? = null
 
     private var finalPageCondition: GetWidgetsResponseModel.Reaction? = null
+
+    private var finalPageSli: String? = ""
 
     private var language = "en"
 
@@ -211,7 +217,7 @@ class MainActivity : BaseActivity() {
 
 
             binding.submit.setTextColor(pages[pageIndex]?.properties?.submitButtonTxtColor.getColor())
-            binding.back.background?.colorFilter =
+            binding.submit.background?.colorFilter =
                 BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                     pages[pageIndex]?.properties?.submitButtonBgColor.getColor(),
                     BlendModeCompat.SRC_ATOP
@@ -223,15 +229,13 @@ class MainActivity : BaseActivity() {
                 var sliFeedBacks = ""
                 sliCondition.forEach {
                     sliFeedBacks += it.value
+                    finalPageSli += it.value
                 }
                 if (sliFeedBacks.contains("unacceptable") || sliFeedBacks.contains("bad")) {
-                    finalPageCondition = responseModel?.finalPageData?.negative
                     condition = pages[pageIndex]?.condition?.overall?.negative
                 } else if (sliFeedBacks.contains("excellent") || sliFeedBacks.contains("good")) {
-                    finalPageCondition = responseModel?.finalPageData?.positive
                     condition = pages[pageIndex]?.condition?.overall?.positive
                 } else if (sliFeedBacks.contains("neutral")) {
-                    finalPageCondition = responseModel?.finalPageData?.neutral
                     condition = pages[pageIndex]?.condition?.overall?.neutral
                 }
 
@@ -320,7 +324,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
-            if (pageIndex == 0 && !responseModel?.languagePage?.languages.isNullOrEmpty() && responseModel?.languagePage?.languages?.size == 1)
+            if (pageIndex == 0 && (responseModel?.languagePage?.languages.isNullOrEmpty() || responseModel?.languagePage?.languages?.size == 1))
                 binding.back.visibility = View.GONE
         }
 
@@ -532,6 +536,16 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.dataPost.observe(this) {
+            finalPageSli?.let {
+                if (it.contains("unacceptable") || it.contains("bad")) {
+                    finalPageCondition = responseModel?.finalPageData?.negative
+                } else if (it.contains("neutral"))  {
+                    finalPageCondition = responseModel?.finalPageData?.positive
+                } else if (it.contains("excellent") || it.contains("good")) {
+                    finalPageCondition = responseModel?.finalPageData?.neutral
+                }
+            }
+            finalPageSli = ""
             val finalPageData = responseModel?.finalPageData
             finalPageData?.pageBg?.let {
                 binding.motherLayout.setBackgroundColor(it.getColor())
@@ -556,13 +570,13 @@ class MainActivity : BaseActivity() {
                     binding.container,
                     false
                 ).apply {
-                    finalPageCondition?.let {
+                    if (finalPageCondition != null) {
                         this.smileView.text =
-                            it.text!![language]?.resolveFinalIconFromAwesome()
+                            finalPageCondition!!.text!![language]?.resolveFinalIconFromAwesome()
                         this.smileView.setBackgroundColor(
-                            it.textBgColor.getColor() ?: 0
+                            finalPageCondition!!.textBgColor.getColor() ?: 0
                         )
-                        this.smileView.setTextColor(it.textColor.getColor())
+                        this.smileView.setTextColor(finalPageCondition!!.textColor.getColor())
                         this.smileView.apply {
                             when (responseModel?.languagePage?.properties?.smileySize) {
                                 "S" -> {
@@ -575,8 +589,26 @@ class MainActivity : BaseActivity() {
                                     this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)
                                 }
                             }
-                            text = "A"
-                            setTextColor(responseModel?.languagePage?.properties?.smileyColor?.getColor()!!)
+                        }
+                    } else {
+
+                        this.smileView.text = "A"
+                        this.smileView.setBackgroundColor(
+                            finalPageCondition!!.textBgColor.getColor()
+                        )
+                        this.smileView.setTextColor(finalPageCondition!!.textColor.getColor())
+                        this.smileView.apply {
+                            when (responseModel?.languagePage?.properties?.smileySize) {
+                                "S" -> {
+                                    this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+                                }
+                                "M" -> {
+                                    this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)
+                                }
+                                "L" -> {
+                                    this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)
+                                }
+                            }
                         }
                     }
                 }
@@ -653,11 +685,11 @@ class MainActivity : BaseActivity() {
                     false
                 ) as? LinearLayoutCompat
             val title = LayoutInflater.from(this@MainActivity)
-                .inflate(R.layout.input_from_user_sli_view, container, false)
+                .inflate(R.layout.component_title_view, container, false)
                 .apply {
-                    this.textView.setDynamicSize(page?.properties?.pageTitleSize)
-                    this.textView.text = page?.properties?.pageTitle!![language]
-                    this.textView.setTextColor(page.properties.pageTitleTextColor.getColor() ?: 0)
+                    this.component_title.setDynamicSize(page?.properties?.pageTitleSize)
+                    this.component_title.text = page?.properties?.pageTitle!![language]
+                    this.component_title.setTextColor(page.properties.pageTitleTextColor.getColor() ?: 0)
                     background?.colorFilter =
                         BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                             page.properties.pageTitleBgColor.getColor() ?: 0,
@@ -1395,7 +1427,7 @@ class MainActivity : BaseActivity() {
                     )
             }
         view.minimumHeight =
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100.0f, resources.displayMetrics)
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200.0f, resources.displayMetrics)
                 .toInt()
         view.passwordEt?.tag = commentData.attrs?.name
         view.passwordEt?.setDynamicSize(commentData.attrs?.label_text_size)

@@ -104,6 +104,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_marginTop="20dp"
                     android:id="@+id/container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -126,7 +127,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:background="@null"
+                        android:background="@drawable/rounded_input_background"
                         android:text="Back"
                         android:textAllCaps="false"
                         android:textColor="#636366"
@@ -139,7 +140,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:background="@null"
+                        android:background="@drawable/rounded_input_background"
                         android:text="Next"
                         android:textAllCaps="false"
                         android:textColor="@color/colorPrimary"
@@ -148,11 +149,11 @@
                         tools:ignore="HardcodedText" />
 
                     <androidx.appcompat.widget.AppCompatButton
+                        android:background="@drawable/rounded_input_background"
                         android:id="@+id/submit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:background="@null"
                         android:text="Submit"
                         android:textAllCaps="false"
                         android:textColor="@color/colorPrimary"

@@ -58,7 +58,7 @@ class AuthenticateActivity : BaseActivity() {
         viewModel.error.subscribe {
             binding.progressBar.visibility = View.GONE
             binding.credentialContainer.visibility = View.VISIBLE
-            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+//            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         }.addTo(subscriptions)
 
         binding.login.setOnClickListener {

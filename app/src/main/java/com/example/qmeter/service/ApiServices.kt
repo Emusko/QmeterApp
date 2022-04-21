@@ -13,6 +13,9 @@ interface ApiServices {
     @Headers("Content-Type: application/json")
     @POST("api/v1/template/device/widget/")
     fun postFeedback(@Body body: ArrayList<HashMap<String?, Any?>>): Observable<AuthenticationResponseModel>
+    @Headers("Content-Type: application/json")
+    @POST
+    fun postFeedback(@Url url: String, @Body body: ArrayList<HashMap<String?, Any?>>): Observable<AuthenticationResponseModel>
     @GET("api/v1/template/device/widget/")
     fun getWidgets(): Observable<GetWidgetsResponseModel>
 }

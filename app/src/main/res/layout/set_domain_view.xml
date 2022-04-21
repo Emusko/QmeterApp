@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    android:background="@drawable/rounded_transparent_input_background_8"
+    android:backgroundTint="@color/white"
+    android:paddingTop="24dp"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:gravity="center"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:textColor="#444A59"
+        android:gravity="center|start"
+        android:textStyle="bold"
+        android:text="Domain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        app:endIconMode="clear_text"
+        android:layout_marginTop="8dp"
+        app:hintEnabled="false"
+        android:background="@drawable/rounded_input_exit_background_8"
+        android:id="@+id/loginInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:padding="16dp"
+            android:hint="Enter url"
+            android:background="#F5F5F5"
+            android:id="@+id/base_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:maxLines="1"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_marginTop="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.AppCompatButton
+            android:textSize="18sp"
+            android:id="@+id/set_url"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:text="Save"
+            android:background="@null"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

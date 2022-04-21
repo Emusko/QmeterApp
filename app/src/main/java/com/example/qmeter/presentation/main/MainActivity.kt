@@ -593,10 +593,6 @@ class MainActivity : BaseActivity() {
                     } else {
 
                         this.smileView.text = "A"
-                        this.smileView.setBackgroundColor(
-                            finalPageCondition!!.textBgColor.getColor()
-                        )
-                        this.smileView.setTextColor(finalPageCondition!!.textColor.getColor())
                         this.smileView.apply {
                             when (responseModel?.languagePage?.properties?.smileySize) {
                                 "S" -> {

@@ -28,6 +28,10 @@ class AuthenticateViewModel @Inject constructor(
             }, subscriptions)
     }
 
+    fun saveBaseUrl(baseUrl: String?){
+        sharedPreferences.edit().putString("baseUrl", baseUrl).apply()
+    }
+
     fun getWidgets(){
         getWidgetsUseCase.execute(
             {

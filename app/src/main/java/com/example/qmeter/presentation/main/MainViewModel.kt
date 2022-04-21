@@ -17,6 +17,7 @@ import com.example.qmeter.service.model.remote.request.FeedbackRequestModel
 import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
 import com.example.qmeter.usecase.GetCustomersUseCase
 import com.example.qmeter.usecase.GetWidgetsUseCase
+import com.example.qmeter.usecase.PostFeedbackUrlUseCase
 import com.example.qmeter.usecase.PostFeedbackUseCase
 import com.google.android.material.textfield.TextInputEditText
 import okhttp3.Credentials
@@ -29,7 +30,8 @@ import kotlin.collections.HashMap
 class MainViewModel @Inject constructor(
     val sharedPreferences: SharedPreferences,
     private val getWidgetsUseCase: GetWidgetsUseCase,
-    private val postFeedbackUseCase: PostFeedbackUseCase
+    private val postFeedbackUseCase: PostFeedbackUseCase,
+    private val postFeedbackCustomUrlUseCase: PostFeedbackUrlUseCase
 ) : BaseViewModel() {
     val viewData: MutableLiveData<GetWidgetsResponseModel> = MutableLiveData()
 
@@ -132,6 +134,8 @@ class MainViewModel @Inject constructor(
 
     fun postFeedback() {
         requestList.forEach { request ->
+
+            if (sharedPreferences.getString("baseUrl", null).isNullOrEmpty())
             postFeedbackUseCase
                 .execute(
                     arrayListOf(request),
@@ -142,6 +146,18 @@ class MainViewModel @Inject constructor(
                     },
                     subscriptions
                 )
+            else
+                postFeedbackCustomUrlUseCase
+                    .execute(
+                        "${sharedPreferences.getString("baseUrl", null)!!}/api/v1/template/device/widget/",
+                        arrayListOf(request),
+                        {
+                            requestList.remove(request)
+                        },
+                        {
+                        },
+                        subscriptions
+                    )
         }
     }
 

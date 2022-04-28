@@ -19,8 +19,7 @@ interface ApiServices {
     @POST("api/v1/template/device/logout/")
     fun logout(@Body authenticateRequestModel: AuthenticateRequestModel): Observable<Response<Void>?>
 
-    @Headers("Connection: close")
-    @POST("api/v1/template/device/logout/")
+    @POST
     fun logout(@Url url: String, @Body authenticateRequestModel: AuthenticateRequestModel): Observable<Response<Void>?>
 
     @Headers("Content-Type: application/json")

@@ -9,13 +9,22 @@ import retrofit2.http.*
 interface ApiServices {
     @Headers("Connection: close")
     @POST("api/v1/template/device/login/")
-    fun getComponents(@Body authenticateRequestModel: AuthenticateRequestModel): Observable<AuthenticationResponseModel>
+    fun login(@Body authenticateRequestModel: AuthenticateRequestModel): Observable<AuthenticationResponseModel>
+
+    @POST
+    fun login(@Url url: String, @Body authenticateRequestModel: AuthenticateRequestModel): Observable<AuthenticationResponseModel>
+
     @Headers("Content-Type: application/json")
     @POST("api/v1/template/device/widget/")
     fun postFeedback(@Body body: ArrayList<HashMap<String?, Any?>>): Observable<AuthenticationResponseModel>
+
     @Headers("Content-Type: application/json")
     @POST
     fun postFeedback(@Url url: String, @Body body: ArrayList<HashMap<String?, Any?>>): Observable<AuthenticationResponseModel>
+
     @GET("api/v1/template/device/widget/")
     fun getWidgets(): Observable<GetWidgetsResponseModel>
+
+    @GET
+    fun getWidgets(@Url url: String): Observable<GetWidgetsResponseModel>
 }

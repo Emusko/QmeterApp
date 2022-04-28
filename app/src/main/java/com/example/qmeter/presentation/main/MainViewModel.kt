@@ -10,17 +10,15 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.forEach
-import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import com.example.qmeter.di.base.BaseViewModel
 import com.example.qmeter.service.model.remote.request.FeedbackRequestModel
 import com.example.qmeter.service.model.remote.response.GetWidgetsResponseModel
-import com.example.qmeter.usecase.GetCustomersUseCase
 import com.example.qmeter.usecase.GetWidgetsUseCase
+import com.example.qmeter.usecase.GetWidgetsWithUrlUseCase
 import com.example.qmeter.usecase.PostFeedbackUrlUseCase
 import com.example.qmeter.usecase.PostFeedbackUseCase
 import com.google.android.material.textfield.TextInputEditText
-import okhttp3.Credentials
 import retrofit2.HttpException
 import java.util.*
 import javax.inject.Inject
@@ -30,6 +28,7 @@ import kotlin.collections.HashMap
 class MainViewModel @Inject constructor(
     val sharedPreferences: SharedPreferences,
     private val getWidgetsUseCase: GetWidgetsUseCase,
+    private val getWidgetsWithUrlUseCase: GetWidgetsWithUrlUseCase,
     private val postFeedbackUseCase: PostFeedbackUseCase,
     private val postFeedbackCustomUrlUseCase: PostFeedbackUrlUseCase
 ) : BaseViewModel() {
@@ -58,20 +57,38 @@ class MainViewModel @Inject constructor(
     }
 
     fun getWidgets() {
-        getWidgetsUseCase.execute(
-            {
-                viewData.value = it
-            },
-            {
-                if (it is HttpException) {
-                    if (it.code() == 401) {
-                        sharedPreferences.edit().clear().apply()
-                        unauthorizedError.postValue(true)
+
+        if (sharedPreferences.getString("baseUrl", null).isNullOrEmpty())
+            getWidgetsUseCase.execute(
+                {
+                    viewData.value = it
+                },
+                {
+                    if (it is HttpException) {
+                        if (it.code() == 401) {
+                            sharedPreferences.edit().clear().apply()
+                            unauthorizedError.postValue(true)
+                        }
                     }
-                }
-            },
-            subscriptions
-        )
+                },
+                subscriptions
+            )
+        else
+            getWidgetsWithUrlUseCase.execute(
+                sharedPreferences.getString("baseUrl", null)!!,
+                {
+                    viewData.value = it
+                },
+                {
+                    if (it is HttpException) {
+                        if (it.code() == 401) {
+                            sharedPreferences.edit().clear().apply()
+                            unauthorizedError.postValue(true)
+                        }
+                    }
+                },
+                subscriptions
+            )
     }
 
     init {
@@ -136,20 +153,25 @@ class MainViewModel @Inject constructor(
         requestList.forEach { request ->
 
             if (sharedPreferences.getString("baseUrl", null).isNullOrEmpty())
-            postFeedbackUseCase
-                .execute(
-                    arrayListOf(request),
-                    {
-                        requestList.remove(request)
-                    },
-                    {
-                    },
-                    subscriptions
-                )
+                postFeedbackUseCase
+                    .execute(
+                        arrayListOf(request),
+                        {
+                            requestList.remove(request)
+                        },
+                        {
+                        },
+                        subscriptions
+                    )
             else
                 postFeedbackCustomUrlUseCase
                     .execute(
-                        "${sharedPreferences.getString("baseUrl", null)!!}/api/v1/template/device/widget/",
+                        "${
+                            sharedPreferences.getString(
+                                "baseUrl",
+                                null
+                            )!!
+                        }/api/v1/template/device/widget/",
                         arrayListOf(request),
                         {
                             requestList.remove(request)

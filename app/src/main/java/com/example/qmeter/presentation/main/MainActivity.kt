@@ -224,6 +224,9 @@ class MainActivity : BaseActivity() {
                 )
 
             binding.motherLayout.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageBg?.getColor()!!)
+            window.statusBarColor = responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!
+            binding.qmeterAppLogo.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!)
+            binding.exitDummy.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!)
 
             if (sliCondition.isNotEmpty()) {
                 var sliFeedBacks = ""

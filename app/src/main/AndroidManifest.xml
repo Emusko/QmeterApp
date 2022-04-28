@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.qmeter">
+    package="technolink.qmeter">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:requestLegacyExternalStorage="true"
-        android:name="com.example.qmeter.di.base.BaseApplication"
+        android:name="com.technolink.qmeter.di.base.BaseApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/qmeter"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -17,7 +17,7 @@
         <activity
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:name="com.example.qmeter.presentation.auth.AuthenticateActivity"
+            android:name="com.technolink.qmeter.presentation.auth.AuthenticateActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
         <activity
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:name="com.example.qmeter.presentation.main.MainActivity"/>
+            android:name="com.technolink.qmeter.presentation.main.MainActivity"/>
     </application>
 
 </manifest>

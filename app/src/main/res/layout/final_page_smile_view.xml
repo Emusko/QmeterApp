@@ -11,7 +11,7 @@
     android:layout_width="0dp"
     android:layout_height="wrap_content">
 
-    <com.example.qmeter.utils.FontAwesome
+    <com.technolink.qmeter.utils.FontAwesome
         android:background="@android:color/transparent"
         android:textSize="36sp"
         android:id="@+id/textView"

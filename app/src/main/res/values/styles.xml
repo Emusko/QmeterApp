@@ -23,4 +23,7 @@
     <style name="CheckboxStyle" parent="AppTheme">
         <item name="colorAccent">@color/colorPrimary</item>
     </style>
+    <style name="TextLabel" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">8sp</item>
+    </style>
 </resources>

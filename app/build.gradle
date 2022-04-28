@@ -16,7 +16,7 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
     defaultConfig {
-        applicationId "com.example.qmeter"
+        applicationId "com.technolink.qmeter"
         minSdkVersion 26
         targetSdkVersion 31
         versionCode 1

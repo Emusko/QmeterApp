@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/rounded_input_background_8"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="12dp">
+<layout>
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/check_mark_text"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="7"
+        android:background="@drawable/rounded_input_background_8"
         android:gravity="center"
-        android:textColor="@color/black"
-        tools:text="asdgn dsahfbgjuhadsbgfhidsa" />
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:visibility="gone"
-        android:id="@+id/checked_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        app:srcCompat="@drawable/ic_checkmark" />
-</androidx.appcompat.widget.LinearLayoutCompat>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/check_mark_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="7"
+            android:gravity="center"
+            android:textColor="@color/black"
+            tools:text="asdgn dsahfbgjuhadsbgfhidsa" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:visibility="gone"
+            android:id="@+id/checked_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_checkmark" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

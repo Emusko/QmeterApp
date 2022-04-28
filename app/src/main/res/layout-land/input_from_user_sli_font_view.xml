@@ -10,7 +10,7 @@
     android:layout_width="0dp"
     android:layout_height="match_parent">
 
-    <com.example.qmeter.utils.FontAwesome
+    <com.technolink.qmeter.utils.FontAwesome
         android:background="@android:color/transparent"
         android:textSize="72sp"
         android:id="@+id/textView"

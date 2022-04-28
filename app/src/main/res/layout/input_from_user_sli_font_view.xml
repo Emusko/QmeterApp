@@ -10,7 +10,7 @@
     android:layout_width="0dp"
     android:layout_height="match_parent">
 
-    <com.example.qmeter.utils.FontAwesome
+    <com.technolink.qmeter.utils.FontAwesome
         android:background="@android:color/transparent"
         android:textSize="36sp"
         android:id="@+id/textView"
@@ -18,4 +18,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:text="A"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:ellipsize="end"
+        android:gravity="center"
+        android:id="@+id/sli_text"
+        android:padding="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="sadgmasdngkjisdangkbjasd"/>
 </androidx.appcompat.widget.LinearLayoutCompat>

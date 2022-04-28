@@ -104,7 +104,7 @@ class MainActivity : BaseActivity() {
             condition = null
             finalPageCondition = null
         }
-        viewModel.logoutLive.observe(this){
+        viewModel.logoutLive.observe(this) {
 
             sharedPreferences.edit().clear().apply()
             startActivity(Intent(this, AuthenticateActivity::class.java))
@@ -203,7 +203,8 @@ class MainActivity : BaseActivity() {
                 )
 
             binding.motherLayout.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageBg?.getColor()!!)
-            window.statusBarColor = responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!
+            window.statusBarColor =
+                responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!
             binding.qmeterAppLogo.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!)
             binding.exitDummy.setBackgroundColor(responseModel?.pages!![pageIndex]?.properties?.pageHeader?.getColor()!!)
 
@@ -308,6 +309,18 @@ class MainActivity : BaseActivity() {
             }
             if (pageIndex == 0 && (responseModel?.languagePage?.languages.isNullOrEmpty() || responseModel?.languagePage?.languages?.size == 1))
                 binding.back.visibility = View.GONE
+
+            if (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                    .filter { it != null }.size == 1
+                && (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                    .filter { it != null }
+                    .firstOrNull() is GetWidgetsResponseModel.SliData)
+                &&(responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                    .filter { it != null }
+                    .firstOrNull() as?GetWidgetsResponseModel.SliData )?.attrs?.service?.size == 1
+            ) {
+                binding.next.visibility = View.GONE
+            }
         }
 
         binding.next.setOnClickListener {
@@ -518,12 +531,16 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.dataPost.observe(this) {
+            var smileIndicator = ""
             finalPageSli?.let {
                 if (it.contains("unacceptable") || it.contains("bad")) {
+                    smileIndicator = "negative"
                     finalPageCondition = responseModel?.finalPageData?.negative
                 } else if (it.contains("neutral")) {
+                    smileIndicator = "neutral"
                     finalPageCondition = responseModel?.finalPageData?.positive
                 } else if (it.contains("excellent") || it.contains("good")) {
+                    smileIndicator = "positive"
                     finalPageCondition = responseModel?.finalPageData?.neutral
                 }
             }
@@ -558,21 +575,21 @@ class MainActivity : BaseActivity() {
                     .apply {
                         if (finalPageCondition != null) {
                             this.smileView.text =
-                                finalPageCondition!!.text!![language]?.resolveFinalIconFromAwesome()
+                                smileIndicator.resolveFinalIconFromAwesome()
                             this.smileView.setBackgroundColor(
-                                finalPageCondition!!.textBgColor.getColor() ?: 0
+                                finalPageCondition!!.textBgColor.getColor()
                             )
                             this.smileView.setTextColor(finalPageCondition!!.textColor.getColor())
                             this.smileView.apply {
                                 when (responseModel?.languagePage?.properties?.smileySize) {
                                     "S" -> {
-                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100f)
                                     }
                                     "M" -> {
-                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)
+                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 130f)
                                     }
                                     "L" -> {
-                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)
+                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 150f)
                                     }
                                 }
                             }
@@ -582,13 +599,13 @@ class MainActivity : BaseActivity() {
                             this.smileView.apply {
                                 when (responseModel?.languagePage?.properties?.smileySize) {
                                     "S" -> {
-                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100f)
                                     }
                                     "M" -> {
-                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f)
+                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 130f)
                                     }
                                     "L" -> {
-                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 82f)
+                                        this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 150f)
                                     }
                                 }
                             }
@@ -607,11 +624,7 @@ class MainActivity : BaseActivity() {
 
                         this.textView.text =
                             it.text!![language]
-                        this.textView.background?.colorFilter =
-                            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                                it.textBgColor.getColor(),
-                                BlendModeCompat.SRC_ATOP
-                            )
+                        this.textView.setBackgroundColor(it.textBgColor.getColor())
                         this.textView.setTextColor(it.textColor.getColor())
                         this.textView.setDynamicSize(it.textSize)
                     }
@@ -1509,7 +1522,7 @@ class MainActivity : BaseActivity() {
                     false
                 )
         )
-        val title = InputFromUserSliViewBinding.bind(
+        val componentTitle = InputFromUserSliViewBinding.bind(
             LayoutInflater.from(this)
                 .inflate(
                     R.layout.input_from_user_sli_view,
@@ -1521,6 +1534,24 @@ class MainActivity : BaseActivity() {
                 this.textView.setDynamicSize(commentData.componentTitleSize)
                 this.textView.text = commentData.componentTitle!![language] ?: ""
                 this.textView.setTextColor(commentData.componentTitleTextColor.getColor())
+                root.background?.colorFilter =
+                    BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                        commentData.componentTitleBgColor.getColor(),
+                        BlendModeCompat.SRC_ATOP
+                    )
+            }
+        val title = InputFromUserSliViewBinding.bind(
+            LayoutInflater.from(this)
+                .inflate(
+                    R.layout.input_from_user_sli_view,
+                    binding.container,
+                    false
+                )
+        )
+            .apply {
+                this.textView.setDynamicSize(commentData.attrs?.label_text_size)
+                this.textView.text = commentData.attrs?.label!![language] ?: ""
+                this.textView.setTextColor(commentData.attrs.label_text_color.getColor())
                 root.background?.colorFilter =
                     BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                         commentData.componentTitleBgColor.getColor(),
@@ -1542,7 +1573,8 @@ class MainActivity : BaseActivity() {
 
         container.root.tag = COMMENT_TAG
         if (commentData.isComponentTitle == true)
-            container.root.addView(title.root)
+            container.root.addView(componentTitle.root)
+        container.root.addView(title.root)
         container.root.addView(view.root)
 
         return container.root
@@ -1634,6 +1666,7 @@ class MainActivity : BaseActivity() {
                 view.textView.apply {
                     text = rateOption.name?.resolveIconFromAwesome()
                     setTextColor(service.rateIconColor.getColor())
+                    view.sliText.setTextColor(service.rateIconColor.getColor())
                     background?.colorFilter =
                         BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                             rateOption.bgColor.getColor(),
@@ -1655,14 +1688,29 @@ class MainActivity : BaseActivity() {
                         sliCondition[service.name!![language]] = rateOption.name
                         if (rateOption.markpageIdx != null) {
                             popUpMarkPage(view.textView.text.toString(), rateOption)
+                        } else if (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                                .filter { it != null }.size == 1
+                            && sliData.attrs.service.size == 1
+                        ) {
+
+                            viewModel.pageStateLiveData.postValue(
+                                Pair(
+                                    viewModel.pageStateLiveData.value?.first!!.plus(
+                                        1
+                                    ), false
+                                )
+                            )
+
                         }
                     }
                 }
 
+                view.sliText.text = rateOption.label!![language]
+
                 if (sliData.showRateLabels == true)
-                    view.sliText?.visibility = View.VISIBLE
+                    view.sliText.visibility = View.VISIBLE
                 else
-                    view.sliText?.visibility = View.GONE
+                    view.sliText.visibility = View.GONE
                 linearLayout.root.addView(view.root)
                 if (index > 0) {
                     val params = sliComponentLayout?.root.layoutParams as? LinearLayout.LayoutParams
@@ -1734,10 +1782,15 @@ class MainActivity : BaseActivity() {
                     false
                 )
         )
+        dialogView.submit.text = responseModel?.generalSettings?.submit_button_text!![language]
+        dialogView.submit.setTextColor(markPageData?.submitButtonTextColor.getColor())
+        dialogView.submit.setBackgroundColor(markPageData?.submitButtonBgColor.getColor())
         dialog.setView(dialogView.root)
 
         dialogView.sliTextView.text = sliText
-        dialogView.title.text = markPageData?.title!![language]
+        dialogView.sliTextView.setTextColor(markPageData?.rateIconColor?.getColor()!!)
+        dialogView.title.text = markPageData.title!![language]
+        dialogView.title.setTextColor(markPageData.titleTextColor.getColor())
 
 
         val alertDialog = dialog.create()
@@ -1751,24 +1804,34 @@ class MainActivity : BaseActivity() {
                     )
             )
             markText.apply {
-                this.checkMarkText.text = mark.name!![language]
-                if (!mark.selected!!) {
-                    root.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this@MainActivity,
-                            R.color.white
-                        )
-                    )
-                    this.checkedImage.visibility = View.GONE
-                } else {
-                    root.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this@MainActivity,
-                            R.color.colorMarkPageSelected
-                        )
-                    )
 
-                    this.checkedImage.visibility = View.VISIBLE
+                this.checkMarkText.text = mark.name!![language]
+                this.checkMarkText.setTextColor(mark.textColor.getColor())
+                val backgroundDrawable = ContextCompat.getDrawable(
+                    this@MainActivity,
+                    R.drawable.rounded_input_language_background_8
+                )
+                val newBackground = (backgroundDrawable as? GradientDrawable)
+                newBackground?.setColor(mark.bgColor.getColor())
+                newBackground?.setStroke(
+                    5,
+                    mark.markBorderColor.getColor()
+                )
+
+                root.background = newBackground
+                if (!mark.selected!!) {
+                    this.root.background.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            mark.bgColor.getColor(),
+                            BlendModeCompat.SRC_ATOP
+                        )
+                } else {
+
+                    this.root.background.colorFilter =
+                        BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                            mark.markSelectedColor.getColor(),
+                            BlendModeCompat.SRC_ATOP
+                        )
                 }
                 if (markPageData.isSingle == true) {
                     dialogView.skip.visibility = View.GONE
@@ -1778,51 +1841,51 @@ class MainActivity : BaseActivity() {
                             if (root != view) {
                                 markPageData.marks[index].selected = false
 
-                                root.setBackgroundColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.white
+                                this.root.background.colorFilter =
+                                    BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                        mark.bgColor.getColor(),
+                                        BlendModeCompat.SRC_ATOP
                                     )
-                                )
-                                this.checkedImage.visibility = View.GONE
                             } else {
-                                markPageData.marks[index].selected = mark.selected == false
-                                root.setBackgroundColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.colorMarkPageSelected
+                                this.root.background.colorFilter =
+                                    BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                        mark.markSelectedColor.getColor(),
+                                        BlendModeCompat.SRC_ATOP
                                     )
-                                )
-
-                                this.checkedImage.visibility = View.VISIBLE
                             }
                         }
                         alertDialog.dismiss()
+                        if (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                                .filter { it != null }.size == 1
+                            && (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                                .filter { it != null }
+                                .firstOrNull() as? GetWidgetsResponseModel.SliData)?.attrs?.service?.size == 1
+                        ) {
+                            viewModel.pageStateLiveData.postValue(
+                                Pair(
+                                    viewModel.pageStateLiveData.value?.first!!.plus(
+                                        1
+                                    ), false
+                                )
+                            )
+                        }
                     }
                 } else {
                     root.setOnClickListener {
                         if (mark.selected == true) {
                             mark.selected = false
-                            root.background = ContextCompat.getDrawable(
-                                this@MainActivity,
-                                R.drawable.rounded_input_background_8
-                            )
-                            root.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.white
+                            this.root.background.colorFilter =
+                                BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                    mark.bgColor.getColor(),
+                                    BlendModeCompat.SRC_ATOP
                                 )
-                            )
-                            this.checkedImage.visibility = View.GONE
                         } else {
                             mark.selected = true
-                            root.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.colorMarkPageSelected
+                            this.root.background.colorFilter =
+                                BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                                    mark.markSelectedColor.getColor(),
+                                    BlendModeCompat.SRC_ATOP
                                 )
-                            )
-                            this.checkedImage.visibility = View.VISIBLE
                         }
                     }
                 }
@@ -1835,7 +1898,23 @@ class MainActivity : BaseActivity() {
             }
             alertDialog.dismiss()
         }
-        dialogView.submit.setOnClickListener { alertDialog.dismiss() }
+        dialogView.submit.setOnClickListener {
+            alertDialog.dismiss()
+            if (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                    .filter { it != null }.size == 1
+                && (responseModel?.pages!![viewModel.pageStateLiveData.value?.first!!]!!.makePages()
+                    .filter { it != null }
+                    .firstOrNull() as? GetWidgetsResponseModel.SliData)?.attrs?.service?.size == 1
+            ) {
+                viewModel.pageStateLiveData.postValue(
+                    Pair(
+                        viewModel.pageStateLiveData.value?.first!!.plus(
+                            1
+                        ), false
+                    )
+                )
+            }
+        }
         alertDialog.show()
     }
 }

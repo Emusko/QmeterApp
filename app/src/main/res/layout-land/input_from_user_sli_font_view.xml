@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.appcompat.widget.LinearLayoutCompat
+    android:gravity="center"
     android:background="@drawable/rounded_input_sli_background_8"
     android:id="@+id/rootLinearLayout"
     android:orientation="vertical"
@@ -11,11 +12,23 @@
     android:layout_height="match_parent">
 
     <com.technolink.qmeter.utils.FontAwesome
+        android:gravity="center"
+        android:layout_gravity="center"
         android:background="@android:color/transparent"
-        android:textSize="72sp"
+        android:textSize="130sp"
         android:id="@+id/textView"
         android:padding="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:text="A"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:textSize="36sp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:id="@+id/sli_text"
+        android:padding="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="sadgmasdngkjisdangkbjasd"/>
 </androidx.appcompat.widget.LinearLayoutCompat>

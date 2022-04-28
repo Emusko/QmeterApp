@@ -14,6 +14,7 @@
     app:hintEnabled="false">
 
     <com.google.android.material.textfield.TextInputEditText
+        android:minHeight="200dp"
         android:padding="8dp"
         android:background="@drawable/rounded_input_sli_background_8"
         android:id="@+id/comment"

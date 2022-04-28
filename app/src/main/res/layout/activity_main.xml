@@ -80,11 +80,11 @@
             android:layout_height="match_parent"/>
 
         <androidx.core.widget.NestedScrollView
-            android:layout_alignTop="@id/languageImageBackgroundDimmer"
-            android:background="@android:color/transparent"
             android:id="@+id/mother_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_alignTop="@id/languageImageBackgroundDimmer"
+            android:background="@android:color/transparent"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -104,10 +104,10 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.LinearLayoutCompat
-                    android:layout_marginTop="20dp"
                     android:id="@+id/container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:gravity="center"
                     android:orientation="vertical"
                     app:layout_constraintTop_toBottomOf="@id/logo" >
@@ -123,12 +123,13 @@
                     app:layout_constraintTop_toBottomOf="@id/container">
 
                     <androidx.appcompat.widget.AppCompatButton
-                        android:stateListAnimator="@null"
                         android:id="@+id/back"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:background="@drawable/rounded_input_background"
+                        android:paddingHorizontal="8dp"
+                        android:stateListAnimator="@null"
                         android:text="Back"
                         android:textAllCaps="false"
                         android:textColor="#636366"
@@ -137,12 +138,13 @@
                         tools:ignore="HardcodedText" />
 
                     <androidx.appcompat.widget.AppCompatButton
-                        android:stateListAnimator="@null"
+                        android:paddingHorizontal="8dp"
                         android:id="@+id/next"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:background="@drawable/rounded_input_background"
+                        android:stateListAnimator="@null"
                         android:text="Next"
                         android:textAllCaps="false"
                         android:textColor="@color/colorPrimary"
@@ -151,12 +153,13 @@
                         tools:ignore="HardcodedText" />
 
                     <androidx.appcompat.widget.AppCompatButton
-                        android:stateListAnimator="@null"
-                        android:background="@drawable/rounded_input_background"
+                        android:paddingHorizontal="8dp"
                         android:id="@+id/submit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
+                        android:background="@drawable/rounded_input_background"
+                        android:stateListAnimator="@null"
                         android:text="Submit"
                         android:textAllCaps="false"
                         android:textColor="@color/colorPrimary"

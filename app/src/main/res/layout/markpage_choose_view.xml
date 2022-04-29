@@ -37,8 +37,8 @@
         android:layout_height="wrap_content"/>
 
     <androidx.appcompat.widget.AppCompatButton
+        android:background="@drawable/rounded_input_background_8"
         android:padding="12dp"
-        android:background="@drawable/rounded_submit_mark_background_24"
         android:textColor="@android:color/white"
         android:id="@+id/submit"
         android:text="submit"
@@ -47,6 +47,7 @@
         android:layout_height="wrap_content"/>
 
     <androidx.appcompat.widget.AppCompatButton
+        android:visibility="gone"
         android:textColor="@color/black"
         android:background="@null"
         android:id="@+id/skip"

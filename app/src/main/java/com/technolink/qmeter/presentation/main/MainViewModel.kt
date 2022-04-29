@@ -299,7 +299,7 @@ class MainViewModel @Inject constructor(
 
             when (val dataView = layout?.findViewWithTag<View>(it.name)) {
                 is TextInputEditText -> {
-                    requestModel[COMMENT_TAG] = dataView.text.toString()
+                    requestModel["comment"] = dataView.text.toString()
                 }
             }
         }

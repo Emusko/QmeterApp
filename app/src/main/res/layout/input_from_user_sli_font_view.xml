@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.appcompat.widget.LinearLayoutCompat
+    android:gravity="center"
     android:background="@drawable/rounded_input_sli_background_8"
     android:id="@+id/rootLinearLayout"
     android:orientation="vertical"

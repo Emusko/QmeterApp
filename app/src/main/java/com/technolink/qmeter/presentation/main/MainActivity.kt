@@ -105,8 +105,9 @@ class MainActivity : BaseActivity() {
             finalPageCondition = null
         }
         viewModel.logoutLive.observe(this){
-
-            sharedPreferences.edit().clear().apply()
+            sharedPreferences.edit().remove("username").apply()
+            sharedPreferences.edit().remove("token").apply()
+            sharedPreferences.edit().remove("password").apply()
             startActivity(Intent(this, AuthenticateActivity::class.java))
             finish()
         }

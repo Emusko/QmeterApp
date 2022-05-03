@@ -33,6 +33,8 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
     val viewData: MutableLiveData<GetWidgetsResponseModel> = MutableLiveData()
 
+    var lastRetrievedData: GetWidgetsResponseModel? = GetWidgetsResponseModel()
+
     val customerDataMap = hashMapOf<String, Any?>()
 
     val pageStateLiveData = MutableLiveData<Pair<Int, Boolean>>()
@@ -108,6 +110,9 @@ class MainViewModel @Inject constructor(
                             sharedPreferences.edit().clear().apply()
                             unauthorizedError.postValue(true)
                         }
+                    } else {
+                        if (lastRetrievedData?.generalSettings?.is_kiosk_mode == true)
+                        viewData.value = lastRetrievedData
                     }
                 },
                 subscriptions
@@ -124,6 +129,9 @@ class MainViewModel @Inject constructor(
                             sharedPreferences.edit().clear().apply()
                             unauthorizedError.postValue(true)
                         }
+                    } else {
+                        if (lastRetrievedData?.generalSettings?.is_kiosk_mode == true)
+                        viewData.value = lastRetrievedData
                     }
                 },
                 subscriptions

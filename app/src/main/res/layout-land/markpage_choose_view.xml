@@ -1,61 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat
-    android:gravity="center"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-
-    <com.technolink.qmeter.utils.FontAwesome
-        android:id="@+id/sliTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:textSize="72sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="A" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_marginTop="8dp"
-        android:textSize="32sp"
-        tools:text="Pis reyin sebebi"
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        android:gravity="center"
         android:orientation="vertical"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="12dp"
-        android:id="@+id/markContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:textAllCaps="false"
-        android:stateListAnimator="@null"
-        android:layout_marginBottom="24dp"
-        android:background="@null"
-        android:padding="12dp"
-        android:textColor="@android:color/white"
-        android:id="@+id/submit"
-        android:text="submit"
-        android:layout_marginTop="36dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <com.technolink.qmeter.utils.FontAwesome
+            android:id="@+id/sliTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="72sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="A" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:visibility="gone"
-        android:textColor="@color/black"
-        android:background="@null"
-        android:id="@+id/skip"
-        android:text="skip"
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"/>
-</androidx.appcompat.widget.LinearLayoutCompat>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_marginTop="8dp"
+            android:textSize="32sp"
+            tools:text="Pis reyin sebebi"
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:orientation="vertical"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="12dp"
+            android:id="@+id/markContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+
+            android:background="@drawable/rounded_input_background_8"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:textColor="@android:color/white"
+            android:paddingHorizontal="24dp"
+            android:id="@+id/submit"
+            android:text="submit"
+            android:layout_marginTop="36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:visibility="gone"
+            android:textColor="@color/black"
+            android:background="@null"
+            android:id="@+id/skip"
+            android:text="skip"
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"/>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>

@@ -81,6 +81,8 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        viewModel.lastRetrievedData = responseModel
         setContentView(binding.root)
 
         setPageView()
@@ -353,6 +355,15 @@ class MainActivity : BaseActivity() {
                                         getString(R.string.email_field_error_message)
                                     return@setOnClickListener
                                 }
+                                if (dataView is TextInputEditText
+                                    && attr.name == "phone_number"
+                                    && !(dataView.text?.toString()?.trim()?.length in 9..15)
+                                ) {
+                                    dataView.requestFocus()
+                                    dataView.error =
+                                        getString(R.string.phone_number_field_error_message)
+                                    return@setOnClickListener
+                                }
                                 if (attr.required == true) {
                                     when (dataView) {
                                         is TextInputEditText -> {
@@ -489,6 +500,152 @@ class MainActivity : BaseActivity() {
             }
         }
         binding.submit.setOnClickListener {
+
+            pages[viewModel.pageStateLiveData.value?.first!!]?.makePages()?.forEach { pageComponent ->
+                when (pageComponent) {
+                    is GetWidgetsResponseModel.SliData -> {
+                        pageComponent.attrs?.service?.forEach {
+                            val filteredList = it.rateOptions.filter { it.selected == false }
+                            if (it.required == true && filteredList.size == 5) {
+                                return@setOnClickListener
+                            }
+                        }
+                    }
+                    is GetWidgetsResponseModel.CustomerData -> {
+                        pageComponent.attrs.forEach { attr ->
+                            val dataView =
+                                binding.container.findViewWithTag<View>(attr.name)
+
+                            if (dataView is TextInputEditText
+                                && attr.name == "email"
+                                && dataView.text?.toString()?.isNotEmpty() == true
+                                && dataView.text?.toString()?.isEmailValid() == false
+                            ) {
+                                dataView.requestFocus()
+                                dataView.error =
+                                    getString(R.string.email_field_error_message)
+                                return@setOnClickListener
+                            }
+                            if (dataView is TextInputEditText
+                                && attr.name == "phone_number"
+                                && !(dataView.text?.toString()?.trim()?.length in 9..15)
+                            ) {
+                                dataView.requestFocus()
+                                dataView.error =
+                                    getString(R.string.phone_number_field_error_message)
+                                return@setOnClickListener
+                            }
+                            if (attr.required == true) {
+                                when (dataView) {
+                                    is TextInputEditText -> {
+                                        dataView.text?.toString()?.let {
+                                            if (it.isEmpty()) {
+                                                dataView.requestFocus()
+                                                dataView.error =
+                                                    getString(R.string.field_error_message)
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                    is AppCompatSpinner -> {
+                                        dataView.selectedItem?.toString()?.let {
+                                            if (it.isEmpty()) {
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                    is LinearLayoutCompat -> {
+                                        val checkedList = arrayListOf<Int?>()
+                                        dataView.forEach {
+                                            if (it is AppCompatCheckBox && it.isChecked) {
+                                                checkedList.add(it.text?.toString()?.toInt())
+                                            }
+                                        }
+                                        if (checkedList.isNullOrEmpty()) {
+                                            return@setOnClickListener
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    is GetWidgetsResponseModel.CustomFieldFeedbackComponent -> {
+                        pageComponent.attrs?.forEach { attr ->
+                            if (attr.required == true) {
+                                when (val dataView =
+                                    binding.container.findViewWithTag<View>(attr.name)) {
+                                    is TextInputEditText -> {
+                                        dataView.text?.toString()?.let {
+                                            if (it.isEmpty()) {
+                                                dataView.requestFocus()
+                                                dataView.error =
+                                                    getString(R.string.field_error_message)
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                    is AppCompatSpinner -> {
+                                        dataView.selectedItem?.toString()?.let {
+                                            if (it.isEmpty()) {
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                    is LinearLayoutCompat -> {
+                                        val checkedList = arrayListOf<Int?>()
+                                        dataView.forEach {
+                                            if (it is AppCompatCheckBox && it.isChecked) {
+                                                checkedList.add(it.text?.toString()?.toInt())
+                                            }
+                                        }
+                                        if (checkedList.isNullOrEmpty()) {
+                                            return@setOnClickListener
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    is GetWidgetsResponseModel.CommentData -> {
+                        pageComponent.attrs?.let { attr ->
+                            if (attr.required == true) {
+                                when (val dataView =
+                                    binding.container.findViewWithTag<View>(attr.name)) {
+                                    is TextInputEditText -> {
+                                        dataView.text?.toString()?.let {
+                                            if (it.isEmpty()) {
+                                                dataView.requestFocus()
+                                                dataView.error =
+                                                    getString(R.string.field_error_message)
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                    is AppCompatSpinner -> {
+                                        dataView.selectedItem?.toString()?.let {
+                                            if (it.isEmpty()) {
+
+                                                return@setOnClickListener
+                                            }
+                                        }
+                                    }
+                                    is LinearLayoutCompat -> {
+                                        val checkedList = arrayListOf<Int?>()
+                                        dataView.forEach {
+                                            if (it is AppCompatCheckBox && it.isChecked) {
+                                                checkedList.add(it.text?.toString()?.toInt())
+                                            }
+                                        }
+                                        if (checkedList.isNullOrEmpty()) {
+                                            return@setOnClickListener
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             mCountDownTimer?.cancel()
             val response = responseModel?.copy()
             pageViews.forEach { page ->
@@ -886,7 +1043,9 @@ class MainActivity : BaseActivity() {
                             this.passwordEt.tag = it.name
                             this.passwordEt.hint = it.placeholder!![language] ?: ""
                             if (it.name == "email") {
-                                (root as? TextInputLayout)?.setEndIconDrawable(R.drawable.ic_email)
+                                this.loginInputLayout.setStartIconDrawable(R.drawable.ic_email)
+                            } else if (it.name == "full_name"){
+                                this.loginInputLayout.setStartIconDrawable(R.drawable.ic_full_name)
                             }
                         }
                     container.root.addView(view.root)
@@ -932,20 +1091,22 @@ class MainActivity : BaseActivity() {
                     container.root.addView(view.root)
                 }
                 "number" -> {
-                    val view = InputFromUserViewBinding.bind(
+                    val view = NumberInputFromUserViewBinding.bind(
                         LayoutInflater.from(this)
                             .inflate(
-                                R.layout.input_from_user_view,
+                                R.layout.number_input_from_user_view,
                                 binding.container,
                                 false
                             )
                     )
                         .apply {
-                            val editText = this.passwordEt
-                            editText.tag = it.name
-                            editText.hint = it.placeholder!![language] ?: ""
-                            this.passwordEt.setDynamicSize(it.label_text_size)
-                            editText.setText(it.prefix)
+                            numberField.tag = it.name
+                            numberField.hint = it.placeholder!![language] ?: ""
+                            numberField.setDynamicSize(it.label_text_size)
+                            numberField.setText(it.prefix)
+                            if (it.name == "phone_number"){
+                                this.loginInputLayout.setStartIconDrawable(R.drawable.ic_phone_number)
+                            }
 //                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
 //
 //                            this.passwordEt.addTextChangedListener(object : TextWatcher {
@@ -1785,7 +1946,10 @@ class MainActivity : BaseActivity() {
         )
         dialogView.submit.text = responseModel?.generalSettings?.submit_button_text!![language]
         dialogView.submit.setTextColor(markPageData?.submitButtonTextColor.getColor())
-        dialogView.submit.setBackgroundColor(markPageData?.submitButtonBgColor.getColor())
+        dialogView.submit.background.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+            markPageData?.submitButtonBgColor.getColor(),
+            BlendModeCompat.SRC_ATOP
+        )
         dialog.setView(dialogView.root)
 
         dialogView.sliTextView.text = sliText

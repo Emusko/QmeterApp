@@ -54,6 +54,9 @@ class AuthenticateActivity : BaseActivity() {
             startActivity(Intent(this, MainActivity::class.java).apply {
                 putExtra("pagesResponse", it)
             })
+
+            binding.progressBar.visibility = View.GONE
+            binding.credentialContainer.visibility = View.VISIBLE
         }
 
         viewModel.error.subscribe {
@@ -63,6 +66,8 @@ class AuthenticateActivity : BaseActivity() {
         }.addTo(subscriptions)
 
         binding.login.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.credentialContainer.visibility = View.GONE
             viewModel.getComponents(username ?: "", password ?: "")
         }
         binding.customUrl.setOnClickListener {

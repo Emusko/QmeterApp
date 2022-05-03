@@ -355,10 +355,21 @@ class MainActivity : BaseActivity() {
                                         getString(R.string.email_field_error_message)
                                     return@setOnClickListener
                                 }
-                                if (dataView is TextInputEditText
-                                    && attr.name == "phone_number"
-                                    && !(dataView.text?.toString()?.trim()?.length in 9..15)
+                                if (
+                                    (dataView is TextInputEditText
+                                            && attr.name == "phone_number"
+                                            && attr.required == true
+                                            && dataView.text?.toString()?.trim()?.length !in 9..15)
                                 ) {
+                                    dataView.requestFocus()
+                                    dataView.error =
+                                        getString(R.string.phone_number_field_error_message)
+                                    return@setOnClickListener
+                                } else if (
+                                    attr.name == "phone_number" &&
+                                    attr.required == false
+                                    && (dataView as TextInputEditText).text?.toString()?.trim() != "994"
+                                    && dataView.text?.toString()?.trim()?.length !in 9..15){
                                     dataView.requestFocus()
                                     dataView.error =
                                         getString(R.string.phone_number_field_error_message)
@@ -526,10 +537,21 @@ class MainActivity : BaseActivity() {
                                     getString(R.string.email_field_error_message)
                                 return@setOnClickListener
                             }
-                            if (dataView is TextInputEditText
+                            if (
+                                (dataView is TextInputEditText
                                 && attr.name == "phone_number"
-                                && !(dataView.text?.toString()?.trim()?.length in 9..15)
+                                && attr.required == true
+                                && dataView.text?.toString()?.trim()?.length !in 9..15)
                             ) {
+                                dataView.requestFocus()
+                                dataView.error =
+                                    getString(R.string.phone_number_field_error_message)
+                                return@setOnClickListener
+                            } else if (
+                                attr.name == "phone_number" &&
+                                attr.required == false
+                                && (dataView as TextInputEditText).text?.toString()?.trim() != "994"
+                                && dataView.text?.toString()?.trim()?.length !in 9..15){
                                 dataView.requestFocus()
                                 dataView.error =
                                     getString(R.string.phone_number_field_error_message)

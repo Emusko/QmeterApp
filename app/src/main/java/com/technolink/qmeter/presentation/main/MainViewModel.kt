@@ -59,7 +59,7 @@ class MainViewModel @Inject constructor(
         feedBacks.clear()
     }
 
-    fun logout(){
+    fun logout() {
         if (sharedPreferences.getString("baseUrl", null).isNullOrEmpty())
             logoutUseCase.execute(
                 sharedPreferences.getString("username", "")!!,
@@ -112,7 +112,7 @@ class MainViewModel @Inject constructor(
                         }
                     } else {
                         if (lastRetrievedData?.generalSettings?.is_kiosk_mode == true)
-                        viewData.value = lastRetrievedData
+                            viewData.value = lastRetrievedData
                     }
                 },
                 subscriptions
@@ -131,7 +131,7 @@ class MainViewModel @Inject constructor(
                         }
                     } else {
                         if (lastRetrievedData?.generalSettings?.is_kiosk_mode == true)
-                        viewData.value = lastRetrievedData
+                            viewData.value = lastRetrievedData
                     }
                 },
                 subscriptions
@@ -151,8 +151,14 @@ class MainViewModel @Inject constructor(
             when (val dataView = layout?.findViewWithTag<View>(attr.name)) {
                 is TextInputEditText -> {
                     dataView.text?.toString()?.let {
-                        if (it.isNotEmpty())
-                            customerDataMap[attr.name ?: ""] = it
+                        if (it.isNotEmpty()) {
+                            if (attr.name == "phone_number") {
+                                if (it != "994")
+                                    customerDataMap[attr.name ?: ""] = it
+                            }else {
+                                customerDataMap[attr.name ?: ""] = it
+                            }
+                        }
                     }
                 }
                 is AppCompatSpinner -> {
@@ -239,8 +245,14 @@ class MainViewModel @Inject constructor(
             when (val dataView = layout?.findViewWithTag<View>(attr.name)) {
                 is TextInputEditText -> {
                     dataView.text?.toString()?.let {
-                        if (it.isNotEmpty())
-                            requestModel[attr.name ?: ""] = it
+                        if (it.isNotEmpty()) {
+                            if (attr.name == "phone_number") {
+                                if (it != "994")
+                                    requestModel[attr.name ?: ""] = it
+                            } else {
+                                requestModel[attr.name ?: ""] = it
+                            }
+                        }
                     }
                 }
                 is AppCompatSpinner -> {

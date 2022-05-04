@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.textfield.TextInputLayout
-    app:endIconMode="custom"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/loginInputLayout"
@@ -10,7 +9,11 @@
     android:background="@drawable/rounded_input_sli_background_8"
     android:paddingStart="16dp"
     android:paddingEnd="4dp"
+    android:lines="1"
+    android:maxLines="1"
+    app:endIconMode="custom"
     app:hintEnabled="false">
+
 
     <com.google.android.material.textfield.TextInputEditText
         android:lines="1"

@@ -23,6 +23,8 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.italic
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
 import com.bumptech.glide.Glide
@@ -88,6 +90,15 @@ class MainActivity : BaseActivity() {
         setPageView()
 
         setListener()
+    }
+
+    private fun hideKeyboard(){
+        binding.root.let {
+            WindowInsetsControllerCompat(
+                window,
+                it
+            ).hide(WindowInsetsCompat.Type.ime())
+        }
     }
 
     private fun setPageView() {
@@ -954,6 +965,7 @@ class MainActivity : BaseActivity() {
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         Log.i("TOUCH", "SCREEN REACTING")
+        hideKeyboard()
         mCountDownTimer?.cancel()
         viewModel.pageStateLiveData.value?.let {
 
@@ -1126,6 +1138,7 @@ class MainActivity : BaseActivity() {
                             numberField.hint = it.placeholder!![language] ?: ""
                             numberField.setDynamicSize(it.label_text_size)
                             numberField.setText(it.prefix)
+                            numberField.setSelection(it.prefix?.trim()?.length?: 0)
                             if (it.name == "phone_number"){
                                 this.loginInputLayout.setStartIconDrawable(R.drawable.ic_phone_number)
                             }
@@ -1298,48 +1311,50 @@ class MainActivity : BaseActivity() {
 
                 }
                 "number" -> {
-                    val view = InputFromUserViewBinding.bind(
+                    val view = NumberInputFromUserViewBinding.bind(
                         LayoutInflater.from(this)
                             .inflate(
-                                R.layout.input_from_user_view,
+                                R.layout.number_input_from_user_view,
                                 binding.container,
                                 false
                             )
                     )
                         .apply {
-                            val editText = this.passwordEt
-                            editText.tag = it.name
-                            editText.hint = it.placeholder!![language] ?: ""
-                            editText.setText(it.prefix)
-                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
-
-
-                            this.passwordEt.addTextChangedListener(object : TextWatcher {
-                                override fun onTextChanged(
-                                    s: CharSequence,
-                                    start: Int,
-                                    before: Int,
-                                    count: Int
-                                ) {
-                                }
-
-                                override fun beforeTextChanged(
-                                    s: CharSequence, start: Int, count: Int,
-                                    after: Int
-                                ) {
-                                }
-
-                                override fun afterTextChanged(s: Editable) {
-                                    if (!s.toString().startsWith(it.prefix ?: "")) {
-                                        editText.setText(it.prefix ?: "")
-                                        Selection.setSelection(
-                                            editText.text,
-                                            editText.text?.length ?: 0
-                                        )
-                                    }
-                                }
-                            })
-
+                            numberField.tag = it.name
+                            numberField.hint = it.placeholder!![language] ?: ""
+                            numberField.setDynamicSize(it.label_text_size)
+                            numberField.setText(it.prefix)
+                            numberField.setSelection(it.prefix?.trim()?.length?: 0)
+                            if (it.name == "phone_number"){
+                                this.loginInputLayout.setStartIconDrawable(R.drawable.ic_phone_number)
+                            }
+//                            Selection.setSelection(editText.text, editText.text?.length ?: 0)
+//
+//                            this.passwordEt.addTextChangedListener(object : TextWatcher {
+//                                override fun onTextChanged(
+//                                    s: CharSequence,
+//                                    start: Int,
+//                                    before: Int,
+//                                    count: Int
+//                                ) {
+//                                }
+//
+//                                override fun beforeTextChanged(
+//                                    s: CharSequence, start: Int, count: Int,
+//                                    after: Int
+//                                ) {
+//                                }
+//
+//                                override fun afterTextChanged(s: Editable) {
+//                                    if (!s.toString().startsWith(it.prefix ?: "")) {
+//                                        editText.setText(it.prefix ?: "")
+//                                        Selection.setSelection(
+//                                            editText.text,
+//                                            editText.text?.length ?: 0
+//                                        )
+//                                    }
+//                                }
+//                            })
                         }
                     container.root.addView(view.root)
                 }

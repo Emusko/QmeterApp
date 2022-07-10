@@ -67,6 +67,8 @@ dependencies {
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
     implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
 
+    implementation 'com.android.support:percent:22.2.0'
+
     kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 

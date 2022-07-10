@@ -70,7 +70,8 @@ class MainViewModel @Inject constructor(
                 {
                     if (it is HttpException) {
                         if (it.code() == 204) {
-                            sharedPreferences.edit().clear().apply()
+                            sharedPreferences.edit().putString("username", null).apply()
+                            sharedPreferences.edit().putString("password", null).apply()
                             unauthorizedError.postValue(true)
                         }
                     }
@@ -88,7 +89,8 @@ class MainViewModel @Inject constructor(
                 {
                     if (it is HttpException) {
                         if (it.code() == 401) {
-                            sharedPreferences.edit().clear().apply()
+                            sharedPreferences.edit().putString("username", null).apply()
+                            sharedPreferences.edit().putString("password", null).apply()
                             unauthorizedError.postValue(true)
                         }
                     }
@@ -107,7 +109,8 @@ class MainViewModel @Inject constructor(
                 {
                     if (it is HttpException) {
                         if (it.code() == 401) {
-                            sharedPreferences.edit().clear().apply()
+                            sharedPreferences.edit().putString("username", null).apply()
+                            sharedPreferences.edit().putString("password", null).apply()
                             unauthorizedError.postValue(true)
                         }
                     } else {
@@ -126,7 +129,8 @@ class MainViewModel @Inject constructor(
                 {
                     if (it is HttpException) {
                         if (it.code() == 401) {
-                            sharedPreferences.edit().clear().apply()
+                            sharedPreferences.edit().putString("username", null).apply()
+                            sharedPreferences.edit().putString("password", null).apply()
                             unauthorizedError.postValue(true)
                         }
                     } else {

@@ -57,7 +57,9 @@ class AuthenticateViewModel @Inject constructor(
                     viewData.value = it
                 },
                 {
-                    sharedPreferences.edit().clear().apply()
+                    sharedPreferences.edit().putString("username", null).apply()
+                    sharedPreferences.edit().putString("token", null).apply()
+                    sharedPreferences.edit().putString("password", null).apply()
                     error.onNext(it.localizedMessage ?: "")
                 },
                 subscriptions
@@ -69,7 +71,9 @@ class AuthenticateViewModel @Inject constructor(
                     viewData.value = it
                 },
                 {
-                    sharedPreferences.edit().clear().apply()
+                    sharedPreferences.edit().putString("username", null).apply()
+                    sharedPreferences.edit().putString("token", null).apply()
+                    sharedPreferences.edit().putString("password", null).apply()
                     error.onNext(it.localizedMessage ?: "")
                 },
                 subscriptions
